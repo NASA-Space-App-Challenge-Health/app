@@ -26,6 +26,7 @@ from app.repository import (
     get_crew,
     import_vitals_csv,
     list_readings,
+    load_on_startup,
     save_image,
     save_note,
     set_indicator_share,
@@ -49,7 +50,10 @@ def _origins() -> list[str]:
 
 @asynccontextmanager
 async def _lifespan(_app: FastAPI):
-    ensure_ready()
+    # LOAD_ON_STARTUP=false (the Vercel setting) skips migrations-with-CSV.
+    # Seed the database once with `python -m app load` instead.
+    if load_on_startup():
+        ensure_ready()
     yield
 
 

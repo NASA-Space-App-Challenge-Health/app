@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import time
 import uuid
 from datetime import datetime, timedelta, timezone
@@ -35,16 +36,45 @@ class ConflictError(RuntimeError):
     pass
 
 
+def load_on_startup() -> bool:
+    """CSV load on process start. Off on Vercel unless LOAD_ON_STARTUP=true.
+
+    The production database is seeded once with ``python -m app load``.
+    A cold start must not re-read the CSVs.
+    """
+    raw = os.environ.get("LOAD_ON_STARTUP", "").strip().lower()
+    if raw in {"1", "true", "yes", "on"}:
+        return True
+    if raw in {"0", "false", "no", "off"}:
+        return False
+    return not os.environ.get("VERCEL")
+
+
+def redis_url() -> str | None:
+    """Optional. The API does not connect to Redis when this is missing."""
+    return os.environ.get("REDIS_URL", "").strip() or os.environ.get("QUEUE_URL", "").strip() or None
+
+
+def _try_pgvector(conn: psycopg.Connection) -> None:
+    try:
+        conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
+    except psycopg.Error as exc:
+        conn.rollback()
+        logger.warning("pgvector extension was not created (%s). Continuing without it.", type(exc).__name__)
+
+
 def ensure_ready() -> None:
     last_error: Exception | None = None
+    load_csv = load_on_startup()
     for attempt in range(1, 13):
         try:
             with db.connect() as conn:
+                _try_pgvector(conn)
                 applied = db.apply_migrations(conn)
                 _ensure_group(conn)
                 _retire_old_demo(conn)
                 inserted = seed_simulated_crew(conn)
-                loaded = load_nasa(conn)
+                loaded = load_nasa(conn) if load_csv else {}
                 conn.commit()
             if applied:
                 logger.info("Applied migrations: %s", ", ".join(applied))
