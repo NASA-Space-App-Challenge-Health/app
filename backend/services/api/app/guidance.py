@@ -16,10 +16,10 @@ class IndicatorError(ValueError):
 
 DISCLAIMER = (
     "Educational demonstration for the NASA Space Apps Challenge 2026. "
-    "Readings shipped with this app are simulated placeholders, not crew "
-    "medical records. Risk bands are illustrative Earth-reference ranges, "
-    "not flight-surgeon limits and not a diagnosis. Follow the mission "
-    "medical checklist and contact the flight surgeon for real symptoms."
+    "Inspiration4 CBC/CMP values, ISS DosTel dose rates, and 2024 DONKI SEP "
+    "events are real NASA open data and are labeled real. Heart rate, sleep, "
+    "cortisol, hydration, and hygiene timing are simulated and labeled "
+    "simulated. Nothing here is a diagnosis or a flight-surgeon limit."
 )
 
 MISSION = "Demonstration mission"
@@ -283,6 +283,91 @@ INDICATORS: tuple[Indicator, ...] = (
             "surgeon and radiation console review it.",
         ),
         classify=_bands(nominal_low=0, nominal_high=50, watch_low=0, watch_high=200),
+    ),
+    _indicator(
+        key="sleep_hours",
+        label="Sleep",
+        group="Simulated vitals",
+        unit="h",
+        decimals=1,
+        explanation=(
+            "Simulated hours asleep. The public Inspiration4 tables in this "
+            "repo do not include a sleep series."
+        ),
+        physical=(0, 18),
+        guidance=_messages(
+            "Sleep",
+            "Protect the next sleep period and tell a crewmate if this is a run of short nights.",
+        ),
+        classify=_bands(nominal_low=6, nominal_high=9, watch_low=4, watch_high=11),
+    ),
+    _indicator(
+        key="cortisol_ug_dl",
+        label="Cortisol",
+        group="Simulated vitals",
+        unit="μg/dL",
+        decimals=1,
+        explanation=(
+            "Simulated morning cortisol estimate. It is not an OSD-575 assay "
+            "and the cutoff in the rules file is an app setting."
+        ),
+        physical=(0, 80),
+        guidance=_messages(
+            "Cortisol",
+            "This is a simulated trend. Ask a crewmate to check in if sleep is short too.",
+        ),
+        classify=_bands(nominal_low=5, nominal_high=18, watch_low=3, watch_high=28),
+    ),
+    _indicator(
+        key="hydration_liters",
+        label="Hydration",
+        group="Simulated vitals",
+        unit="L",
+        decimals=1,
+        explanation=(
+            "Simulated recent fluid intake, used only to estimate hygiene-station "
+            "timing. Not a measured urine volume."
+        ),
+        physical=(0, 8),
+        guidance=_messages(
+            "Hydration",
+            "Note fluids on the next check. This estimate also feeds the hygiene-station suggestion.",
+        ),
+        classify=_bands(nominal_low=2, nominal_high=3.5, watch_low=1.5, watch_high=5),
+    ),
+    _indicator(
+        key="hygiene_hour",
+        label="Hygiene window",
+        group="Simulated vitals",
+        unit="h",
+        decimals=2,
+        explanation=(
+            "Simulated clock hour for a hygiene-station visit. It is an estimate, "
+            "not a recorded bathroom event."
+        ),
+        physical=(0, 23.99),
+        guidance=_messages(
+            "Hygiene timing",
+            "If two estimates overlap, one person should go now. The time is an estimate.",
+        ),
+        classify=_bands(nominal_low=0, nominal_high=23.99, watch_low=0, watch_high=23.99),
+    ),
+    _indicator(
+        key="impact_event",
+        label="Impact flag",
+        group="Simulated vitals",
+        unit="flag",
+        decimals=0,
+        explanation=(
+            "1 means a simulated or uploaded fall/impact flag. No public "
+            "Inspiration4 fall series is in this package."
+        ),
+        physical=(0, 1),
+        guidance=_messages(
+            "Impact",
+            "If this flag is set, a crewmate should check for injury and call the flight surgeon.",
+        ),
+        classify=_bands(nominal_low=0, nominal_high=0, watch_low=0, watch_high=0),
     ),
 )
 

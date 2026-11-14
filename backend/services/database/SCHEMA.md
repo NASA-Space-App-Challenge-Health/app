@@ -33,8 +33,8 @@ applied; add a new file.
 - `crew_members` — `id` uuid primary key, unique `call_sign`, `full_name`,
   `role`, `mission`, `created_at`.
 - `health_readings` — one numeric measurement. `crew_member_id` references
-  `crew_members` with `ON DELETE CASCADE`. `source` is `simulated` or `manual`.
-  `risk_band` is `nominal`, `watch`, or `concern`. Values must be finite.
+  `crew_members` with `ON DELETE CASCADE`. `source` is `simulated`, `manual`, or `upload`.
+  `origin` is `simulated` or `real`. `risk_band` is `nominal`, `watch`, or `concern`.
 - `health_readings_latest_idx` on `(crew_member_id, indicator, recorded_at DESC)`
   supports the latest-reading query.
 
@@ -44,9 +44,9 @@ model, exact `vector(N)` dimension, distance operator, index type, source
 lineage, refresh, and deletion behavior here before shipping it. Do not move
 readings or future vectors into Redis or JSON as a shortcut.
 
-Seeded people and numbers are fictional. They are inserted by the API when a
-call sign has no readings. They are not rows from OSD-575, OSD-569, RadLab, or
-DONKI.
+`002_groups_alerts_nasa.sql` adds `crew_groups` (`kind` is `crew` or `family`; only `crew` is used), `share_mode` on members (`full` or `alerts_only`), and real-data tables `lab_results`, `radiation_readings`, and `space_weather_events`. Simulated vitals stay in `health_readings` with `origin = simulated`. The group is generic so a later family-monitoring use can reuse it. That variant is not built.
+
+Inspiration4 ids C001–C004 are de-identified labels from the OSDR tables, not invented names. Heart rate, sleep, cortisol, hydration, and hygiene timing are simulated.
 
 PostgreSQL is intentionally available only to services in this Compose project.
 For local inspection, use `../../docker/compose.sh exec postgres psql -U app -d app`

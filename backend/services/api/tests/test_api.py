@@ -43,24 +43,43 @@ class ApiTests(unittest.TestCase):
         self.assertIn("CREATE TABLE crew_members", statements[0])
         self.assertIn("ON DELETE CASCADE", statements[1])
 
-    def test_dashboard_serves_simulated_seed(self):
-        response = self.client.get("/api/dashboard")
-        self.assertEqual(response.status_code, 200)
+    def test_dashboard_mixes_real_labs_and_simulated_vitals(self):
+        response = self.client.get("/api/dashboard?viewer=C001")
+        self.assertEqual(response.status_code, 200, response.text)
         body = response.json()
-        self.assertEqual(body["data_source"], "simulated")
-        self.assertIn("not crew medical records", body["disclaimer"])
+        self.assertEqual(body["data_source"], "mixed")
+        self.assertEqual(body["group"]["kind"], "crew")
         by_sign = {member["call_sign"]: member for member in body["crew"]}
-        self.assertEqual(by_sign["OKONKWO"]["overall_band"], "nominal")
-        self.assertEqual(by_sign["OKADA"]["overall_band"], "concern")
-        self.assertEqual(by_sign["VASQUEZ"]["overall_band"], "watch")
-        self.assertEqual(by_sign["CHEN"]["overall_band"], "watch")
-        glucose = next(
-            item for item in by_sign["OKADA"]["readings"] if item["indicator"] == "blood_glucose"
+        self.assertIsNone(by_sign["C004"]["readings"])
+        self.assertEqual(by_sign["C004"]["visible"], "alerts_only")
+        self.assertEqual(by_sign["C003"]["labs"][0]["origin"], "real")
+        heart = next(item for item in by_sign["C001"]["readings"] if item["indicator"] == "heart_rate")
+        self.assertEqual(heart["origin"], "simulated")
+        demo_ids = [step["id"] for step in body["demo"]["steps"]]
+        self.assertEqual(demo_ids, ["legend", "emergency", "preventive", "simulated"])
+        emergency = body["demo"]["steps"][1]["alert"]
+        self.assertEqual(emergency["id"], "radiation_with_sep")
+        self.assertGreater(emergency["evidence"]["absorbed_dose_rate"], 400)
+        preventive = body["demo"]["steps"][2]["recommendation"]
+        self.assertEqual(preventive["evidence"]["analyte"], "POTASSIUM")
+        self.assertEqual(preventive["evidence"]["earlier_value"], 3.3)
+        self.assertEqual(preventive["evidence"]["later_value"], 3.0)
+        own = self.client.get("/api/dashboard?viewer=C004")
+        c004 = {member["call_sign"]: member for member in own.json()["crew"]}["C004"]
+        self.assertIsNotNone(c004["readings"])
+
+    def test_upload_csv_stores_a_simulated_vital(self):
+        payload = (
+            "crew_id,indicator,value,recorded_at\n"
+            "C001,heart_rate,88,2026-11-14T12:00:00Z\n"
         )
-        self.assertEqual(glucose["source"], "simulated")
-        self.assertEqual(glucose["risk_band"], "concern")
-        self.assertIn("flight surgeon", glucose["guidance"].lower())
-        self.assertTrue(all(item["explanation"] for item in by_sign["CHEN"]["readings"]))
+        response = self.client.post(
+            "/api/uploads",
+            files={"file": ("vitals.csv", payload, "text/csv")},
+        )
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json()["inserted"], 1)
+        self.assertEqual(response.json()["origin"], "simulated")
 
     def test_manual_reading_cannot_set_its_own_band(self):
         created = self.client.post(

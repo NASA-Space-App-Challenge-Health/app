@@ -21,7 +21,8 @@ class GuidanceTests(unittest.TestCase):
         self.assertEqual(groups[0], "Vitals")
         self.assertIn("Blood glucose", groups)
         self.assertIn("Blood counts", groups)
-        self.assertEqual(groups[-1], "Radiation")
+        self.assertIn("Radiation", groups)
+        self.assertEqual(groups[-1], "Simulated vitals")
         for item in INDICATORS:
             self.assertTrue(item.explanation.strip())
             self.assertTrue(item.unit.strip())
@@ -32,18 +33,16 @@ class GuidanceTests(unittest.TestCase):
 
     def test_seed_crew_are_labeled_by_illustrative_bands(self):
         expected = {
-            "OKONKWO": "nominal",
-            "OKADA": "concern",
-            "VASQUEZ": "watch",
-            "CHEN": "watch",
+            "C001": "nominal",
+            "C002": "watch",
+            "C003": "nominal",
+            "C004": "watch",
         }
         specifics = {
-            ("OKADA", "blood_glucose"): "concern",
-            ("VASQUEZ", "hemoglobin"): "watch",
-            ("VASQUEZ", "platelets"): "watch",
-            ("CHEN", "spo2"): "watch",
-            ("CHEN", "radiation_dose_msv"): "watch",
-            ("OKONKWO", "heart_rate"): "nominal",
+            ("C001", "heart_rate"): "nominal",
+            ("C002", "sleep_hours"): "watch",
+            ("C002", "cortisol_ug_dl"): "watch",
+            ("C004", "hydration_liters"): "watch",
         }
         for member in SEED_CREW:
             bands = []

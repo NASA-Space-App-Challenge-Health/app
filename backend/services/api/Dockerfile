@@ -13,6 +13,7 @@ RUN useradd --create-home --uid 10001 --shell /usr/sbin/nologin app \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY rules ./rules
 COPY app ./app
 
 USER app

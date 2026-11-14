@@ -13,16 +13,16 @@ import psycopg
 
 from app import db
 from app.guidance import (
-    DISCLAIMER,
     INDICATORS,
-    MISSION,
     classify,
     get_indicator,
     guidance_for,
     validate_reading,
     worst_band,
 )
-from app.seed import SEED_CREW, recorded_at
+from app.briefing import assemble
+from app.nasa_loader import load_nasa
+from app.seed import GROUP_ID, GROUP_KIND, GROUP_NAME, RETIRED_DEMO_IDS, SEED_CREW, recorded_at
 
 logger = logging.getLogger(__name__)
 
@@ -41,18 +41,38 @@ def ensure_ready() -> None:
         try:
             with db.connect() as conn:
                 applied = db.apply_migrations(conn)
+                _ensure_group(conn)
+                _retire_old_demo(conn)
                 inserted = seed_simulated_crew(conn)
+                loaded = load_nasa(conn)
                 conn.commit()
             if applied:
                 logger.info("Applied migrations: %s", ", ".join(applied))
             if inserted:
                 logger.info("Seeded simulated crew: %s", ", ".join(inserted))
+            if loaded:
+                logger.info("NASA datasets: %s", loaded)
             return
         except psycopg.OperationalError as exc:
             last_error = exc
             logger.warning("Database not ready (attempt %s/12)", attempt)
             time.sleep(1)
     raise RuntimeError("Database is unavailable") from last_error
+
+
+def _ensure_group(conn: psycopg.Connection) -> None:
+    conn.execute(
+        """
+        INSERT INTO crew_groups (id, name, kind)
+        VALUES (%s, %s, %s)
+        ON CONFLICT (id) DO NOTHING
+        """,
+        (GROUP_ID, GROUP_NAME, GROUP_KIND),
+    )
+
+
+def _retire_old_demo(conn: psycopg.Connection) -> None:
+    conn.execute("DELETE FROM crew_members WHERE id = ANY(%s)", (list(RETIRED_DEMO_IDS),))
 
 
 def seed_simulated_crew(conn: psycopg.Connection) -> list[str]:
@@ -75,15 +95,19 @@ def seed_simulated_crew(conn: psycopg.Connection) -> list[str]:
         else:
             conn.execute(
                 """
-                INSERT INTO crew_members (id, call_sign, full_name, role, mission)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO crew_members (
+                    id, call_sign, full_name, role, mission, group_id, share_mode
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     member["id"],
                     call_sign,
                     member["full_name"],
                     member["role"],
-                    member["mission"],
+                    GROUP_NAME,
+                    GROUP_ID,
+                    member["share_mode"],
                 ),
             )
             crew_id = member["id"]
@@ -97,9 +121,9 @@ def seed_simulated_crew(conn: psycopg.Connection) -> list[str]:
                 """
                 INSERT INTO health_readings (
                     id, crew_member_id, indicator, value_numeric, unit,
-                    recorded_at, source, risk_band
+                    recorded_at, source, risk_band, origin
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, 'simulated', %s)
+                VALUES (%s, %s, %s, %s, %s, %s, 'simulated', %s, 'simulated')
                 """,
                 (
                     uuid.uuid4(),
@@ -114,41 +138,70 @@ def seed_simulated_crew(conn: psycopg.Connection) -> list[str]:
     return inserted
 
 
-def dashboard() -> dict[str, Any]:
+def import_vitals_csv(text: str) -> dict[str, Any]:
+    import csv
+    from io import StringIO
+
+    reader = csv.DictReader(StringIO(text))
+    required = {"crew_id", "indicator", "value", "recorded_at"}
+    if reader.fieldnames is None or not required <= set(reader.fieldnames):
+        raise ValueError("CSV needs columns crew_id, indicator, value, recorded_at")
+    inserted = 0
     with db.connect() as conn:
-        crew_rows = conn.execute(
+        crew = {
+            row["call_sign"]: row["id"]
+            for row in conn.execute("SELECT id, call_sign FROM crew_members").fetchall()
+        }
+        for line in reader:
+            if not (line.get("crew_id") or "").strip():
+                continue
+            call = line["crew_id"].strip().upper()
+            if call not in crew:
+                raise ValueError(f"Unknown crew_id {call}")
+            indicator = line["indicator"].strip()
+            numeric = validate_reading(indicator, float(line["value"]))
+            spec = get_indicator(indicator)
+            assert spec is not None
+            band = classify(indicator, numeric)
+            when = datetime.fromisoformat(line["recorded_at"].strip().replace("Z", "+00:00"))
+            if when.tzinfo is None:
+                when = when.replace(tzinfo=timezone.utc)
+            conn.execute(
+                """
+                INSERT INTO health_readings (
+                    id, crew_member_id, indicator, value_numeric, unit,
+                    recorded_at, source, risk_band, origin
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, 'upload', %s, 'simulated')
+                """,
+                (uuid.uuid4(), crew[call], indicator, numeric, spec.unit, when, band),
+            )
+            inserted += 1
+        if inserted == 0:
+            raise ValueError("CSV has no data rows")
+        conn.commit()
+    return {"inserted": inserted, "source": "upload", "origin": "simulated"}
+
+
+def dashboard(viewer: str | None = None) -> dict[str, Any]:
+    with db.connect() as conn:
+        return assemble(conn, viewer)
+
+
+def set_share_mode(crew_id: UUID, share_mode: str) -> dict[str, Any]:
+    if share_mode not in {"full", "alerts_only"}:
+        raise ValueError("share_mode must be full or alerts_only")
+    with db.connect() as conn:
+        row = conn.execute(
             """
-            SELECT id, call_sign, full_name, role, mission
-            FROM crew_members
-            ORDER BY call_sign
-            """
-        ).fetchall()
-        latest = conn.execute(
-            """
-            SELECT DISTINCT ON (crew_member_id, indicator)
-                id, crew_member_id, indicator, value_numeric, unit,
-                recorded_at, source, risk_band
-            FROM health_readings
-            ORDER BY crew_member_id, indicator, recorded_at DESC
-            """
-        ).fetchall()
-    by_crew: dict[UUID, dict[str, Any]] = {}
-    sources: set[str] = set()
-    for row in latest:
-        by_crew.setdefault(row["crew_member_id"], {})[row["indicator"]] = row
-        sources.add(row["source"])
-    crew = [_crew_payload(row, by_crew.get(row["id"], {})) for row in crew_rows]
-    if not sources or sources <= {"simulated"}:
-        data_source = "simulated"
-    else:
-        data_source = "mixed"
-    return {
-        "data_source": data_source,
-        "disclaimer": DISCLAIMER,
-        "mission": MISSION,
-        "indicators": [item.to_public() for item in INDICATORS],
-        "crew": crew,
-    }
+            UPDATE crew_members SET share_mode = %s WHERE id = %s RETURNING call_sign
+            """,
+            (share_mode, crew_id),
+        ).fetchone()
+        if row is None:
+            raise NotFoundError("Crew member not found")
+        conn.commit()
+    return get_crew(crew_id)
 
 
 def get_crew(crew_id: UUID) -> dict[str, Any]:

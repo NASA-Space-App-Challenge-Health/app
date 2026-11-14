@@ -9,7 +9,7 @@ from datetime import datetime
 from uuid import UUID
 
 import psycopg
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
@@ -23,7 +23,9 @@ from app.repository import (
     dashboard,
     ensure_ready,
     get_crew,
+    import_vitals_csv,
     list_readings,
+    set_share_mode,
 )
 
 logging.basicConfig(
@@ -80,6 +82,12 @@ class CrewCreate(BaseModel):
     mission: str = Field(min_length=1, max_length=120)
 
 
+class ShareUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    share_mode: str = Field(pattern=r"^(full|alerts_only)$")
+
+
 class ReadingCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -121,8 +129,19 @@ def health() -> dict[str, str]:
 
 
 @app.get("/api/dashboard")
-def get_dashboard() -> dict:
-    return dashboard()
+def get_dashboard(viewer: str | None = None) -> dict:
+    return dashboard(viewer)
+
+
+@app.get("/api/demo")
+def get_demo(viewer: str | None = None) -> dict:
+    return dashboard(viewer)["demo"]
+
+
+@app.get("/api/insights")
+def get_insights(viewer: str | None = None) -> dict:
+    payload = dashboard(viewer)
+    return {"disclaimer": payload["disclaimer"], "insights": payload["insights"], "recommendations": payload["recommendations"]}
 
 
 @app.get("/api/crew")
@@ -148,6 +167,31 @@ def post_crew(payload: CrewCreate) -> dict:
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     return member
+
+
+@app.post("/api/crew/{crew_id}/sharing")
+def post_sharing(crew_id: UUID, payload: ShareUpdate) -> dict:
+    try:
+        return set_share_mode(crew_id, payload.share_mode)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/api/uploads")
+async def post_upload(file: UploadFile = File(...)) -> dict:
+    raw = await file.read()
+    if len(raw) > 2_000_000:
+        raise HTTPException(status_code=413, detail="CSV uploads are limited to 2 MB")
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeError as exc:
+        raise HTTPException(status_code=422, detail="Upload must be UTF-8 CSV") from exc
+    try:
+        return import_vitals_csv(text)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @app.get("/api/crew/{crew_id}")
@@ -196,6 +240,7 @@ def list_crew_summary(member: dict) -> dict:
         "call_sign": member["call_sign"],
         "full_name": member["full_name"],
         "role": member["role"],
-        "mission": member["mission"],
+        "mission": member.get("mission"),
+        "share_mode": member.get("share_mode"),
         "overall_band": member["overall_band"],
     }

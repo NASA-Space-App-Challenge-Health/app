@@ -310,6 +310,132 @@ a {
   padding-bottom: 2rem;
 }
 
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem auto 1rem;
+}
+
+.nav a,
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  background: var(--color-surface);
+}
+
+.nav a[aria-current="page"],
+.button-link {
+  border-color: var(--color-accent-arctic-cyan);
+}
+
+.header-actions,
+.viewer-row,
+.badge-row,
+.step-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.viewer-row {
+  margin-bottom: 0.8rem;
+}
+
+select,
+input[type="file"] {
+  min-height: 44px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.4rem 0.6rem;
+  font: inherit;
+}
+
+.badge,
+.origin {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-border);
+}
+
+.origin-real { color: var(--color-accent-arctic-cyan); border-color: var(--color-accent-arctic-cyan); }
+.origin-simulated { color: var(--color-watch); border-color: var(--color-watch); }
+
+.alert-strip,
+.notice,
+.step-card {
+  border: 1px solid var(--color-concern);
+  background: rgba(255, 208, 208, 0.06);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  margin-top: 0.8rem;
+}
+
+.notice-watch,
+.step-card {
+  border-color: var(--color-accent-royal-purple);
+}
+
+.crew-grid,
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 0.8rem;
+}
+
+.card,
+.upload-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+}
+
+.card h3,
+.step-card h2,
+.upload-card h2 {
+  margin-bottom: 0.35rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.35rem 0.4rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.hidden-note {
+  color: var(--color-text-secondary);
+}
+
+.bar {
+  height: 0.45rem;
+  background: var(--color-accent-royal-purple);
+  border-radius: 999px;
+  margin-top: 0.25rem;
+}
+
 @media (max-width: 800px) {
   .header-row,
   .identity,

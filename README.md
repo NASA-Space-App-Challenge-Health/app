@@ -4,10 +4,10 @@ Visual health-monitoring software for astronauts on space missions, built for
 the NASA Space Apps Challenge 2026 challenge
 [Create Health Monitoring Software for Astronauts on Space Missions](https://www.spaceappschallenge.org/2026/challenges/health-monitoring-software/).
 
-Crew members review vitals, blood glucose, blood counts, and radiation exposure,
-with plain-language explanations, illustrative risk bands, and guidance on what
-to do next. The dashboard ships with **simulated** placeholder readings so the
-interface can be built before real NASA datasets are connected.
+Crew members share one desktop board: real Inspiration4 labs and ISS/DONKI
+radiation context, plus simulated heart rate, sleep, cortisol, hydration, and
+hygiene timing. A guided demo walks a real emergency alert and a real
+preventive recommendation, each with the NASA page it uses.
 
 This repository was generated from
 [founder-haus-engineering/bootstrap_new_project](https://github.com/founder-haus-engineering/bootstrap_new_project)
@@ -22,6 +22,20 @@ and keeps that project's layout, Compose stack, scripts, and agent docs.
   below uses PostgreSQL without requiring the pgvector image.
 - Redis (`queue` service) is part of the Compose stack for later jobs. The API
   does not enqueue work yet. Health readings are stored in PostgreSQL only.
+
+The domain model is a **group** of members. `crew_groups.kind` is `crew` today
+and may be `family` later, so the same core could watch an older relative at
+home. That variant is not built.
+
+## What the board shows
+
+- **Real NASA**, badged on screen: Inspiration4 CBC/CMP (`labs_long.csv`, OSD-569 and OSD-575), one week of ISS DosTel rates (`radiation_iss.csv`), and 2024 DONKI SEP events (`donki_sep.csv`). The manifest is `data/datasets.csv`.
+- **Simulated**, badged on screen: heart rate, sleep, cortisol, hydration, and hygiene-station timing. Those series are not in the public tables.
+- **Alerts only:** a member can hide full numbers. Emergency alerts still go to the whole group.
+- **Guided demo:** **Start guided demo** shows (1) the peak DosTel rate paired with the next DONKI SEP, including the gap between those timestamps, then (2) C003 potassium already low at L-3 and lower at R+1. Citations are the NASA pages listed in `backend/services/api/rules/rules.yaml`. Cutoffs in that file are app settings, not flight-surgeon limits.
+- **Hygiene:** one station. Overlapping simulated windows get an order. The times are estimates.
+- **Upload:** your own vitals CSV. Schema in [data/UPLOAD_SCHEMA.md](data/UPLOAD_SCHEMA.md). The NASA CSVs load from `data/` when the API starts.
+- **Insights:** common out-of-range labs, worsening pairs an earlier check could have caught, and extremes. `python3 notebooks/eda.py` and `notebooks/eda.ipynb` answer the same questions from the CSVs.
 
 ## Get started
 
@@ -114,6 +128,7 @@ belong under [`data/`](data/README.md).
 | Variable | Required to run locally? | Default | Purpose |
 | --- | --- | --- | --- |
 | `DATABASE_URL` | Yes for the host API | `postgresql://app:app@127.0.0.1:5432/app` in `serve_api.sh` | PostgreSQL connection. Compose sets the in-container URL itself. |
+| `DATA_DIR` | No | repository `data/` on the host, `/data` in Compose | NASA CSVs. Compose mounts that folder read-only. |
 | `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` | Local defaults | `app` / `app` / `app` | Compose database credentials. Change them before any use beyond one machine. |
 | `API_PORT` | No | `8080` | Host port for the API. |
 | `API_CONTAINER_PORT` | No | `8000` | Port inside the API container. Keep it equal to `PORT`. |
