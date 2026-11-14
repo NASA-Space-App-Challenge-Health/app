@@ -15,7 +15,7 @@ Import the Git repository. Leave the root as the repository root.
 | Framework preset | **FastAPI**. Vercel detects it from `requirements.txt` and `api/index.py`. Do not pick Other, Next.js, or a static-only preset. |
 | Root directory | Repository root (`.`). Not `frontend/` and not `backend/`. |
 | Install command | Default. That runs `pip install -r requirements.txt`, which includes the API requirements. |
-| Build command | `python3 scripts/stage_vercel_public.py` (already set in `vercel.json`). It copies the whole `frontend/` tree, including `insights.html`, into `public/`. |
+| Build command | `python3 scripts/stage_vercel_public.py` (already set in `vercel.json`). It copies the whole `frontend/` tree, including `insights.html`, into `public/`, plus the five NASA CSVs into `public/data/` for the insights fallback. |
 | Output directory | **Empty.** Do not set `public` or `frontend`. An output directory would publish a static site and drop the Function. |
 | Development command | Leave empty. Local development stays on Docker Compose. |
 
@@ -47,7 +47,13 @@ DATABASE_URL='postgresql://USER:PASSWORD@HOST:5432/DBNAME' \
   .venv/bin/python -m app load
 ```
 
-Then deploy. The Function does not read the CSVs.
+Then deploy. The Function does not read the CSVs. The build copies those five files to `public/data/` so the insights page can fall back to them if the API is down. `vercel.json` still excludes `data/**` from the function bundle.
+
+## Uploads
+
+Image bytes from `POST /api/images` are written under `UPLOAD_DIR`. On Vercel, when that variable is unset, the directory is `/tmp/uploads`, created on the first upload. `/tmp` is the only writable path on a function, and it disappears with the instance. Treat those files as ephemeral. Durable file storage would be Vercel Blob, which this app does not use.
+
+`POST /api/uploads` parses a vitals CSV into Postgres and does not write a file. Notes are rows in Postgres as well. Both last only as long as the database does.
 
 ## What the browser calls
 

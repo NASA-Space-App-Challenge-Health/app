@@ -12,7 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from app import db  # noqa: E402
-from app.repository import load_on_startup, redis_url  # noqa: E402
+from app.repository import load_on_startup, redis_url, upload_dir  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[4]
 
@@ -57,6 +57,39 @@ class VercelConfigTests(unittest.TestCase):
         self.assertTrue((public / "insights.js").is_file())
         self.assertTrue((public / "config.js").is_file())
         self.assertFalse((public / "insights" / "smoke.test.mjs").exists())
+        for name in (
+            "labs_long.csv",
+            "radiation_iss.csv",
+            "donki_sep.csv",
+            "reference_ranges.csv",
+            "datasets.csv",
+        ):
+            staged = public / "data" / name
+            self.assertTrue(staged.is_file(), name)
+            self.assertEqual(staged.read_bytes(), (ROOT / "data" / name).read_bytes())
+
+    def test_vercel_upload_dir_defaults_to_tmp_and_can_be_created(self):
+        keys = ("VERCEL", "UPLOAD_DIR")
+        saved = {key: os.environ.get(key) for key in keys}
+        try:
+            os.environ.pop("UPLOAD_DIR", None)
+            os.environ.pop("VERCEL", None)
+            self.assertEqual(upload_dir(), Path("data/uploads"))
+            os.environ["VERCEL"] = "1"
+            self.assertEqual(upload_dir(), Path("/tmp/uploads"))
+            os.environ["UPLOAD_DIR"] = "/tmp/uploads-override"
+            folder = upload_dir()
+            folder.mkdir(parents=True, exist_ok=True)
+            target = folder / "image.bin"
+            target.write_bytes(b"ok")
+            self.assertEqual(target.read_bytes(), b"ok")
+            target.unlink()
+        finally:
+            for key, value in saved.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
 
     def test_remote_database_url_requires_ssl_and_local_does_not(self):
         saved = os.environ.get("DATABASE_URL")

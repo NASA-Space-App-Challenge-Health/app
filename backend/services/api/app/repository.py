@@ -6,6 +6,7 @@ import logging
 import os
 import time
 import uuid
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
@@ -53,6 +54,21 @@ def load_on_startup() -> bool:
 def redis_url() -> str | None:
     """Optional. The API does not connect to Redis when this is missing."""
     return os.environ.get("REDIS_URL", "").strip() or os.environ.get("QUEUE_URL", "").strip() or None
+
+
+def upload_dir() -> Path:
+    """Where uploaded image bytes are written.
+
+    Vercel functions can write only under ``/tmp``. That directory is wiped
+    with the instance, so it is not durable storage. ``UPLOAD_DIR`` overrides
+    the default. Notes and CSV vitals are rows in Postgres, not files.
+    """
+    raw = os.environ.get("UPLOAD_DIR", "").strip()
+    if raw:
+        return Path(raw)
+    if os.environ.get("VERCEL"):
+        return Path("/tmp/uploads")
+    return Path("data/uploads")
 
 
 def _try_pgvector(conn: psycopg.Connection) -> None:

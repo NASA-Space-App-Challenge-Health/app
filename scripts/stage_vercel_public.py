@@ -10,6 +10,13 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+CSV_NAMES = (
+    "labs_long.csv",
+    "radiation_iss.csv",
+    "donki_sep.csv",
+    "reference_ranges.csv",
+    "datasets.csv",
+)
 
 
 def main() -> None:
@@ -22,7 +29,11 @@ def main() -> None:
         dest,
         ignore=shutil.ignore_patterns("*.test.mjs", "__pycache__", "*.pyc"),
     )
-    print(f"Staged {source} into {dest}")
+    data_dest = dest / "data"
+    data_dest.mkdir(parents=True, exist_ok=True)
+    for name in CSV_NAMES:
+        shutil.copy2(ROOT / "data" / name, data_dest / name)
+    print(f"Staged {source} and {len(CSV_NAMES)} CSVs into {dest}")
 
 
 if __name__ == "__main__":

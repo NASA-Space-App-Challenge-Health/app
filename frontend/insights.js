@@ -463,19 +463,18 @@ function guidanceList(payload) {
 
 async function loadGuidance() {
   if (state.recPayload !== null) return;
-  const [recs, predict, predictLabs] = await Promise.all([
+  const [recs, predictLabs] = await Promise.all([
     getJson("/recommendations"),
-    getJson("/predict"),
     getJson("/predict/labs"),
   ]);
   state.recPayload = recs;
-  state.forecastPayloads = [predict, predictLabs];
+  state.forecastPayloads = [predictLabs];
 }
 
 async function renderGuidance() {
   await loadGuidance();
   const recs = state.recPayload;
-  const [predict, predictLabs] = state.forecastPayloads;
+  const [predictLabs] = state.forecastPayloads;
   const recList = guidanceList(recs).filter((item) => matchRecommendation(item, state.filters));
   const host = document.querySelector("#recs");
   if (!recList.length) {
@@ -497,7 +496,7 @@ async function renderGuidance() {
       sources: item.sources,
     })));
   }
-  const forecasts = guidanceList(predict).concat(guidanceList(predictLabs)).filter((item) => matchRecommendation(item, state.filters)).slice(0, 3);
+  const forecasts = guidanceList(predictLabs).filter((item) => matchRecommendation(item, state.filters)).slice(0, 3);
   const box = document.querySelector("#forecasts");
   if (!forecasts.length) {
     box.replaceChildren();

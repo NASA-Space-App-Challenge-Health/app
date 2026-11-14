@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  pull_request:
+
+jobs:
+  backend-and-insights:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app -d app"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install API dependencies
+        run: pip install -r backend/services/api/requirements.txt
+      - name: Backend tests
+        env:
+          DATABASE_URL: postgresql://app:app@127.0.0.1:5432/app
+        run: python -m unittest discover -s backend/services/api/tests -q
+      - name: Insights smoke test
+        run: node --test frontend/insights/smoke.test.mjs
