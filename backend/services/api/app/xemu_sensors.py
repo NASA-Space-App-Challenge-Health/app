@@ -34,7 +34,7 @@ def ler_sensores_traje():
         "co2_percentual": co2_percentual
     }
 
-# Bloco de teste: roda apenas se executarmos este arquivo diretamente
+# Bloco de teste: roda apenas se executarmos este arquivo diretamente /
 if __name__ == "__main__":
     print("Iniciando simulação de sensores do traje (xEMU)...")
     print("-" * 40)
