@@ -151,7 +151,7 @@ export function shiftTakeaway(shift) {
   const pct = shift.mean_percent[0];
   const dir = pct < 0 ? "fell" : "rose";
   const shown = (pct > 0 ? "+" : "") + pct + "%";
-  return `From three days before launch to the day after landing, ${plainName(shift.analyte[0])} ${dir} the most on average (${shown}).`;
+  return `${plainName(shift.analyte[0])} ${dir} the most from L-3 to R+1 (${shown}).`;
 }
 
 export function trendTakeaway(analyte) {

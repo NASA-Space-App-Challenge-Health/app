@@ -21,3 +21,11 @@ Guidance (keep it simple and cute, POC-level):
 - Update/add smoke tests for the filter logic and keep existing tests passing. Merge latest main first.
 
 Report back: what changed, a screenshot of the default view and a filtered view, and the test results.",2026-11-14T18:05:01+00:00,unavailable,1827
+Cut frontend copy and fix the emergency banner,"New task from Felipe: review the ENTIRE frontend (frontend/: index.html crew board, insights.html, and every tab: Dashboard, Alerts, Demo, Hygiene, Insights, Data insights, Check-in, Upload) on latest main of https://github.com/NASA-Space-App-Challenge-Health/app and simplify it. Goals:
+- At most 50% of the current words on every screen. Cut disclaimers and repeated explanations down to one short line, e.g. a single small 'Real NASA data · simulated vitals' chip instead of the current paragraph plus box. Move long explanations behind a small 'Learn more' / details toggle or tooltip.
+- Less clutter: more whitespace, fewer borders. Remove dashed/decorative lines that just take up space.
+- Fix the emergency banner bug (screenshot attached): 'Emergency · Radiation exposure alert' renders with strikethrough text, dashed outline lines, and overlaps the 'Body map for C001 as self' line. Make it a clean, short, readable alert card (one headline plus one sentence, details on expand). Alerts to the whole crew stay emergency-only.
+- Keep it simple and cute, keep the Plotly charts, keep the REAL NASA / SIMULATED labels as small chips, and keep source links, but make them compact.
+- Don't break the API calls, the same-origin config.js, the Vercel staging script, or the tests (tests.yml must stay green).
+- Another agent is working on a backend PR that may add a small 'NASA reference values' section to insights and simulated suit readings. Keep your changes rebaseable and don't touch backend code.
+Take before/after screenshots of each screen. Open ONE PR, don't merge, and report the PR URL, the word-count reduction per screen (before/after numbers), and the screenshots.",2026-11-14T19:34:28+00:00,unavailable,unavailable

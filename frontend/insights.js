@@ -159,15 +159,15 @@ function renderKpis(model) {
   const host = document.querySelector("#kpis");
   const peak = peakDose(model.radiation);
   const pct = overview.pct_out_of_range;
-  text("#kpi-takeaway", `About ${pct}% of lab results that have a reference range fell outside it. Most results were in range.`);
+  text("#kpi-takeaway", pct + "% of ranged results sat outside the printed range.");
   host.replaceChildren(
-    kpi("kpi-crew", "Astronauts", overview.crew_count, "De-identified Inspiration4 IDs", "in", "Research file"),
-    kpi("kpi-rows", "Lab results", Number(overview.lab_rows).toLocaleString(), "Blood count, chemistry, and immune signals", "in", "Real NASA"),
-    kpi("kpi-oor", "Outside the usual range", overview.out_of_range_rows, pct + "% of results that have a range", pct < 10 ? "in" : "watch", pct < 10 ? "Mostly in range" : "Watch"),
-    kpi("kpi-sep", "Solar-particle reports", state.filters.topics.includes("radiation") ? overview.sep_events : "—", "DONKI instrument rows for 2024, not separate storms", "watch", state.filters.topics.includes("radiation") ? "Space weather" : "Filtered out"),
-    kpi("kpi-dose", "Highest station radiation", state.filters.topics.includes("radiation") && peak != null ? peak.toFixed(1) : "—", "μGy/h that week. A vehicle reading, not a personal dose.", "watch", state.filters.topics.includes("radiation") ? "Not personal" : "Filtered out"),
+    kpi("kpi-crew", "Astronauts", overview.crew_count, "", "in", "Research file"),
+    kpi("kpi-rows", "Lab results", Number(overview.lab_rows).toLocaleString(), "", "in", "Real NASA"),
+    kpi("kpi-oor", "Outside range", overview.out_of_range_rows, pct + "% of ranged rows", pct < 10 ? "in" : "watch", pct < 10 ? "Mostly in range" : "Watch"),
+    kpi("kpi-sep", "Solar reports", state.filters.topics.includes("radiation") ? overview.sep_events : "—", "2024", "watch", state.filters.topics.includes("radiation") ? "Space weather" : "Filtered"),
+    kpi("kpi-dose", "Peak station rate", state.filters.topics.includes("radiation") && peak != null ? peak.toFixed(1) : "—", "μGy/h, not personal", "watch", state.filters.topics.includes("radiation") ? "Not personal" : "Filtered"),
   );
-  text("#gauge-note", "Share of results that have a printed range and sit outside it. The gauge runs 0–20% so this small share stays visible. Green means mostly in range. Real NASA rows.");
+  text("#gauge-note", "Scale is 0–20%. Real NASA.");
   return charts.gaugeChart(document.querySelector("#gauge"), {
     title: "Outside the reference range",
     label: "Percent of ranged lab rows outside their reference range",
@@ -181,10 +181,10 @@ function renderKpis(model) {
 function renderBars(model) {
   const oor = model.outOfRange || { analyte: [], low: [], high: [], note: "" };
   text("#oor-takeaway", oorTakeaway(oor));
-  text("#oor-note", "Amber is low. Red is high. Counts use each row’s own reference range. Immune-signal assays have no clinical range here, so they are not in this chart. Real NASA.");
+  text("#oor-note", "Amber is low. Pink is high. Real NASA.");
   const shift = model.shift || { analyte: [], mean_percent: [], unit: [], note: "" };
   text("#shift-takeaway", shiftTakeaway(shift));
-  text("#shift-note", "A big percent on a small starting number (such as a rare white cell) can look dramatic. Read the test name before treating bar length as importance. " + (shift.note || ""));
+  text("#shift-note", "A big percent on a small count can look louder than it is.");
   const order = (oor.analyte || []).map((_, index) => index).reverse();
   const percents = shift.mean_percent || [];
   renderFlagCards(model);
@@ -246,32 +246,39 @@ function infoCard(card) {
   article.className = "info-card";
   const title = document.createElement("h3");
   title.textContent = card.title || "Note";
-  title.append(tipButton(card.what_it_means || ""));
   const pill = document.createElement("p");
   pill.className = "status-pill status-" + (card.status || "watch");
   pill.textContent = card.statusLabel || "Watch";
   article.append(title, pill);
+  const lead = document.createElement("p");
+  const meaning = card.what_it_means || "";
+  const short = meaning.split(/(?<=\.)\s/)[0];
+  lead.textContent = short;
+  article.append(lead);
+  const more = document.createElement("details");
+  more.className = "learn-more";
+  const summary = document.createElement("summary");
+  summary.textContent = "Learn more";
+  more.append(summary);
+  if (meaning && meaning !== short) {
+    const full = document.createElement("p");
+    full.textContent = meaning;
+    more.append(full);
+  }
   [
-    ["What it means", card.what_it_means],
-    ["Why it matters in space", card.why_it_matters_in_space],
+    ["Why it matters", card.why_it_matters_in_space],
     ["What to do", card.what_to_do],
     ["Who is told", card.who_is_notified],
   ].forEach(([heading, body]) => {
     if (!body) return;
     const p = document.createElement("p");
-    const strong = document.createElement("strong");
-    strong.textContent = heading + ". ";
-    p.append(strong, document.createTextNode(body));
-    article.append(p);
+    p.textContent = heading + ". " + body;
+    more.append(p);
   });
   if (card.confidence != null && card.confidence !== "") {
     const p = document.createElement("p");
-    p.textContent = "Confidence: " + card.confidence + ". This is not a diagnosis.";
-    article.append(p);
-  } else {
-    const p = document.createElement("p");
-    p.textContent = "Not a diagnosis.";
-    article.append(p);
+    p.textContent = "Confidence: " + card.confidence + ".";
+    more.append(p);
   }
   const sources = card.sources || [];
   if (sources.length) {
@@ -285,8 +292,9 @@ function infoCard(card) {
       link.target = "_blank";
       p.append(link);
     });
-    article.append(p);
+    more.append(p);
   }
+  article.append(more);
   return article;
 }
 
@@ -301,7 +309,7 @@ async function renderTrend(model) {
   if (token !== state.trendToken || !payload) return;
   const band = referenceBand(payload.traces);
   text("#trend-takeaway", trendTakeaway(payload.analyte || state.analyte));
-  text("#trend-note", (payload.reference_note || "The shade is the range stored on each NASA row, not an app limit.") + (payload.unit ? " Unit: " + payload.unit + "." : "") + " Real NASA.");
+  text("#trend-note", "Shade is the NASA reference range." + (payload.unit ? " " + payload.unit + "." : ""));
   await charts.lineChart(document.querySelector("#trend"), {
     label: plainName(payload.analyte || state.analyte) + " for each astronaut",
     yTitle: payload.unit || "",
@@ -334,7 +342,7 @@ function suspect(row) {
 function renderExtremes(model) {
   const payload = model.extremes || { rows: [], note: "" };
   text("#ext-takeaway", "The biggest scores are suspect lab rows for C003 before launch (platelet size and red-cell size spread). Do not treat them as the medical finding.");
-  text("#ext-note", payload.note || "");
+  text("#ext-note", "z is a ranking aid, not a clinical score.");
   const body = document.querySelector("#extremes");
   body.replaceChildren();
   let found = false;
@@ -391,7 +399,7 @@ function renderRest(model) {
   const crew = model.flow.crew_to_status;
   text("#sun-note", (model.sunburst && model.sunburst.note) || "");
   text("#flow-note", (model.flow && model.flow.note) || "");
-  text("#rad-note", "Hourly average absorbed dose rate. " + ((model.radiation && model.radiation.series_note) || "Not a personal dosimeter."));
+  text("#rad-note", "Hourly station rate. Not a personal dose.");
   text("#sep-takeaway", monthTakeaway(model.radiation && model.radiation.sep_by_month));
   const view = state.filters.view;
   const jobs = [];
@@ -480,7 +488,7 @@ async function renderGuidance() {
   if (!recList.length) {
     const note = document.createElement("p");
     note.className = "caption";
-    note.textContent = "Extra guidance from the medical API is not loaded yet. The cards under the blood chart explain the real flags in plain language. Nothing here is a diagnosis.";
+    note.textContent = "Guidance API is not loaded. Flag cards are under Labs.";
     host.replaceChildren(note);
   } else {
     text("#recs-takeaway", "These cards came from the guidance API. They are still not a diagnosis.");
@@ -677,9 +685,7 @@ async function boot() {
     const api = await loadApi();
     await loadCsv();
     state.source = api ? "api" : "csv";
-    statusNode.textContent = api
-      ? "Live totals match /eda. Filters run in this browser, with no reload."
-      : "The API did not respond. These numbers were computed in the browser from data/*.csv, using the same definitions as /eda.";
+    statusNode.textContent = api ? "Live /eda totals." : "Published NASA tables.";
     await applyFilters();
   } catch (error) {
     statusNode.textContent = "Charts did not load.";
