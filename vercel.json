@@ -2,11 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "outputDirectory": "public",
-  "buildCommand": "python3 scripts/stage_vercel_public.py",
+  "buildCommand": "npm --prefix frontend ci && npm --prefix frontend run build && python3 scripts/stage_vercel_public.py",
   "functions": {
     "api/index.py": {
       "maxDuration": 30,
-      "excludeFiles": "{data/**,docs/**,notebooks/**,**/*.png,**/*.csv,**/*.ipynb,**/*.db,.venv/**,**/tests/**,frontend/**,public/**}"
+      "excludeFiles": "{data/**,docs/**,notebooks/**,**/*.png,**/*.csv,**/*.ipynb,**/*.db,.venv/**,**/tests/**,frontend/**,public/**,node_modules/**}"
     }
   },
   "rewrites": [
@@ -18,6 +18,12 @@
     { "source": "/health", "destination": "/api/index" },
     { "source": "/docs", "destination": "/api/index" },
     { "source": "/redoc", "destination": "/api/index" },
-    { "source": "/openapi.json", "destination": "/api/index" }
+    { "source": "/openapi.json", "destination": "/api/index" },
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/dashboard/(.*)", "destination": "/index.html" },
+    { "source": "/insights", "destination": "/index.html" },
+    { "source": "/demo", "destination": "/index.html" },
+    { "source": "/profile", "destination": "/index.html" }
   ]
 }

@@ -26,3 +26,5 @@ space_health.db
 venv/
 .vscode/
 .idea/
+.vercel
+.env*

@@ -1,11 +1,12 @@
-docs
-notebooks
+/docs
+/notebooks
 **/*.png
 **/*.ipynb
-.venv
-.git
+/.venv
+/.git
 *.db
-space_health.db
-# data/*.csv stays in the upload so the build can copy the five public fallback
-# tables into public/data. vercel.json excludeFiles keeps data/** out of the
-# function bundle.
+frontend/node_modules
+frontend/dist
+/public
+# data/*.csv stays in the upload so the backend tests and the seed command can
+# use it. vercel.json excludeFiles keeps data/** out of the function bundle.

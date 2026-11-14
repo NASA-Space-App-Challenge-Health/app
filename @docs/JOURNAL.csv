@@ -29,3 +29,5 @@ Cut frontend copy and fix the emergency banner,"New task from Felipe: review the
 - Don't break the API calls, the same-origin config.js, the Vercel staging script, or the tests (tests.yml must stay green).
 - Another agent is working on a backend PR that may add a small 'NASA reference values' section to insights and simulated suit readings. Keep your changes rebaseable and don't touch backend code.
 Take before/after screenshots of each screen. Open ONE PR, don't merge, and report the PR URL, the word-count reduction per screen (before/after numbers), and the screenshots.",2026-11-14T19:34:28+00:00,unavailable,unavailable
+"Ship the React board on the real API, restore insights, fix CI/Vercel, deploy to production","no caso, estávamos trabalhando em cima do repo/org https://github.com/NASA-Space-App-Challenge-Health, leia ele para se contextualizar
+bora conversar e alinhar isso rapidinho então",2026-11-14T19:56:29-03:00,unavailable,3044
