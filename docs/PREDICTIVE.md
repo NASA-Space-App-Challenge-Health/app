@@ -60,6 +60,28 @@ The MPV and RDW lines are not usable. C003's L-92 MPV is 330, which is not on th
 
 Week mean area dose rate **15.24 μGy/h**. If that mean repeated: about **11.0 mGy in 30 days**, **32.9 mGy in 90**, **65.8 mGy in 180** (reported by the API in μGy: 10973, 32920, 65839). Twenty raw samples are at or above the 400 μGy/h rule, peak **528.5 μGy/h** on DosTel1 at 2024-06-05 01:20 UTC. The next SEP in the rules window is **2024-06-08 02:25 UTC** (GOES-P SEISS >100 MeV). The smoother does not forecast that spike.
 
+## How a card reads
+
+Each lab forecast includes a `plain` object. Each recommendation uses the same words at the top level, with the numbers in `technical`. Titles say "blood sugar (glucose)" and "white blood cell" rather than the lab code alone. Confidence is `low` or `medium`. Nothing in this file is `high`: there are at most seven draws.
+
+A card does not diagnose. Blood sugar that left the usual range is tied to the Canadian Space Agency line that astronauts can develop insulin resistance, which may lead to Type 2 diabetes, and the text says that does not mean you have diabetes. A high urea nitrogen (BUN) says food or fluids can move the number and that it does not mean the kidneys are failing. A high monocyte count is described as a type of white blood cell, and the CSA note about *low* white cells is labeled as context, not a match. One early point that is far off the later draws (MPV, for example) is called out as a result to recheck, not as a forecast.
+
+C003 blood sugar, for the flight surgeon:
+
+```json
+{
+  "title": "Your blood sugar (glucose) has been both above and below the usual range",
+  "what_it_means": "Blood sugar (glucose) went both above and below the usual range in this short set of draws, and the latest result is back inside. That is worth checking with the CMO, and it is not a diagnosis.",
+  "why_it_matters_in_space": "The Canadian Space Agency notes that astronauts can develop insulin resistance, which may lead to Type 2 diabetes. A short series could raise that as something to watch with the CMO. It does not mean you have diabetes.",
+  "what_to_do": "Keep your planned meals and your exercise. Protect your sleep. Tell the CMO and ask whether to repeat the blood sugar test. Do not start medicine or supplements on your own.",
+  "who_is_notified": "You, the crew medical officer, and the flight surgeon can see this. It is not announced to the whole crew.",
+  "confidence": "low",
+  "technical": {"value": 73.0, "unit": "mg/dL", "timepoint": "R+194", "reference_range": {"low": 65.0, "high": 99.0}}
+}
+```
+
+The crew-wide radiation notice stays generic. The dose rate and the SEP id stay on the clinical card.
+
 ## Endpoints
 
 `GET /predict/labs?crew=C003&analyte=POTASSIUM`

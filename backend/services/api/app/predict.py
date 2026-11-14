@@ -195,6 +195,15 @@ def lab_forecast(points: list[dict[str, Any]]) -> dict[str, Any] | None:
         "pi95_low": [item["pi95_low"] for item in forecasts],
         "pi95_high": [item["pi95_high"] for item in forecasts],
         "flags": flags,
+        "excursions": [
+            {
+                "timepoint": point.get("timepoint"),
+                "value": float(point["value"]),
+                "flag": point.get("flag"),
+            }
+            for point in usable
+            if point.get("flag") in {"low", "high"}
+        ],
         "worsening_pairs": [
             {
                 "earlier_timepoint": a.get("timepoint"),

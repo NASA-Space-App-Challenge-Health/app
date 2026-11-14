@@ -5,6 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from app.plain import lab_card  # noqa: E402
 from app.predict import lab_forecast, p_out_of_range, radiation_forecast  # noqa: E402
 
 
@@ -45,6 +46,30 @@ class PredictMathTests(unittest.TestCase):
         self.assertEqual(len(result["forecast"]), 6)
         self.assertIn("not a personal dose", result["cumulative"][0]["label"].lower())
         self.assertEqual(result["cumulative"][0]["days"], 30)
+
+    def test_glucose_card_is_plain_language_and_does_not_diagnose(self):
+        points = [
+            {"day": day, "value": value, "timepoint": label, "ref_low": 65, "ref_high": 99, "flag": flag, "unit": "mg/dL"}
+            for day, value, label, flag in (
+                (-44, 62, "L-44", "low"),
+                (-3, 75, "L-3", "normal"),
+                (1, 103, "R+1", "high"),
+                (45, 36, "R+45", "low"),
+                (194, 73, "R+194", "normal"),
+            )
+        ]
+        item = lab_forecast(points)
+        card = lab_card(item, analyte="GLUCOSE", sources=[{"id": "csa_infographic", "url": "https://www.asc-csa.gc.ca/eng/multimedia/search/image/8056", "title": "CSA"}])
+        self.assertIn("blood sugar (glucose)", card["title"].lower())
+        self.assertIn("insulin resistance", card["why_it_matters_in_space"].lower())
+        self.assertIn("type 2 diabetes", card["why_it_matters_in_space"].lower())
+        self.assertIn("does not mean you have diabetes", card["why_it_matters_in_space"].lower())
+        self.assertNotIn("you have diabetes", card["what_it_means"].lower())
+        self.assertIn(card["confidence"], {"low", "medium"})
+        self.assertNotEqual(card["confidence"], "high")
+        self.assertEqual(card["technical"]["unit"], "mg/dL")
+        self.assertEqual(card["technical"]["reference_range"]["low"], 65)
+        self.assertIn("cmo", card["what_to_do"].lower())
 
 
 @unittest.skipUnless(os.environ.get("DATABASE_URL"), "DATABASE_URL is not set")
@@ -87,10 +112,41 @@ class PredictApiTests(unittest.TestCase):
         crewmate = self.client.get("/recommendations", params={"role": "crewmate", "viewer": "C001"})
         self.assertEqual(crewmate.status_code, 200, crewmate.text)
         payload = crewmate.json()
-        text = " ".join(item.get("detail") or "" for item in payload["recommendations"]).upper()
+        text = _blob(payload["recommendations"]).upper()
         self.assertNotIn("POTASSIUM", text)
+        self.assertNotIn("GLUCOSE", text)
+        self.assertTrue(payload["recommendations"])
+        self.assertIn("what_it_means", payload["recommendations"][0])
+        self.assertIsNone(payload["recommendations"][0].get("technical"))
         self.assertTrue(all(item.get("tier") == "emergency" for item in payload["broadcasts"]))
         surgeon = self.client.get("/recommendations", params={"role": "flight_surgeon", "crew": "C003"})
         titles = " ".join(item.get("title", "") for item in surgeon.json()["recommendations"]).lower()
         self.assertIn("potassium", titles)
-        self.assertTrue(all(not item.get("broadcast") for item in surgeon.json()["recommendations"] if "potassium" in item.get("title", "").lower()))
+        potassium = next(item for item in surgeon.json()["recommendations"] if "potassium" in item["title"].lower())
+        self.assertFalse(potassium["broadcast"])
+        self.assertIn(potassium["confidence"], {"low", "medium"})
+        self.assertIn("mmol", str(potassium["technical"]["unit"]).lower())
+        self.assertTrue(potassium["sources"])
+        glucose = next(item for item in surgeon.json()["recommendations"] if "blood sugar" in item["title"].lower())
+        self.assertIn("insulin resistance", glucose["why_it_matters_in_space"].lower())
+        self.assertIn("does not mean you have diabetes", glucose["why_it_matters_in_space"].lower())
+        bun = next(item for item in surgeon.json()["recommendations"] if "bun" in item["title"].lower() or "urea nitrogen" in item["title"].lower())
+        self.assertIn("kidney", bun["why_it_matters_in_space"].lower())
+        self.assertNotEqual(bun["confidence"], "high")
+
+
+def _blob(items: list) -> str:
+    chunks: list[str] = []
+
+    def walk(value):
+        if isinstance(value, dict):
+            for inner in value.values():
+                walk(inner)
+        elif isinstance(value, list):
+            for inner in value:
+                walk(inner)
+        elif isinstance(value, str):
+            chunks.append(value)
+
+    walk(items)
+    return " ".join(chunks)

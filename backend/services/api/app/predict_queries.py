@@ -5,6 +5,15 @@ from __future__ import annotations
 from typing import Any
 
 from app.access import project_finding
+from app.plain import (
+    family,
+    lab_card,
+    lab_tier,
+    needs_lab_recommendation,
+    radiation_card,
+    radiation_public_card,
+    vital_card,
+)
 from app.predict import lab_forecast, radiation_forecast, simulated_vital_flags
 from app.rules_engine import load_rules, source_refs
 
@@ -19,6 +28,18 @@ def _panel_sources(rules: dict[str, Any], panel: str) -> list[dict[str, str]]:
     spec = rules["preventive"]["worsening_lab"]
     keys = spec["sources_by_panel"].get(panel, spec["sources_by_panel"]["CBC"])
     return source_refs(rules, keys)
+
+
+def _lab_sources(rules: dict[str, Any], panel: str, analyte: str) -> list[dict[str, str]]:
+    refs = _panel_sources(rules, panel)
+    extra = ["hrp_hazards", "ochmo_tb_044"]
+    kind = family(analyte)
+    if kind in {"glucose", "white", "red"}:
+        extra.append("csa_infographic")
+    if kind in {"glucose", "kidney", "electrolyte", "liver"}:
+        extra.append("osd_575")
+    have = {item["id"] for item in refs}
+    return refs + source_refs(rules, [key for key in extra if key not in have])
 
 
 def lab_series(conn, crew: str | None, analyte: str | None) -> list[dict[str, Any]]:
@@ -48,6 +69,7 @@ def predict_labs(conn, crew: str | None = None, analyte: str | None = None) -> d
         key = (row["crew_id"], row["analyte"])
         grouped.setdefault(key, []).append(row)
         panels[key] = row["panel"]
+    rules = load_rules()
     items = []
     for (crew_id, name), points in grouped.items():
         forecast = lab_forecast(points)
@@ -57,6 +79,11 @@ def predict_labs(conn, crew: str | None = None, analyte: str | None = None) -> d
         forecast["analyte"] = name
         forecast["panel"] = panels[(crew_id, name)]
         forecast["origin"] = "real"
+        forecast["plain"] = lab_card(
+            forecast,
+            analyte=name,
+            sources=_lab_sources(rules, panels[(crew_id, name)], name),
+        )
         items.append(forecast)
     return {
         "items": items,
@@ -147,7 +174,12 @@ def predict_radiation(conn) -> dict[str, Any]:
         "unit": "μGy/h",
         "label": "Area dose rate, not a personal dose.",
     }
-    forecast["sources"] = source_refs(rules, rules["emergency"]["radiation_with_sep"]["sources"])
+    sources = source_refs(rules, rules["emergency"]["radiation_with_sep"]["sources"])
+    have = {item["id"] for item in sources}
+    if "csa_infographic" not in have:
+        sources = sources + source_refs(rules, ["csa_infographic"])
+    forecast["sources"] = sources
+    forecast["plain"] = radiation_card(forecast, sources)
     return forecast
 
 
@@ -176,26 +208,24 @@ def predict_vitals(conn, crew: str | None = None) -> dict[str, Any]:
             continue
         flag["crew_id"] = crew_id
         flag["indicator"] = indicator
+        flag["plain"] = vital_card(flag)
         items.append(flag)
     return {"items": items, "origin": "simulated"}
 
 
 def _rec_from_lab(item: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any] | None:
-    if "already_out_and_worsening" not in item["flags"] and "trending_toward_out_of_range" not in item["flags"]:
+    if not needs_lab_recommendation(item):
         return None
+    tier = lab_tier(item)
+    card = lab_card(
+        item,
+        analyte=item["analyte"],
+        sources=_lab_sources(rules, item["panel"], item["analyte"]),
+        tier=tier,
+    )
     worsening = "already_out_and_worsening" in item["flags"]
-    tier = "cmo" if worsening else "self"
-    last = item["last"]
-    nxt = item["forecasts"][0]
-    pair = (item.get("worsening_pairs") or [{}])[0]
-    pair_text = ""
-    if pair:
-        pair_text = (
-            f" One worsening step is {pair.get('earlier_timepoint')} {pair.get('earlier_value')} "
-            f"to {pair.get('later_timepoint')} {pair.get('later_value')}."
-        )
     return {
-        "id": "predict_" + ("worsening_lab" if worsening else "trending_lab"),
+        "id": "predict_" + ("worsening_lab" if worsening else "lab_check"),
         "kind": "preventive",
         "tier": tier,
         "broadcast": False,
@@ -203,30 +233,23 @@ def _rec_from_lab(item: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any]
         "indicator": item["analyte"],
         "crew_id": item["crew_id"],
         "origin": "real",
-        "title": (
-            f"Recheck {item['analyte'].lower()} before the next draw"
-            if worsening
-            else f"{item['analyte'].lower()} is trending toward the reference edge"
-        ),
-        "detail": (
-            f"{item['crew_id']} {item['analyte']} last value {last['value']} {last.get('unit') or ''} "
-            f"at {last.get('timepoint')} (flag {last.get('flag')}). "
-            f"The straight-line next step is {nxt['yhat']} with a 95% prediction interval "
-            f"{nxt['pi95_low']} to {nxt['pi95_high']} ({item['uncertainty']}).{pair_text} "
-            f"Day 30/90/180 numbers, when inside the observed span, are points on that line, not a new mission."
-        ),
-        "suggested_action": (
-            "Recheck before the next draw and tell the flight surgeon. Do not start supplements on your own."
-            if worsening
-            else "This is a prevention tip from a short series. Repeat the scheduled lab. It is not a diagnosis."
-        ),
-        "sources": _panel_sources(rules, item["panel"]),
+        "title": card["title"],
+        "detail": card["what_it_means"],
+        "suggested_action": card["what_to_do"],
+        "what_it_means": card["what_it_means"],
+        "why_it_matters_in_space": card["why_it_matters_in_space"],
+        "what_to_do": card["what_to_do"],
+        "who_is_notified": card["who_is_notified"],
+        "confidence": card["confidence"],
+        "confidence_reason": card["confidence_reason"],
+        "sources": card["sources"],
+        "technical": card["technical"],
         "evidence": {
             "crew_id": item["crew_id"],
             "analyte": item["analyte"],
-            "last_value": last["value"],
-            "next_yhat": nxt["yhat"],
-            "p_out_of_range": nxt["p_out_of_range"],
+            "last_value": item["last"]["value"],
+            "next_yhat": item["forecasts"][0]["yhat"],
+            "p_out_of_range": item["forecasts"][0]["p_out_of_range"],
             "flags": item["flags"],
         },
     }
@@ -236,6 +259,7 @@ def _rec_from_radiation(forecast: dict[str, Any], rules: dict[str, Any]) -> dict
     spec = rules["emergency"]["radiation_with_sep"]
     if not forecast.get("spikes_at_or_above_rule") or not forecast.get("sep_after_peak"):
         return None
+    card = forecast.get("plain") or radiation_card(forecast, forecast.get("sources") or [])
     return {
         "id": "predict_radiation_with_sep",
         "kind": "emergency",
@@ -247,15 +271,18 @@ def _rec_from_radiation(forecast: dict[str, Any], rules: dict[str, Any]) -> dict
         "origin": "real",
         "public_title": spec["public_title"],
         "public_detail": spec["public_detail"],
-        "title": "Radiation contingency — follow procedures",
-        "detail": (
-            f"The week's peak area dose rate is {forecast['peak']['absorbed_dose_rate']:.1f} μGy/h "
-            f"at {forecast['peak']['recorded_at']} ({forecast['peak']['instrument_id']}). "
-            f"A DONKI SEP follows inside the rules.yaml window: {forecast['sep_after_peak'][0]['sep_id']}. "
-            "This is an area dose rate, not a personal dose. The short SES forecast does not predict the next spike."
-        ),
-        "suggested_action": "Follow procedures. This notice does not name a diagnosis.",
-        "sources": forecast["sources"],
+        "public_card": radiation_public_card(),
+        "title": card["title"],
+        "detail": card["what_it_means"],
+        "suggested_action": card["what_to_do"],
+        "what_it_means": card["what_it_means"],
+        "why_it_matters_in_space": card["why_it_matters_in_space"],
+        "what_to_do": card["what_to_do"],
+        "who_is_notified": card["who_is_notified"],
+        "confidence": card["confidence"],
+        "confidence_reason": card["confidence_reason"],
+        "sources": card["sources"],
+        "technical": card["technical"],
         "evidence": {
             "peak": forecast["peak"],
             "sep_id": forecast["sep_after_peak"][0]["sep_id"],
@@ -284,6 +311,7 @@ def recommendations(conn, crew: str | None, role: str, viewer: str | None) -> di
         if vital["indicator"] == "heart_rate" and (
             vital["last"] < float(hr_spec["low"]) or vital["last"] > float(hr_spec["high"])
         ):
+            card = vital["plain"]
             items.append({
                 "id": "predict_heart_rate",
                 "kind": "emergency",
@@ -295,14 +323,28 @@ def recommendations(conn, crew: str | None, role: str, viewer: str | None) -> di
                 "origin": "simulated",
                 "public_title": hr_spec["public_title"],
                 "public_detail": hr_spec["public_detail"],
-                "title": "Crewmate needs assistance",
-                "detail": (
-                    f"Simulated heart rate for {vital['crew_id']} is {vital['last']} bpm, "
-                    f"outside the app window {hr_spec['low']}–{hr_spec['high']} already in rules.yaml. "
-                    "Not a NASA limit."
-                ),
+                "public_card": {
+                    "what_it_means": "A crewmate needs help at the module. No diagnosis is included.",
+                    "why_it_matters_in_space": "NASA lists distance from Earth as a hazard because medical care is harder to reach.",
+                    "what_to_do": "Follow procedures.",
+                    "who_is_notified": "The whole crew gets this short notice. It does not name a person or a diagnosis.",
+                    "confidence": "low",
+                    "confidence_reason": "This heart-rate series is simulated. The crew notice does not include the number.",
+                },
+                "title": "A simulated heart rate is outside the app's safety window",
+                "detail": card["what_it_means"],
                 "suggested_action": "Follow procedures. No diagnosis is included in the crew notice.",
+                "what_it_means": (
+                    f"This heart rate is simulated, not a NASA measurement. The latest point is outside the app window "
+                    f"of {hr_spec['low']}–{hr_spec['high']} beats per minute. That window is an app setting, not a NASA limit."
+                ),
+                "why_it_matters_in_space": card["why_it_matters_in_space"],
+                "what_to_do": "Follow procedures, then let the CMO check the person. The crew notice does not include a diagnosis.",
+                "who_is_notified": "The whole crew gets a short notice that someone needs help. The number stays with the CMO and the flight surgeon.",
+                "confidence": "low",
+                "confidence_reason": card["confidence_reason"],
                 "sources": source_refs_safe(rules, hr_spec["sources"]),
+                "technical": card["technical"],
                 "evidence": {"value": vital["last"], "origin": "simulated"},
             })
     for crew_id, values in by_crew.items():
@@ -317,14 +359,37 @@ def recommendations(conn, crew: str | None, role: str, viewer: str | None) -> di
                     "indicator": "cortisol_ug_dl",
                     "crew_id": crew_id,
                     "origin": "simulated",
-                    "title": "Simulated sleep and cortisol trend for a private conference",
+                    "title": "Your simulated sleep has been short",
                     "detail": (
-                        f"{crew_id} simulated sleep {values['sleep_hours']} h and cortisol "
-                        f"{values['cortisol_ug_dl']} are past the app settings in rules.yaml. "
-                        "These series are not NASA measurements."
+                        "This sleep and stress-hormone pair is simulated, not a NASA measurement. "
+                        "It is a private note for the flight surgeon, not a diagnosis."
                     ),
                     "suggested_action": "Discuss only with the flight surgeon. Do not announce it to the crew.",
+                    "what_it_means": (
+                        "This sleep and stress-hormone pair is simulated, not a NASA measurement. "
+                        "It is a private note for the flight surgeon, not a diagnosis."
+                    ),
+                    "why_it_matters_in_space": (
+                        "NASA lists sleep and behavioral health among the risks of spaceflight. "
+                        "Isolation and a closed cabin can make sleep harder. This demo series is not a diagnosis."
+                    ),
+                    "what_to_do": "Protect the sleep plan and talk with the flight surgeon in private. Do not announce this to the crew.",
+                    "who_is_notified": "The flight surgeon sees this in private. The crew medical officer does not. It is not announced to the crew.",
+                    "confidence": "low",
+                    "confidence_reason": "These points are simulated, and the cutoffs are app settings in rules.yaml, not NASA limits.",
                     "sources": source_refs_safe(rules, sleep_spec["sources"]),
+                    "technical": {
+                        "sleep_hours": values["sleep_hours"],
+                        "cortisol_ug_dl": values["cortisol_ug_dl"],
+                        "unit": "hours and µg/dL",
+                        "reference_range": {
+                            "sleep_mean_below": sleep_spec["sleep_mean_below"],
+                            "cortisol_mean_above": sleep_spec["cortisol_mean_above"],
+                            "note": "App settings, not NASA limits.",
+                        },
+                        "trend": "Latest simulated points are past the app settings.",
+                        "origin": "simulated",
+                    },
                     "evidence": {"origin": "simulated", **values},
                 })
     visible = []

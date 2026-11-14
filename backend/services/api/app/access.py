@@ -68,6 +68,7 @@ def broadcasts(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "suggested_action": "Follow procedures.",
             "sources": item.get("sources") or [],
             "mission_impact": bool(item.get("mission_impact")),
+            **_public_friendly(item),
         })
     return notes
 
@@ -93,6 +94,7 @@ def _emergency_view(item, role, viewer, subject) -> dict[str, Any]:
             "commander_note": "Condition may impact mission ops.",
             "evidence": None,
             "crew_id": None,
+            **_public_friendly(item),
         }
     return {
         "id": item["id"],
@@ -107,6 +109,21 @@ def _emergency_view(item, role, viewer, subject) -> dict[str, Any]:
         "mission_impact": bool(item.get("mission_impact")),
         "evidence": None,
         "crew_id": None,
+        **_public_friendly(item),
+    }
+
+
+def _public_friendly(item: dict[str, Any]) -> dict[str, Any]:
+    """Crew-facing words. Numbers and analyte names stay off this card."""
+    card = item.get("public_card") or {}
+    return {
+        "what_it_means": card.get("what_it_means") or item.get("public_detail") or "Follow procedures. No diagnosis is included.",
+        "why_it_matters_in_space": card.get("why_it_matters_in_space"),
+        "what_to_do": card.get("what_to_do") or "Follow procedures.",
+        "who_is_notified": card.get("who_is_notified") or "The whole crew gets this short notice. It does not name a person or a diagnosis.",
+        "confidence": card.get("confidence"),
+        "confidence_reason": card.get("confidence_reason"),
+        "technical": None,
     }
 
 
