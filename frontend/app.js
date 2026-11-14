@@ -4,6 +4,8 @@
   const disclaimer = document.querySelector("#disclaimer");
   const strip = document.querySelector("#alert-strip");
   const viewerSelect = document.querySelector("#viewer");
+  const roleSelect = document.querySelector("#role");
+  const demoBanner = document.querySelector("#demo-banner");
   const docs = document.querySelector("#api-docs");
   const navLinks = Array.from(document.querySelectorAll(".nav a"));
 
@@ -65,6 +67,7 @@
     if (hash.startsWith("schedule")) return "schedule";
     if (hash.startsWith("insights")) return "insights";
     if (hash.startsWith("upload")) return "upload";
+    if (hash.startsWith("check")) return "check";
     return "dashboard";
   }
 
@@ -92,14 +95,87 @@
   }
 
   function renderDashboard() {
-    const crew = state.payload.crew || [];
-    main.dataset.state = crew.length ? "ready" : "empty";
-    if (!crew.length) {
-      main.replaceChildren(el("p", null, ["No crew members are loaded."]));
+    const regions = state.payload.body || [];
+    const selected = state.region || (regions[0] && regions[0].id) || "heart";
+    state.region = selected;
+    const region = regions.find(function (item) { return item.id === selected; }) || regions[0];
+    main.dataset.state = region ? "ready" : "empty";
+    if (!region) {
+      main.replaceChildren(el("p", null, ["Body map is not loaded."]));
       return;
     }
-    main.replaceChildren(el("div", { class: "crew-grid" }, crew.map(renderCrew)));
-    setStatus("Showing " + crew.length + " crew members in " + state.payload.group.name + ".");
+    main.replaceChildren(el("div", { class: "body-layout" }, [
+      bodySvg(regions, selected),
+      el("article", { class: "card", id: "region-panel" }, [
+        el("p", { class: "eyebrow" }, ["Selected member · " + (state.payload.viewer || "") + " · " + (state.payload.role || "")]),
+        el("h2", null, [region.label]),
+        el("p", null, ["Status: " + region.status + ". " + region.function]),
+        el("h3", null, ["Why this test"]),
+        el("p", null, [region.why]),
+        el("h3", null, ["How spaceflight shows up"]),
+        el("p", null, [region.spaceflight]),
+        el("h3", null, ["What prevents a critical condition"]),
+        el("p", null, [region.prevention]),
+        sourceList(region.sources),
+        memberSnapshot(),
+      ]),
+    ]));
+    setStatus("Body map for " + (state.payload.viewer || "the crew") + " as " + state.payload.role + ".");
+  }
+
+  function bodySvg(regions, selected) {
+    const status = {};
+    regions.forEach(function (region) { status[region.id] = region.status || "ready"; });
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 220 460");
+    svg.setAttribute("class", "body-svg");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", "Clickable crew member figure");
+    const parts = [
+      ["head", "M110 28c22 0 36 16 36 36s-14 34-36 34-36-14-36-34 14-36 36-36z"],
+      ["eyes", "M86 52h18M116 52h18", true],
+      ["heart", "M110 150c-18-16-34-8-34 10 0 22 34 40 34 40s34-18 34-40c0-18-16-26-34-10z"],
+      ["blood", "M78 168h64v28H78z"],
+      ["muscles", "M62 210c-16 20-18 70-8 110h28V210z M138 210h28c10 40 8 90-8 110h-20z"],
+      ["bones", "M96 250h28v120H96z"],
+      ["environment", "M70 390h80v28H70z"],
+    ];
+    parts.forEach(function (part) {
+      const id = part[0];
+      const shape = document.createElementNS("http://www.w3.org/2000/svg", part[2] ? "path" : "path");
+      shape.setAttribute("d", part[1]);
+      shape.setAttribute("class", "region status-" + (status[id] || "ready") + (id === selected ? " selected" : ""));
+      shape.setAttribute("tabindex", "0");
+      shape.setAttribute("role", "button");
+      shape.setAttribute("aria-label", id);
+      if (part[2]) {
+        shape.setAttribute("fill", "none");
+        shape.setAttribute("stroke", "#00E5FF");
+        shape.setAttribute("stroke-width", "4");
+      }
+      const choose = function () { state.region = id; render(); };
+      shape.addEventListener("click", choose);
+      shape.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); choose(); }
+      });
+      svg.appendChild(shape);
+    });
+    return svg;
+  }
+
+  function memberSnapshot() {
+    const member = (state.payload.crew || []).find(function (item) { return item.call_sign === state.payload.viewer; });
+    if (!member || member.visible !== "full") {
+      return el("p", { class: "hidden-note" }, ["Numbers for this member are hidden for this role. Emergency notices stay generic."]);
+    }
+    const lines = [el("h3", null, ["Visible indicators"])];
+    (member.readings || []).slice(0, 4).forEach(function (reading) {
+      lines.push(el("p", null, [originBadge(reading.origin), " " + reading.label + " " + formatNumber(reading.value, reading.decimals) + " " + reading.unit]));
+    });
+    (member.labs || []).slice(0, 4).forEach(function (lab) {
+      lines.push(el("p", null, [originBadge("real"), " " + lab.analyte + " " + formatNumber(lab.value, 1) + " " + (lab.unit || "") + " · released research data"]));
+    });
+    return el("div", null, lines);
   }
 
   function renderCrew(member) {
@@ -151,7 +227,7 @@
       blocks.push(el("article", { class: alert.severity === "critical" ? "alert-strip" : "notice notice-watch" }, [
         el("div", { class: "badge-row" }, [
           originBadge(alert.origin),
-          el("strong", null, [alert.severity + " · " + alert.title]),
+          el("strong", null, [(alert.severity ? alert.severity + " · " : "") + alert.title]),
         ]),
         el("p", null, [alert.detail]),
         el("p", null, ["Suggested action: " + alert.suggested_action]),
@@ -171,7 +247,7 @@
       return;
     }
     const body = [
-      el("p", { class: "eyebrow" }, [step.kicker + " of " + steps.length]),
+      el("p", { class: "eyebrow" }, [step.kicker + " of " + steps.length + (step.tier ? " · tier " + step.tier : "")]),
       el("h2", null, [step.title]),
       el("p", null, [step.body]),
     ];
@@ -258,6 +334,78 @@
     setStatus("Upload is ready.");
   }
 
+  function renderCheck() {
+    const member = (state.payload.crew || []).find(function (item) { return item.call_sign === state.payload.viewer; });
+    main.dataset.state = "ready";
+    if (!member) {
+      main.replaceChildren(el("p", null, ["Choose a member first."]));
+      return;
+    }
+    const form = el("form", { class: "upload-card", onsubmit: submitNote }, [
+      el("h2", null, ["Typed check-in"]),
+      el("p", null, [
+        "Saved in the local database for you, the CMO, and the flight surgeon. A 15-minute private medical conference block, including before and after EVA, is the sample on OCHMO-TB-044 page 9.",
+      ]),
+      el("label", { for: "note-kind" }, ["Kind"]),
+      el("select", { id: "note-kind" }, [
+        el("option", { value: "symptom" }, ["Symptom or periodic status"]),
+        el("option", { value: "space_sickness" }, ["Space-sickness self-check"]),
+        el("option", { value: "eva" }, ["Pre/post-EVA checklist"]),
+        el("option", { value: "noise" }, ["Noise or hearing note"]),
+        el("option", { value: "exercise" }, ["Exercise log"]),
+      ]),
+      el("label", { for: "note-region" }, ["Body region"]),
+      el("select", { id: "note-region" }, (state.payload.body || []).map(function (region) {
+        return el("option", { value: region.id }, [region.label]);
+      })),
+      el("textarea", { id: "note-text", required: "true", rows: "4" }, []),
+      el("button", { type: "submit" }, ["Save note"]),
+      el("p", { id: "note-result", class: "status" }, [""]),
+    ]);
+    const image = el("form", { class: "upload-card", onsubmit: submitImage }, [
+      el("h2", null, ["Ultrasound or camera image"]),
+      el("p", null, ["The file is queued for CMO / flight surgeon review. This screen does not interpret the image."]),
+      el("input", { type: "file", id: "image-file", accept: "image/*", required: "true" }),
+      el("button", { type: "submit" }, ["Queue image"]),
+      el("p", { id: "image-result", class: "status" }, [""]),
+    ]);
+    main.replaceChildren(el("div", { class: "insight-grid" }, [form, image]));
+    setStatus("Check-in forms are private to self, CMO, and flight surgeon.");
+  }
+
+  async function submitNote(event) {
+    event.preventDefault();
+    const member = (state.payload.crew || []).find(function (item) { return item.call_sign === state.payload.viewer; });
+    const result = document.querySelector("#note-result");
+    const response = await fetch(apiBase() + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        crew_id: member.id,
+        kind: document.querySelector("#note-kind").value,
+        body_region: document.querySelector("#note-region").value,
+        note: document.querySelector("#note-text").value,
+      }),
+    });
+    const body = await response.json();
+    result.textContent = response.ok ? "Saved for " + body.audience + "." : (body.detail || "Could not save.");
+  }
+
+  async function submitImage(event) {
+    event.preventDefault();
+    const member = (state.payload.crew || []).find(function (item) { return item.call_sign === state.payload.viewer; });
+    const result = document.querySelector("#image-result");
+    const data = new FormData();
+    data.append("file", document.querySelector("#image-file").files[0]);
+    const region = (state.payload.body && state.payload.body[0] && state.payload.body[0].id) || "heart";
+    const response = await fetch(apiBase() + "/api/images?crew_id=" + member.id + "&body_region=" + region + "&note=ultrasound", {
+      method: "POST",
+      body: data,
+    });
+    const body = await response.json();
+    result.textContent = response.ok ? body.review : (body.detail || "Could not queue the image.");
+  }
+
   async function submitUpload(event) {
     event.preventDefault();
     const input = document.querySelector("#csv-file");
@@ -313,6 +461,7 @@
     else if (state.view === "schedule") renderSchedule();
     else if (state.view === "insights") renderInsights();
     else if (state.view === "upload") renderUpload();
+    else if (state.view === "check") renderCheck();
     else renderDashboard();
   }
 
@@ -330,9 +479,10 @@
   async function load() {
     const seq = ++state.requestSeq;
     const viewer = viewerSelect.value || "C001";
+    const role = roleSelect.value || "self";
     setStatus("Loading the crew board.");
     try {
-      const response = await fetch(apiBase() + "/api/dashboard?viewer=" + encodeURIComponent(viewer), {
+      const response = await fetch(apiBase() + "/api/dashboard?viewer=" + encodeURIComponent(viewer) + "&role=" + encodeURIComponent(role), {
         headers: { Accept: "application/json" },
       });
       if (!response.ok) throw new Error("API " + response.status);
@@ -340,6 +490,7 @@
       if (seq !== state.requestSeq) return;
       state.payload = body;
       state.error = "";
+      if (body.demo_banner) demoBanner.textContent = body.demo_banner;
       fillViewer();
       render();
     } catch (error) {
@@ -352,6 +503,7 @@
 
   document.querySelector("#reload").addEventListener("click", load);
   viewerSelect.addEventListener("change", load);
+  roleSelect.addEventListener("change", load);
   window.addEventListener("hashchange", function () {
     state.view = viewFromHash();
     if (state.view === "demo") state.demoStep = 0;

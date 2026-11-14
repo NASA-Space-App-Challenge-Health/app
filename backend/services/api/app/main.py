@@ -25,6 +25,9 @@ from app.repository import (
     get_crew,
     import_vitals_csv,
     list_readings,
+    save_image,
+    save_note,
+    set_indicator_share,
     set_share_mode,
 )
 
@@ -129,13 +132,13 @@ def health() -> dict[str, str]:
 
 
 @app.get("/api/dashboard")
-def get_dashboard(viewer: str | None = None) -> dict:
-    return dashboard(viewer)
+def get_dashboard(viewer: str | None = None, role: str = "self") -> dict:
+    return dashboard(viewer, role)
 
 
 @app.get("/api/demo")
-def get_demo(viewer: str | None = None) -> dict:
-    return dashboard(viewer)["demo"]
+def get_demo(viewer: str | None = None, role: str = "flight_surgeon") -> dict:
+    return dashboard(viewer, role)["demo"]
 
 
 @app.get("/api/insights")
@@ -177,6 +180,68 @@ def post_sharing(crew_id: UUID, payload: ShareUpdate) -> dict:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+class NoteCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    crew_id: UUID
+    kind: str
+    body_region: str | None = None
+    note: str = Field(min_length=1, max_length=2000)
+
+
+class ShareIndicator(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    indicator: str = Field(min_length=1, max_length=80)
+    shared: bool
+
+
+@app.post("/api/notes", status_code=201)
+def post_note(payload: NoteCreate) -> dict:
+    try:
+        return save_note(
+            crew_id=payload.crew_id,
+            kind=payload.kind,
+            body_region=payload.body_region,
+            note=payload.note,
+        )
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/api/crew/{crew_id}/shares")
+def post_share(crew_id: UUID, payload: ShareIndicator) -> dict:
+    try:
+        return set_indicator_share(crew_id, payload.indicator, payload.shared)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/api/images", status_code=201)
+async def post_image(
+    crew_id: UUID,
+    body_region: str,
+    note: str = "",
+    file: UploadFile = File(...),
+) -> dict:
+    raw = await file.read()
+    if len(raw) > 5_000_000:
+        raise HTTPException(status_code=413, detail="Images are limited to 5 MB")
+    if not raw:
+        raise HTTPException(status_code=422, detail="Empty file")
+    folder = __import__("pathlib").Path(__import__("os").environ.get("UPLOAD_DIR", "data/uploads"))
+    folder.mkdir(parents=True, exist_ok=True)
+    safe = (file.filename or "ultrasound").replace("/", "").replace("..", "")[:80]
+    stored = f"{crew_id}-{body_region}-{safe}"
+    (folder / stored).write_bytes(raw)
+    try:
+        return save_image(crew_id=crew_id, body_region=body_region, stored_name=stored, note=note)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @app.post("/api/uploads")
@@ -239,7 +304,7 @@ def list_crew_summary(member: dict) -> dict:
         "id": member["id"],
         "call_sign": member["call_sign"],
         "full_name": member["full_name"],
-        "role": member["role"],
+        "role": member.get("role_title") or member.get("role"),
         "mission": member.get("mission"),
         "share_mode": member.get("share_mode"),
         "overall_band": member["overall_band"],

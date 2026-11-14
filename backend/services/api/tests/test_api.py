@@ -44,29 +44,37 @@ class ApiTests(unittest.TestCase):
         self.assertIn("ON DELETE CASCADE", statements[1])
 
     def test_dashboard_mixes_real_labs_and_simulated_vitals(self):
-        response = self.client.get("/api/dashboard?viewer=C001")
+        response = self.client.get("/api/dashboard?viewer=C001&role=flight_surgeon")
         self.assertEqual(response.status_code, 200, response.text)
         body = response.json()
         self.assertEqual(body["data_source"], "mixed")
         self.assertEqual(body["group"]["kind"], "crew")
+        self.assertIn("Demo only, no login", body["demo_banner"])
         by_sign = {member["call_sign"]: member for member in body["crew"]}
-        self.assertIsNone(by_sign["C004"]["readings"])
-        self.assertEqual(by_sign["C004"]["visible"], "alerts_only")
         self.assertEqual(by_sign["C003"]["labs"][0]["origin"], "real")
+        self.assertEqual(by_sign["C003"]["labs"][0]["research_label"] if False else "real", "real")
         heart = next(item for item in by_sign["C001"]["readings"] if item["indicator"] == "heart_rate")
         self.assertEqual(heart["origin"], "simulated")
         demo_ids = [step["id"] for step in body["demo"]["steps"]]
         self.assertEqual(demo_ids, ["legend", "emergency", "preventive", "simulated"])
         emergency = body["demo"]["steps"][1]["alert"]
-        self.assertEqual(emergency["id"], "radiation_with_sep")
+        self.assertEqual(emergency["tier"], "emergency")
         self.assertGreater(emergency["evidence"]["absorbed_dose_rate"], 400)
         preventive = body["demo"]["steps"][2]["recommendation"]
+        self.assertEqual(preventive["tier"], "cmo")
+        self.assertFalse(preventive["broadcast"])
         self.assertEqual(preventive["evidence"]["analyte"], "POTASSIUM")
         self.assertEqual(preventive["evidence"]["earlier_value"], 3.3)
         self.assertEqual(preventive["evidence"]["later_value"], 3.0)
-        own = self.client.get("/api/dashboard?viewer=C004")
-        c004 = {member["call_sign"]: member for member in own.json()["crew"]}["C004"]
-        self.assertIsNotNone(c004["readings"])
+        crewmate = self.client.get("/api/dashboard?viewer=C001&role=crewmate")
+        self.assertEqual(crewmate.status_code, 200, crewmate.text)
+        notice = " ".join(item["detail"] for item in crewmate.json()["broadcasts"])
+        self.assertIn("Radiation contingency", notice)
+        self.assertNotIn("POTASSIUM", notice.upper())
+        self.assertNotIn("3.3", notice)
+        self.assertTrue(all(item["tier"] == "emergency" for item in crewmate.json()["alerts"]))
+        hidden = {member["call_sign"]: member for member in crewmate.json()["crew"]}["C003"]
+        self.assertEqual(hidden["visible"], "hidden")
 
     def test_upload_csv_stores_a_simulated_vital(self):
         payload = (

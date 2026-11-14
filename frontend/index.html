@@ -28,12 +28,22 @@
         <a href="#/demo">Demo</a>
         <a href="#/schedule">Hygiene</a>
         <a href="#/insights">Insights</a>
+        <a href="#/check">Check-in</a>
         <a href="#/upload">Upload</a>
       </nav>
       <div class="wrap">
+        <p class="demo-banner" id="demo-banner">Demo only, no login.</p>
         <div class="viewer-row">
-          <label for="viewer">Viewing as</label>
+          <label for="viewer">Member</label>
           <select id="viewer"></select>
+          <label for="role">Role</label>
+          <select id="role">
+            <option value="self">Self</option>
+            <option value="cmo">CMO</option>
+            <option value="flight_surgeon">Ground flight surgeon</option>
+            <option value="crewmate">Crewmate</option>
+            <option value="commander">Commander</option>
+          </select>
         </div>
         <p class="sim-banner" id="banner">
           <strong>Real NASA data and simulated vitals.</strong>

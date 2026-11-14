@@ -349,6 +349,60 @@ a {
   margin-bottom: 0.8rem;
 }
 
+.demo-banner {
+  margin: 0 0 0.7rem;
+  padding: 0.45rem 0.7rem;
+  border-left: 3px solid var(--color-accent-royal-purple);
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.body-layout {
+  display: grid;
+  grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.body-svg {
+  width: 100%;
+  height: auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+}
+
+.body-svg .region {
+  cursor: pointer;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 160ms ease, fill 160ms ease;
+}
+
+.body-svg .region:hover,
+.body-svg .region:focus {
+  transform: scale(1.04);
+}
+
+.body-svg .region.selected {
+  stroke: var(--color-accent-arctic-cyan);
+  stroke-width: 3;
+}
+
+.status-nominal { fill: #1d3b32; }
+.status-watch { fill: #4a3b16; }
+.status-concern { fill: #4a1d24; }
+.status-private { fill: #1a2233; }
+.status-ready { fill: #1a2233; }
+
+@media (max-width: 800px) {
+  .body-layout { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .body-svg .region { transition: none; }
+}
+
 select,
 input[type="file"] {
   min-height: 44px;

@@ -31,7 +31,9 @@ home. That variant is not built.
 
 - **Real NASA**, badged on screen: Inspiration4 CBC/CMP (`labs_long.csv`, OSD-569 and OSD-575), one week of ISS DosTel rates (`radiation_iss.csv`), and 2024 DONKI SEP events (`donki_sep.csv`). The manifest is `data/datasets.csv`.
 - **Simulated**, badged on screen: heart rate, sleep, cortisol, hydration, and hygiene-station timing. Those series are not in the public tables.
-- **Alerts only:** a member can hide full numbers. Emergency alerts still go to the whole group.
+- **Roles, demo only, no login:** Self, CMO (two per increment, C001 and C002 here), ground flight surgeon, crewmate, and commander. Full charts default to self, the CMOs, and the flight surgeon. Other crew see a number only if that person opts the indicator in. The commander sees “condition may impact mission ops,” not a diagnosis. A crew-wide notice is generic and only for an emergency: someone needs help, a radiation contingency, or an environmental threat. Potassium and simulated cortisol do not broadcast. Behavioral notes stay with the flight surgeon.
+- **Body map:** the dashboard is a clickable figure. Each region says what the system does, why the test matters, how spaceflight changes it, and what prevents a worse turn, with the NASA or CSA page that was opened.
+- **Check-in:** typed symptoms, a space-sickness check, a 15-minute pre/post-EVA style note from OCHMO-TB-044 page 9, a noise note, and an ultrasound image queued for review. The app does not read the image. Uploads stay in `data/uploads/` and are not committed.
 - **Guided demo:** **Start guided demo** shows (1) the peak DosTel rate paired with the next DONKI SEP, including the gap between those timestamps, then (2) C003 potassium already low at L-3 and lower at R+1. Citations are the NASA pages listed in `backend/services/api/rules/rules.yaml`. Cutoffs in that file are app settings, not flight-surgeon limits.
 - **Hygiene:** one station. Overlapping simulated windows get an order. The times are estimates.
 - **Upload:** your own vitals CSV. Schema in [data/UPLOAD_SCHEMA.md](data/UPLOAD_SCHEMA.md). The NASA CSVs load from `data/` when the API starts.

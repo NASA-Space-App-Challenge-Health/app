@@ -7,6 +7,8 @@ from uuid import UUID
 
 import psycopg
 
+from app.access import ROLES, broadcasts, project_finding
+from app.body_map import REGIONS, region_status
 from app.guidance import DISCLAIMER, INDICATORS, get_indicator, guidance_for, worst_band
 from app.insights import extremes, flag_counts
 from app.nasa_loader import KEY_ANALYTES
@@ -32,11 +34,12 @@ SIMULATED_INDICATORS = (
 )
 
 
-def assemble(conn: psycopg.Connection, viewer: str | None) -> dict[str, Any]:
+def assemble(conn: psycopg.Connection, viewer: str | None, role: str = "self") -> dict[str, Any]:
     rules = load_rules()
     crew_rows = conn.execute(
         """
-        SELECT c.id, c.call_sign, c.full_name, c.role, c.mission, c.share_mode, g.name AS group_name, g.kind AS group_kind
+        SELECT c.id, c.call_sign, c.full_name, c.role, c.mission, c.share_mode, c.is_cmo,
+               g.name AS group_name, g.kind AS group_kind
         FROM crew_members c
         LEFT JOIN crew_groups g ON g.id = c.group_id
         ORDER BY c.call_sign
@@ -99,18 +102,27 @@ def assemble(conn: psycopg.Connection, viewer: str | None) -> dict[str, Any]:
         }
         for row in vitals
     ]
-    alerts = []
+    raw_alerts = []
     radiation = radiation_emergency(dose_rows, [dict(row) for row in events], rules)
     if radiation:
-        alerts.append(radiation)
-    alerts.extend(critical_glucose_alerts(labs, rules))
-    alerts.extend(vital_emergencies(vital_inputs, rules))
+        raw_alerts.append(radiation)
+    raw_alerts.extend(critical_glucose_alerts(labs, rules))
+    raw_alerts.extend(vital_emergencies(vital_inputs, rules))
     recommendations = worsening_lab_recommendations(labs, rules)
     recommendations.extend(sleep_cortisol_recommendations(vital_inputs, rules))
-    by_sign = {row["call_sign"]: row for row in crew_rows}
-    alerts = [_redact(item, viewer_row, by_sign) for item in alerts]
-    recommendations = [_redact(item, viewer_row, by_sign) for item in recommendations]
-    crew = [_crew_card(row, vitals, labs, viewer_row) for row in crew_rows]
+    if role not in ROLES:
+        role = "self"
+    viewer_sign = None if viewer_row is None else viewer_row["call_sign"]
+    shares = _shares(conn)
+    featured = next((item for item in recommendations if _is_featured(item, rules)), None)
+    visible = []
+    for item in raw_alerts + recommendations:
+        shown = project_finding(item, role=role, viewer=viewer_sign, shares=shares)
+        if shown:
+            visible.append(shown)
+    alerts = [item for item in visible if item.get("tier") == "emergency"]
+    recommendations = [item for item in visible if item.get("kind") == "preventive"]
+    crew = [_crew_card(row, vitals, labs, viewer_sign, role, shares) for row in crew_rows]
     hygiene_members = []
     for row in crew_rows:
         latest = _latest_vital(vitals, row["id"])
@@ -121,18 +133,26 @@ def assemble(conn: psycopg.Connection, viewer: str | None) -> dict[str, Any]:
             "share_mode": row["share_mode"],
         })
     hygiene = plan_hygiene(hygiene_members)
-    hygiene = _redact_hygiene(hygiene, hygiene_members, viewer_row)
-    featured = next((item for item in recommendations if _is_featured(item, rules)), None)
+    hygiene["label"] = (
+        "Team schedule idea under OCHMO hygiene and crew-schedule countermeasures. "
+        "Not a NASA measurement of bathroom cycles."
+    )
+    hygiene["origin"] = "simulated"
     return {
         "data_source": "mixed",
-        "disclaimer": DISCLAIMER,
+        "disclaimer": DISCLAIMER + " Demo roles are not a login. Released research data stays in the repo. Uploads stay in the local database.",
+        "demo_banner": "Demo only, no login. Roles show how OCHMO separates private medical data from a crew-wide notice.",
         "group": {"name": crew_rows[0]["group_name"] or GROUP_NAME, "kind": crew_rows[0]["group_kind"] or GROUP_KIND},
-        "viewer": None if viewer_row is None else viewer_row["call_sign"],
+        "viewer": viewer_sign,
+        "role": role,
+        "cmos": [row["call_sign"] for row in crew_rows if row.get("is_cmo")],
+        "broadcasts": broadcasts(raw_alerts),
         "crew": crew,
         "alerts": alerts,
         "recommendations": recommendations,
         "hygiene": hygiene,
-        "demo": _demo(radiation, featured, hygiene, recommendations),
+        "body": _body(rules, next((item for item in crew if item["call_sign"] == viewer_sign), crew[0]), role),
+        "demo": _demo(radiation, featured, hygiene),
         "insights": {
             "common_issues": flag_counts(labs)[:8],
             "preventable": [item for item in recommendations if item["id"] == "worsening_lab" and item["origin"] == "real"],
@@ -142,38 +162,39 @@ def assemble(conn: psycopg.Connection, viewer: str | None) -> dict[str, Any]:
     }
 
 
-def _demo(radiation, featured, hygiene, recommendations) -> dict[str, Any]:
-    sleep = next((item for item in recommendations if item["id"] == "sleep_and_cortisol"), None)
+def _demo(radiation, featured, hygiene) -> dict[str, Any]:
     steps = [
         {
             "id": "legend",
             "kicker": "Step 1",
-            "title": "Two kinds of data on one board",
+            "title": "Demo only, no login",
             "body": (
-                "Badges say REAL NASA or SIMULATED. Inspiration4 labs, the ISS DosTel week, "
-                "and 2024 DONKI SEP events are real. Heart rate, sleep, cortisol, hydration, "
-                "and hygiene timing are simulated because those series are not in the public tables."
+                "Released research data (Inspiration4 labs, DosTel, DONKI) is labeled real. "
+                "Heart rate, sleep, cortisol, and the hygiene estimate are simulated. "
+                "A crewmate sees a generic emergency notice only. Potassium and cortisol stay off that broadcast."
             ),
         },
         {
             "id": "emergency",
             "kicker": "Step 2",
-            "title": "Emergency alert, broadcast to the whole crew",
+            "title": "Emergency tier — crew broadcast",
+            "tier": "emergency",
             "body": (
-                "This alert pairs the peak DosTel absorbed dose rate in the June 2024 file "
-                "with the next DONKI SEP inside 96 hours. The timestamps are different on purpose. "
-                "Every crew member sees it, including anyone sharing alerts only."
+                "The whole crew gets a generic radiation contingency. The dose rate and SEP time "
+                "stay on this demo card for the flight surgeon view. They are not the same timestamp. "
+                "OCHMO-TB-044 says the crew is notified for an off-nominal radiation case."
             ),
             "alert": radiation,
         },
         {
             "id": "preventive",
             "kicker": "Step 3",
-            "title": "Preventive recommendation from a real lab shift",
+            "title": "CMO tier — not a crew broadcast",
+            "tier": "cmo",
             "body": (
                 "C003 potassium was already below the OSD-575 reference range at L-3, "
-                "and the next sample at R+1 was lower still. The rule fires on the earlier sample, "
-                "before that drop. The reference range is the one stored with the NASA row."
+                "and the next sample at R+1 was lower still. The rule fires on the earlier sample. "
+                "A crewmate does not get this card. Cortisol stays with the flight surgeon."
             ),
             "recommendation": featured,
         },
@@ -181,13 +202,13 @@ def _demo(radiation, featured, hygiene, recommendations) -> dict[str, Any]:
             "id": "simulated",
             "kicker": "Step 4",
             "title": "What is still simulated",
+            "tier": "self",
             "body": (
-                "Sleep, cortisol, and the hygiene-station estimate are simulated and labeled. "
-                "A second preventive card can fire from the simulated sleep and cortisol trend. "
-                "It is not the real-data recommendation in the previous step."
+                "Sleep and cortisol are simulated and go to a private flight-surgeon conference, not the crew. "
+                "The hygiene order is a team idea under OCHMO's hygiene and crew-schedule countermeasures, "
+                "not a measured bathroom cycle."
             ),
             "hygiene": hygiene,
-            "recommendation": sleep,
         },
     ]
     return {"steps": steps}
@@ -206,8 +227,61 @@ def _is_featured(item: dict[str, Any], rules: dict[str, Any]) -> bool:
     )
 
 
-def _crew_card(row, vitals, labs, viewer) -> dict[str, Any]:
-    hidden = row["share_mode"] == "alerts_only" and (viewer is None or viewer["id"] != row["id"])
+def _shares(conn) -> dict[str, set[str]]:
+    rows = conn.execute(
+        """
+        SELECT c.call_sign, s.indicator
+        FROM indicator_shares s
+        JOIN crew_members c ON c.id = s.crew_member_id
+        """
+    ).fetchall()
+    found: dict[str, set[str]] = {}
+    for row in rows:
+        found.setdefault(row["call_sign"], set()).add(row["indicator"])
+    return found
+
+
+def _chart_hidden(role: str, viewer_sign: str | None, call_sign: str) -> bool:
+    if role in {"cmo", "flight_surgeon"}:
+        return False
+    if role == "self" and viewer_sign == call_sign:
+        return False
+    return True
+
+
+def _body(rules: dict[str, Any], member: dict[str, Any] | None, role: str) -> list[dict[str, Any]]:
+    from app.rules_engine import source_refs
+
+    panels = []
+    for region in REGIONS:
+        flags = []
+        if member and member.get("visible") == "full":
+            for reading in member.get("readings") or []:
+                if reading.get("indicator") in region["indicators"] and reading.get("risk_band"):
+                    flags.append(reading["risk_band"])
+            for lab in member.get("labs") or []:
+                if lab.get("analyte") in region["indicators"] and lab.get("flag") in {"low", "high"}:
+                    flags.append("watch")
+            if region["id"] in {"eyes", "environment"} and role in {"cmo", "flight_surgeon", "self", "crewmate"}:
+                flags.append("watch")
+        status = "private" if not flags and (member is None or member.get("visible") != "full") else region_status(region, flags)
+        if role == "commander":
+            status = "private"
+        panels.append({
+            "id": region["id"],
+            "label": region["label"],
+            "function": region["function"],
+            "why": region["why"],
+            "spaceflight": region["spaceflight"],
+            "prevention": region["prevention"],
+            "sources": source_refs(rules, list(region["sources"])),
+            "status": status,
+        })
+    return panels
+
+
+def _crew_card(row, vitals, labs, viewer_sign, role, shares) -> dict[str, Any]:
+    hidden = _chart_hidden(role, viewer_sign, row["call_sign"])
     latest = _latest_vital(vitals, row["id"])
     readings = []
     for key in SIMULATED_INDICATORS:
@@ -244,19 +318,27 @@ def _crew_card(row, vitals, labs, viewer) -> dict[str, Any]:
             "guidance": guidance_for(key, current["risk_band"]) if current["risk_band"] in spec.guidance else None,
         })
     lab_cards = _latest_labs(labs, row["call_sign"])
+    if role != "flight_surgeon" and not (role == "self" and viewer_sign == row["call_sign"]):
+        readings = [item for item in readings if item["indicator"] not in {"sleep_hours", "cortisol_ug_dl"}]
+    if hidden and role == "crewmate":
+        allowed = shares.get(row["call_sign"], set())
+        readings = [item for item in readings if item["indicator"] in allowed]
+        lab_cards = [item for item in lab_cards if item["analyte"] in allowed]
+        hidden = not readings and not lab_cards
     bands = [item["risk_band"] for item in readings if item.get("risk_band")]
     bands.extend("concern" if item["flag"] in {"low", "high"} else "nominal" for item in lab_cards)
     return {
         "id": row["id"],
         "call_sign": row["call_sign"],
         "full_name": row["full_name"],
-        "role": row["role"],
+        "role_title": row["role"],
+        "is_cmo": bool(row.get("is_cmo")),
         "mission": row["mission"],
-        "share_mode": row["share_mode"],
-        "visible": "alerts_only" if hidden else "full",
-        "overall_band": worst_band(bands),
+        "visible": "hidden" if hidden else "full",
+        "overall_band": None if hidden else worst_band(bands),
         "readings": None if hidden else readings,
         "labs": None if hidden else lab_cards,
+        "research_label": "Released research data" if lab_cards else None,
     }
 
 

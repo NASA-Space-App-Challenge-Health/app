@@ -80,9 +80,15 @@ def radiation_emergency(
     return {
         "id": "radiation_with_sep",
         "kind": "emergency",
+        "tier": spec["tier"],
+        "broadcast": bool(spec["broadcast"]),
+        "mission_impact": bool(spec["mission_impact"]),
+        "public_title": spec["public_title"],
+        "public_detail": spec["public_detail"],
         "severity": spec["severity"],
         "audience": "all",
         "crew_id": None,
+        "indicator": None,
         "origin": "real",
         "title": "Radiation exposure alert",
         "detail": detail,
@@ -154,8 +160,12 @@ def worsening_lab_recommendations(
             found.append({
                 "id": "worsening_lab",
                 "kind": "preventive",
+                "tier": spec["tier"],
+                "broadcast": bool(spec["broadcast"]),
+                "mission_impact": bool(spec["mission_impact"]),
+                "indicator": analyte,
                 "severity": "watch",
-                "audience": "crew",
+                "audience": "cmo",
                 "crew_id": crew_id,
                 "origin": "real",
                 "title": f"Recheck {analyte.lower()} before the next draw",
@@ -221,8 +231,14 @@ def sleep_cortisol_recommendations(
         found.append({
             "id": "sleep_and_cortisol",
             "kind": "preventive",
+            "tier": spec["tier"],
+            "broadcast": bool(spec["broadcast"]),
+            "mission_impact": bool(spec["mission_impact"]),
+            "indicator": "cortisol_ug_dl",
+            "public_title": None,
+            "public_detail": None,
             "severity": "watch",
-            "audience": "crew",
+            "audience": "flight_surgeon",
             "crew_id": crew_id,
             "origin": "simulated",
             "title": "Check in before this sleep and stress trend worsens",
@@ -236,8 +252,8 @@ def sleep_cortisol_recommendations(
                 f"to keep working as a team."
             ),
             "suggested_action": (
-                "A crewmate should check in, protect the next sleep period, and offer support. "
-                "This is not a diagnosis."
+                "Discuss this only in a private psychological conference with the flight surgeon. "
+                "Do not announce it to the crew. This is not a diagnosis, and the numbers are simulated."
             ),
             "sources": source_refs(rules, spec["sources"]),
             "evidence": {
@@ -270,6 +286,12 @@ def vital_emergencies(
             found.append({
                 "id": "heart_rate",
                 "kind": "emergency",
+                "tier": hr_spec["tier"],
+                "broadcast": bool(hr_spec["broadcast"]),
+                "mission_impact": bool(hr_spec["mission_impact"]),
+                "public_title": hr_spec["public_title"],
+                "public_detail": hr_spec["public_detail"],
+                "indicator": "heart_rate",
                 "severity": hr_spec["severity"],
                 "audience": "all",
                 "crew_id": crew_id,
@@ -293,6 +315,12 @@ def vital_emergencies(
             found.append({
                 "id": "impact",
                 "kind": "emergency",
+                "tier": impact_spec["tier"],
+                "broadcast": bool(impact_spec["broadcast"]),
+                "mission_impact": bool(impact_spec["mission_impact"]),
+                "public_title": impact_spec["public_title"],
+                "public_detail": impact_spec["public_detail"],
+                "indicator": "impact_event",
                 "severity": impact_spec["severity"],
                 "audience": "all",
                 "crew_id": crew_id,
@@ -331,9 +359,15 @@ def critical_glucose_alerts(
             continue
         found.append({
             "id": "critical_glucose",
-            "kind": "emergency",
+            "kind": "preventive",
+            "tier": spec["tier"],
+            "broadcast": bool(spec["broadcast"]),
+            "mission_impact": bool(spec["mission_impact"]),
+            "indicator": "GLUCOSE",
+            "public_title": None,
+            "public_detail": None,
             "severity": spec["severity"],
-            "audience": "all",
+            "audience": "cmo",
             "crew_id": row["crew_id"],
             "origin": "real",
             "title": f"Low glucose for {row['crew_id']} at {row['timepoint']}",

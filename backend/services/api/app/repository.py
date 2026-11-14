@@ -73,6 +73,9 @@ def _ensure_group(conn: psycopg.Connection) -> None:
 
 def _retire_old_demo(conn: psycopg.Connection) -> None:
     conn.execute("DELETE FROM crew_members WHERE id = ANY(%s)", (list(RETIRED_DEMO_IDS),))
+    conn.execute(
+        "UPDATE crew_members SET is_cmo = call_sign IN ('C001', 'C002') WHERE call_sign IN ('C001', 'C002', 'C003', 'C004')"
+    )
 
 
 def seed_simulated_crew(conn: psycopg.Connection) -> list[str]:
@@ -96,9 +99,9 @@ def seed_simulated_crew(conn: psycopg.Connection) -> list[str]:
             conn.execute(
                 """
                 INSERT INTO crew_members (
-                    id, call_sign, full_name, role, mission, group_id, share_mode
+                    id, call_sign, full_name, role, mission, group_id, share_mode, is_cmo
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     member["id"],
@@ -108,6 +111,7 @@ def seed_simulated_crew(conn: psycopg.Connection) -> list[str]:
                     GROUP_NAME,
                     GROUP_ID,
                     member["share_mode"],
+                    call_sign in {"C001", "C002"},
                 ),
             )
             crew_id = member["id"]
@@ -136,6 +140,72 @@ def seed_simulated_crew(conn: psycopg.Connection) -> list[str]:
                 ),
             )
     return inserted
+
+
+def save_note(*, crew_id: UUID, kind: str, body_region: str | None, note: str) -> dict[str, Any]:
+    if kind not in {"symptom", "space_sickness", "eva", "noise", "exercise"}:
+        raise ValueError("Unknown note kind")
+    if not note.strip():
+        raise ValueError("Note is empty")
+    note_id = uuid.uuid4()
+    with db.connect() as conn:
+        member = conn.execute("SELECT id FROM crew_members WHERE id = %s", (crew_id,)).fetchone()
+        if member is None:
+            raise NotFoundError("Crew member not found")
+        conn.execute(
+            """
+            INSERT INTO clinical_notes (id, crew_member_id, kind, body_region, note)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (note_id, crew_id, kind, body_region, note.strip()),
+        )
+        conn.commit()
+    return {"id": note_id, "kind": kind, "status": "saved", "audience": "self, cmo, flight surgeon"}
+
+
+def save_image(*, crew_id: UUID, body_region: str, stored_name: str, note: str) -> dict[str, Any]:
+    image_id = uuid.uuid4()
+    with db.connect() as conn:
+        member = conn.execute("SELECT id FROM crew_members WHERE id = %s", (crew_id,)).fetchone()
+        if member is None:
+            raise NotFoundError("Crew member not found")
+        conn.execute(
+            """
+            INSERT INTO imaging_queue (id, crew_member_id, body_region, stored_name, note)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (image_id, crew_id, body_region, stored_name, note),
+        )
+        conn.commit()
+    return {
+        "id": image_id,
+        "status": "queued",
+        "body_region": body_region,
+        "review": "Queued for CMO / flight surgeon review. This screen does not read the image.",
+    }
+
+
+def set_indicator_share(crew_id: UUID, indicator: str, shared: bool) -> dict[str, Any]:
+    with db.connect() as conn:
+        member = conn.execute("SELECT call_sign FROM crew_members WHERE id = %s", (crew_id,)).fetchone()
+        if member is None:
+            raise NotFoundError("Crew member not found")
+        if shared:
+            conn.execute(
+                """
+                INSERT INTO indicator_shares (crew_member_id, indicator)
+                VALUES (%s, %s)
+                ON CONFLICT DO NOTHING
+                """,
+                (crew_id, indicator),
+            )
+        else:
+            conn.execute(
+                "DELETE FROM indicator_shares WHERE crew_member_id = %s AND indicator = %s",
+                (crew_id, indicator),
+            )
+        conn.commit()
+    return {"call_sign": member["call_sign"], "indicator": indicator, "shared": shared}
 
 
 def import_vitals_csv(text: str) -> dict[str, Any]:
@@ -183,9 +253,9 @@ def import_vitals_csv(text: str) -> dict[str, Any]:
     return {"inserted": inserted, "source": "upload", "origin": "simulated"}
 
 
-def dashboard(viewer: str | None = None) -> dict[str, Any]:
+def dashboard(viewer: str | None = None, role: str = "self") -> dict[str, Any]:
     with db.connect() as conn:
-        return assemble(conn, viewer)
+        return assemble(conn, viewer, role)
 
 
 def set_share_mode(crew_id: UUID, share_mode: str) -> dict[str, Any]:
