@@ -1,0 +1,173 @@
+{
+  "descricao": "Recorte de resultados agregados e referência ambiental para o hackathon. Cada fonte descreve um contexto próprio. Sem telemetria individual.",
+  "verificacao": {
+    "data": "2026-11-14",
+    "resultado": "11 de 12 registros conferem com as fontes. Único ajuste numérico: densidade do colo do fêmur no grupo controle pré-voo, de 0.86 para 0.860 (Table 1 reporta três casas decimais). Campos ausentes no JSON original (n, erro padrão ou desvio padrão) foram preenchidos a partir das fontes, sem alterar os demais valores.",
+    "regra_dados_oficiais_NASA": {
+      "sprint": "Não é uma página nasa.gov. É o artigo revisado por pares 'High intensity training during spaceflight: results from the NASA Sprint Study' (English et al., npj Microgravity 6:21, 2020; DOI 10.1038/s41526-020-00111-x; PMC7434884). Estudo financiado pelo NASA Human Research Program e pelo National Space Biomedical Research Institute; publicado 'with the support of NASA'; coautora Meghan Downs afiliada ao NASA Johnson Space Center. Pode ser tratado como estudo NASA oficial publicado em periódico, não como documento normativo da agência.",
+      "vo2": "O link do JSON é o resumo oficial no NASA Technical Reports Server (NTRS 20140003748, Johnson Space Center), de um pôster/resumo da reunião ACSM 2014. Os mesmos números aparecem no artigo revisado por pares Moore et al., J Appl Physiol 117:231-238, 2014 (DOI 10.1152/japplphysiol.01251.2013; PubMed 24970852), com autores da NASA JSC e contratadas em Houston.",
+      "co2": "Fonte normativa oficial: OCHMO-TB-004 (NASA Office of the Chief Health and Medical Officer), que cita NASA-STD-3001 Volume 2 Rev D [V2 6004]. A contagem de dores de cabeça resume Law et al., 2014, Journal of Occupational and Environmental Medicine, citada no brief."
+    }
+  },
+  "fontes": {
+    "sprint": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7434884/#Tab1",
+    "sprint_artigo": "https://www.nature.com/articles/s41526-020-00111-x",
+    "sprint_tabela": "https://www.nature.com/articles/s41526-020-00111-x/tables/1",
+    "vo2": "https://ntrs.nasa.gov/citations/20140003748",
+    "vo2_artigo": "https://doi.org/10.1152/japplphysiol.01251.2013",
+    "co2": "https://www.nasa.gov/ochmo-tb-004-carbon-dioxide-2/"
+  },
+  "registros": [
+    {
+      "fonte": "sprint",
+      "indicador": "Densidade mineral do colo do fêmur",
+      "unidade": "g/cm²",
+      "valor": 0.860,
+      "erro_padrao": 0.025,
+      "n": 17,
+      "tipo": "média do grupo por DXA",
+      "grupo": "treino padrão",
+      "periodo": "cerca de 90 dias antes do voo",
+      "status": "corrigido_precisao",
+      "nota_verificacao": "Table 1, CON Preflight: 0.860 ± 0.025 g cm−2 (média ± erro padrão, não desvio padrão). O JSON original trazia 0.86. CON = ISS standard of care; n = 17 (14H/3M)."
+    },
+    {
+      "fonte": "sprint",
+      "indicador": "Densidade mineral do colo do fêmur",
+      "unidade": "g/cm²",
+      "valor": 0.846,
+      "erro_padrao": 0.025,
+      "n": 17,
+      "tipo": "média do grupo por DXA",
+      "grupo": "treino padrão",
+      "periodo": "7 a 14 dias após pouso",
+      "status": "ok",
+      "nota_verificacao": "Table 1, CON Postflight: 0.846 ± 0.025*. Asterisco = efeito simples do tempo vs pré-voo (P < 0.05). Métodos também descrevem a sessão como R+7 (1–2 semanas após o pouso), o que coincide com a nota da tabela (7–14 dias)."
+    },
+    {
+      "fonte": "sprint",
+      "indicador": "Densidade mineral do colo do fêmur",
+      "unidade": "g/cm²",
+      "valor": 0.862,
+      "erro_padrao": 0.034,
+      "n": 9,
+      "tipo": "média do grupo por DXA",
+      "grupo": "SPRINT",
+      "periodo": "cerca de 90 dias antes do voo",
+      "status": "ok",
+      "nota_verificacao": "Table 1, SPRINT Preflight: 0.862 ± 0.034. n = 9 (8H/1M). Sem interação grupo × tempo significativa."
+    },
+    {
+      "fonte": "sprint",
+      "indicador": "Densidade mineral do colo do fêmur",
+      "unidade": "g/cm²",
+      "valor": 0.845,
+      "erro_padrao": 0.034,
+      "n": 9,
+      "tipo": "média do grupo por DXA",
+      "grupo": "SPRINT",
+      "periodo": "7 a 14 dias após pouso",
+      "status": "ok",
+      "nota_verificacao": "Table 1, SPRINT Postflight: 0.845 ± 0.034*. Efeito do tempo vs pré-voo (P < 0.05); perda de −1.7% no colo do fêmur relatada para os dois grupos em conjunto."
+    },
+    {
+      "fonte": "sprint",
+      "indicador": "Massa magra das pernas",
+      "unidade": "kg",
+      "valor": 18.77,
+      "erro_padrao": 0.68,
+      "n": 17,
+      "tipo": "média do grupo por DXA",
+      "grupo": "treino padrão",
+      "periodo": "cerca de 90 dias antes do voo",
+      "status": "ok",
+      "nota_verificacao": "Table 1, CON Preflight: 18.77 ± 0.68 kg. A massa magra das pernas não mudou após o voo (efeito simples do tempo P = 0.40)."
+    },
+    {
+      "fonte": "sprint",
+      "indicador": "Massa magra das pernas",
+      "unidade": "kg",
+      "valor": 18.64,
+      "erro_padrao": 0.68,
+      "n": 17,
+      "tipo": "média do grupo por DXA",
+      "grupo": "treino padrão",
+      "periodo": "7 a 14 dias após pouso",
+      "status": "ok",
+      "nota_verificacao": "Table 1, CON Postflight: 18.64 ± 0.68 kg. Sem asterisco (não significativo vs pré-voo)."
+    },
+    {
+      "fonte": "sprint",
+      "indicador": "Massa magra das pernas",
+      "unidade": "kg",
+      "valor": 18.37,
+      "erro_padrao": 0.94,
+      "n": 9,
+      "tipo": "média do grupo por DXA",
+      "grupo": "SPRINT",
+      "periodo": "cerca de 90 dias antes do voo",
+      "status": "ok",
+      "nota_verificacao": "Table 1, SPRINT Preflight: 18.37 ± 0.94 kg."
+    },
+    {
+      "fonte": "sprint",
+      "indicador": "Massa magra das pernas",
+      "unidade": "kg",
+      "valor": 18.28,
+      "erro_padrao": 0.04,
+      "n": 9,
+      "tipo": "média do grupo por DXA",
+      "grupo": "SPRINT",
+      "periodo": "7 a 14 dias após pouso",
+      "status": "ok",
+      "nota_verificacao": "Table 1, SPRINT Postflight: 18.28 ± 0.04 kg. A média confere. O erro padrão 0.04 é muito menor que o 0.94 do pré-voo no mesmo grupo e pode ser um erro tipográfico da tabela publicada; a média 18.28 foi mantida."
+    },
+    {
+      "fonte": "vo2",
+      "indicador": "VO2 de pico",
+      "valor": 40.6,
+      "unidade": "mL/kg/min",
+      "tipo": "média do grupo",
+      "n": 14,
+      "desvio_padrao": 6.4,
+      "periodo": "pré-voo",
+      "status": "ok",
+      "nota_verificacao": "NTRS 20140003748 e Moore et al. 2014: astronautas (9 H, 5 M) com 40.6 ± 6.4 mL/kg/min [média ± DP]. Esse valor entra como característica basal pré-voo (testes ~90 dias antes do voo no cronograma; o artigo também cita um teste ~9 meses antes). n = 14 está correto."
+    },
+    {
+      "fonte": "vo2",
+      "indicador": "Variação do VO2 de pico em relação ao pré-voo",
+      "valor": -17,
+      "unidade": "%",
+      "tipo": "variação do grupo",
+      "ic95": [-22, -13],
+      "periodo": "15º dia de voo",
+      "n": 14,
+      "status": "ok",
+      "nota_verificacao": "NTRS e artigo: 'Early inflight (FD15) VO2peak was 17% lower (95% CI = -22%, -13%) than preflight.' É uma estimativa de modelo misto para um sujeito médio (a massa corporal entrou no modelo), não a média aritmética simples de cada indivíduo. A queda não foi universal: 7 dos 14 atingiram o VO2peak pré-voo em algum momento do voo ou em R+1."
+    },
+    {
+      "fonte": "co2",
+      "indicador": "Pressão parcial de CO₂ na cabine",
+      "valor": 3,
+      "unidade": "mmHg",
+      "tipo": "limite superior de referência",
+      "operador": "<=",
+      "periodo": "média de 1 hora",
+      "status": "ok",
+      "nota_verificacao": "OCHMO-TB-004 e NASA-STD-3001 Volume 2 Rev D [V2 6004]: 'The system shall limit the average one-hour CO2 partial pressure (ppCO2) in the habitable volume to no more than 3 mmHg.' É o limite da média de 1 hora, não o de 24 horas. O operador <= está alinhado a 'no more than 3 mmHg'. Um trecho do brief usa '<3 mmHg' entre parênteses, mas o requisito oficial é 'no more than 3 mmHg'. Contexto relacionado, não é este registro: para manter o risco de dor de cabeça abaixo de 1%, a média de 7 dias precisa ficar abaixo de 2.5 mmHg."
+    },
+    {
+      "fonte": "co2",
+      "indicador": "Tripulantes que relataram dor de cabeça",
+      "valor": 19,
+      "unidade": "pessoas",
+      "tipo": "contagem observada",
+      "n": 49,
+      "periodo": "expedições 2 a 31 da ISS",
+      "nota": "Associação observacional. A contagem não estabelece a causa individual.",
+      "status": "ok",
+      "nota_verificacao": "OCHMO-TB-004: 'A study of data collected from Expeditions 2 to 31 (N=49) found that CO2 level, age at launch, time in-flight, and data source were significantly associated with reported headaches on the ISS. 19 of the 49 astronauts reported experiencing headaches (~38.7%).' A nota do JSON está adequada: o brief descreve associação, não causa individual. Fonte primária citada no brief: Law et al., 2014."
+    }
+  ]
+}

@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
-from app import eda_queries, predict_queries
+from app import db, eda_queries, predict_queries
 from app.guidance import DISCLAIMER, IndicatorError
 from app.repository import (
     ConflictError,
@@ -33,6 +33,7 @@ from app.repository import (
     set_indicator_share,
     set_share_mode,
 )
+from app.xemu import record_sample
 
 logging.basicConfig(
     level=os.environ.get("LOG_LEVEL", "INFO"),
@@ -333,6 +334,18 @@ async def post_image(
         return save_image(crew_id=crew_id, body_region=body_region, stored_name=stored, note=note)
     except NotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.post("/api/suit-sensors")
+def post_suit_sensors(crew: str = "C001") -> dict:
+    """One simulated xEMU sample, stored as simulated health readings."""
+    try:
+        with db.connect() as conn:
+            body = record_sample(conn, crew)
+            conn.commit()
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return body
 
 
 @app.post("/api/uploads")

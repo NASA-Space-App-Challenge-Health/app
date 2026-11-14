@@ -4,6 +4,8 @@ notebooks
 **/*.ipynb
 .venv
 .git
+*.db
+space_health.db
 # data/*.csv stays in the upload so the build can copy the five public fallback
 # tables into public/data. vercel.json excludeFiles keeps data/** out of the
 # function bundle.

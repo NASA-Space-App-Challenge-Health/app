@@ -47,6 +47,61 @@ class VercelConfigTests(unittest.TestCase):
         self.assertIn("/recommendations", sources)
         self.assertIn("/eda/(.*)", sources)
         self.assertIn("data/**", config["functions"]["api/index.py"]["excludeFiles"])
+        self.assertIn("**/*.db", config["functions"]["api/index.py"]["excludeFiles"])
+        self.assertIsNone(config["framework"])
+        self.assertEqual(config["outputDirectory"], "public")
+
+    def test_root_requirements_match_the_api_file(self):
+        def lines(path: Path) -> list[str]:
+            kept = []
+            for line in path.read_text(encoding="utf-8").splitlines():
+                text = line.strip()
+                if text and not text.startswith("#"):
+                    kept.append(text)
+            return kept
+
+        self.assertEqual(
+            lines(ROOT / "requirements.txt"),
+            lines(ROOT / "backend" / "services" / "api" / "requirements.txt"),
+        )
+        self.assertFalse(any(line.startswith("-r ") for line in lines(ROOT / "requirements.txt")))
+
+    def test_pooler_url_drops_channel_binding_and_skips_startup_options(self):
+        saved_url = os.environ.get("DATABASE_URL")
+        saved_timeout = os.environ.get("DATABASE_STATEMENT_TIMEOUT_MS")
+        saved_vercel = os.environ.get("VERCEL")
+        try:
+            os.environ["DATABASE_URL"] = (
+                "postgresql://u:p@ep-example-pooler.neon.tech/neondb"
+                "?sslmode=require&channel_binding=require"
+            )
+            os.environ["VERCEL"] = "1"
+            os.environ.pop("DATABASE_STATEMENT_TIMEOUT_MS", None)
+            url = db.database_url()
+            self.assertNotIn("channel_binding", url)
+            self.assertIn("-pooler", url)
+            self.assertTrue(db.is_pooler(url))
+            self.assertEqual(db.resolved_statement_timeout(None), 0)
+            kwargs = db.connect_kwargs(url, 8000)
+            self.assertNotIn("options", kwargs)
+            direct = "postgresql://u:p@ep-example.neon.tech/neondb"
+            self.assertEqual(
+                db.connect_kwargs(direct, 8000)["options"],
+                "-c statement_timeout=8000",
+            )
+        finally:
+            if saved_url is None:
+                os.environ.pop("DATABASE_URL", None)
+            else:
+                os.environ["DATABASE_URL"] = saved_url
+            if saved_timeout is None:
+                os.environ.pop("DATABASE_STATEMENT_TIMEOUT_MS", None)
+            else:
+                os.environ["DATABASE_STATEMENT_TIMEOUT_MS"] = saved_timeout
+            if saved_vercel is None:
+                os.environ.pop("VERCEL", None)
+            else:
+                os.environ["VERCEL"] = saved_vercel
 
     def test_public_stage_includes_the_insights_page(self):
         import subprocess
@@ -67,6 +122,9 @@ class VercelConfigTests(unittest.TestCase):
             staged = public / "data" / name
             self.assertTrue(staged.is_file(), name)
             self.assertEqual(staged.read_bytes(), (ROOT / "data" / name).read_bytes())
+        reference = public / "data" / "reference" / "nasa_saude_tripulacao.json"
+        self.assertTrue(reference.is_file())
+        self.assertEqual(reference.read_bytes(), (ROOT / "data" / "reference" / "nasa_saude_tripulacao.json").read_bytes())
 
     def test_vercel_upload_dir_defaults_to_tmp_and_can_be_created(self):
         keys = ("VERCEL", "UPLOAD_DIR")

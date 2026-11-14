@@ -114,6 +114,15 @@ test("an empty API base stays same-origin instead of falling back to localhost",
   assert.doesNotMatch(source, /getJson\("\/predict"\)/);
 });
 
+test("the insights page has a NASA reference section", () => {
+  const html = readFileSync(join(root, "frontend", "insights.html"), "utf8");
+  assert.match(html, /id="nasa-refs"/);
+  const reference = JSON.parse(readFileSync(join(root, "data", "reference", "nasa_saude_tripulacao.json"), "utf8"));
+  assert.equal(reference.registros[0].valor, 0.86);
+  assert.equal(reference.registros[0].status, "corrigido_precisao");
+  assert.equal(reference.fontes.co2, "https://www.nasa.gov/ochmo-tb-004-carbon-dioxide-2/");
+});
+
 test("the insights page is linked once from the existing nav", () => {
   const html = readFileSync(join(root, "frontend", "index.html"), "utf8");
   const matches = html.match(/insights\.html/g) || [];
