@@ -19,6 +19,11 @@
     { "source": "/docs", "destination": "/api/index" },
     { "source": "/redoc", "destination": "/api/index" },
     { "source": "/openapi.json", "destination": "/api/index" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/login", "destination": "/index.html" },
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/dashboard/(.*)", "destination": "/index.html" },
+    { "source": "/insights", "destination": "/index.html" },
+    { "source": "/demo", "destination": "/index.html" },
+    { "source": "/profile", "destination": "/index.html" }
   ]
 }

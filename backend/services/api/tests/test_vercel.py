@@ -103,28 +103,58 @@ class VercelConfigTests(unittest.TestCase):
             else:
                 os.environ["VERCEL"] = saved_vercel
 
-    def test_public_stage_includes_the_insights_page(self):
-        import subprocess
+    def test_stage_script_stages_the_built_spa(self):
+        """The stage script copies a Vite build, and never raw frontend sources."""
+        import tempfile
 
-        subprocess.run([sys.executable, str(ROOT / "scripts" / "stage_vercel_public.py")], check=True)
-        public = ROOT / "public"
-        self.assertTrue((public / "insights.html").is_file())
-        self.assertTrue((public / "insights.js").is_file())
-        self.assertTrue((public / "config.js").is_file())
-        self.assertFalse((public / "insights" / "smoke.test.mjs").exists())
-        for name in (
-            "labs_long.csv",
-            "radiation_iss.csv",
-            "donki_sep.csv",
-            "reference_ranges.csv",
-            "datasets.csv",
-        ):
-            staged = public / "data" / name
-            self.assertTrue(staged.is_file(), name)
-            self.assertEqual(staged.read_bytes(), (ROOT / "data" / name).read_bytes())
-        reference = public / "data" / "reference" / "nasa_saude_tripulacao.json"
-        self.assertTrue(reference.is_file())
-        self.assertEqual(reference.read_bytes(), (ROOT / "data" / "reference" / "nasa_saude_tripulacao.json").read_bytes())
+        scripts = ROOT / "scripts"
+        sys.path.insert(0, str(scripts))
+        try:
+            stage_module = importlib.import_module("stage_vercel_public")
+        finally:
+            sys.path.remove(str(scripts))
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            source = tmp_path / "dist"
+            (source / "assets").mkdir(parents=True)
+            (source / "index.html").write_text("<!doctype html>", encoding="utf-8")
+            (source / "favicon.svg").write_text("<svg/>", encoding="utf-8")
+            (source / "assets" / "app.js").write_text("console.log(1)", encoding="utf-8")
+
+            dest = tmp_path / "public"
+            self.assertEqual(stage_module.stage(source, dest), 3)
+            self.assertTrue((dest / "index.html").is_file())
+            self.assertTrue((dest / "assets" / "app.js").is_file())
+            self.assertFalse((dest / "src").exists())
+
+            # A missing build fails loudly instead of publishing source files.
+            with self.assertRaises(FileNotFoundError):
+                stage_module.stage(tmp_path / "frontend", dest)
+
+    def test_vercel_build_command_builds_the_frontend_before_staging(self):
+        config = json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
+        command = config["buildCommand"]
+        self.assertIn("npm --prefix frontend ci", command)
+        self.assertIn("npm --prefix frontend run build", command)
+        self.assertIn("scripts/stage_vercel_public.py", command)
+        # A FastAPI or Vite preset would change how / and the rewrites behave.
+        self.assertIsNone(config["framework"])
+
+    def test_rewrites_serve_spa_routes_without_swallowing_assets(self):
+        config = json.loads((ROOT / "vercel.json").read_text(encoding="utf-8"))
+        sources = [item["source"] for item in config["rewrites"]]
+        # Client-side routes exist as explicit rewrites so /assets/* and
+        # /favicon.svg stay on the CDN. A global "/(.*)" rule used to return
+        # index.html for JavaScript and CSS as well.
+        for route in ("/login", "/dashboard", "/dashboard/(.*)", "/insights", "/demo", "/profile"):
+            self.assertIn(route, sources)
+            self.assertEqual(
+                config["rewrites"][sources.index(route)]["destination"],
+                "/index.html",
+            )
+        self.assertNotIn("/(.*)", sources)
+        self.assertNotIn("/((?!.*).*)", sources)
 
     def test_vercel_upload_dir_defaults_to_tmp_and_can_be_created(self):
         keys = ("VERCEL", "UPLOAD_DIR")

@@ -14,6 +14,18 @@ This repository was generated from
 [founder-haus-engineering/bootstrap_new_project](https://github.com/founder-haus-engineering/bootstrap_new_project)
 and keeps that project's layout, Compose stack, scripts, and agent docs.
 
+![Crew board](docs/screenshots/dashboard.png)
+
+| Data insights | Radiation & temperature |
+| --- | --- |
+| ![Data insights](docs/screenshots/insights.png) | ![Radiation](docs/screenshots/radiation.png) |
+
+Mobile (390px):
+
+| Board | Navigation |
+| --- | --- |
+| ![Mobile board](docs/screenshots/mobile-dashboard.png) | ![Mobile drawer](docs/screenshots/mobile-drawer.png) |
+
 ## Stack
 
 - Frontend: React 19 with Vite, Tailwind CSS, Recharts, and `react-router-dom`

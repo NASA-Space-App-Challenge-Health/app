@@ -19,11 +19,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def stage(source: Path, dest: Path) -> int:
+    """Copy a built Vite tree into the CDN directory. Returns the file count."""
+    index = source / "index.html"
+    if not index.is_file():
+        raise FileNotFoundError(index)
+
+    if dest.exists():
+        shutil.rmtree(dest)
+    shutil.copytree(source, dest)
+    return sum(1 for path in dest.rglob("*") if path.is_file())
+
+
 def main() -> int:
     source = ROOT / "frontend" / "dist"
     dest = ROOT / "public"
 
-    if not (source / "index.html").is_file():
+    try:
+        files = stage(source, dest)
+    except FileNotFoundError:
         print(
             f"Missing {source / 'index.html'}. Run `npm --prefix frontend ci && "
             "npm --prefix frontend run build` before staging.",
@@ -31,11 +45,6 @@ def main() -> int:
         )
         return 1
 
-    if dest.exists():
-        shutil.rmtree(dest)
-    shutil.copytree(source, dest)
-
-    files = sum(1 for path in dest.rglob("*") if path.is_file())
     print(f"Staged {files} built files from {source.relative_to(ROOT)} into {dest.relative_to(ROOT)}")
     return 0
 
