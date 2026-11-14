@@ -2,6 +2,10 @@
   "name": "astronaut-health-monitor",
   "private": true,
   "scripts": {
-    "start": "bash scripts/start.sh"
+    "start": "bash scripts/start.sh",
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "stage": "python3 scripts/stage_vercel_public.py",
+    "lint": "npm --prefix frontend run lint"
   }
 }

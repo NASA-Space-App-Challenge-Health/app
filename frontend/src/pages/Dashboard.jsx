@@ -1,90 +1,130 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import { Activity, Heart, Wind, AlertTriangle } from 'lucide-react';
+import { useCallback } from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, PlayCircle } from 'lucide-react'
+import { api, ROLES } from '../api'
+import Chip, { bandChip } from '../components/Chip'
+import { Empty, ErrorState, Loading } from '../components/StateView'
+import AlertCard from '../components/dashboard/AlertCard'
+import BodyMap from '../components/dashboard/BodyMap'
+import Callout from '../components/dashboard/Callout'
+import CrewRow from '../components/dashboard/CrewRow'
+import HygieneCard from '../components/dashboard/HygieneCard'
+import LabsTable from '../components/dashboard/LabsTable'
+import RecommendationPreview from '../components/dashboard/RecommendationPreview'
+import VitalsGrid from '../components/dashboard/VitalsGrid'
+import { useViewer } from '../context/ViewerContext'
+import useFetch from '../hooks/useFetch'
 
-const API_URL = "http://127.0.0.1:8000/api/telemetria/atual";
-
+// Overview board. The viewer and role live in the URL, so every click here
+// re-reads the same filtered payload the rest of the app sees. Recommendations
+// come from the dedicated endpoint because the dashboard payload carries the
+// short alert form while this preview needs what_to_do and a confidence chip.
 export default function Dashboard() {
-  const { categoria } = useParams();
-  const [dados, setDados] = useState(null);
+  const { viewer, role, setViewer } = useViewer()
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(API_URL);
-        setDados(response.data);
-      } catch (error) {
-        console.error("Erro na API", error);
-      }
-    };
-    fetchData();
-    const interval = setInterval(fetchData, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  const load = useCallback(async () => {
+    const [dashboard, recommendationPayload] = await Promise.all([
+      api.dashboard({ viewer, role }),
+      api.recommendations({ crew: viewer, role, viewer }).catch(() => null),
+    ])
+    return {
+      dashboard,
+      recommendations: recommendationPayload?.recommendations ?? dashboard?.recommendations ?? [],
+    }
+  }, [viewer, role])
 
-  if (!dados) return <div className="text-accent animate-pulse text-xl">Carregando telemetria do traje...</div>;
+  const { data, loading, error, reload } = useFetch(load, [viewer, role])
 
-  if (!categoria) {
+  if (loading) return <Loading label="Loading the crew board from the API…" />
+  if (error) return <ErrorState error={error} onRetry={reload} />
+
+  const dashboard = data?.dashboard
+  const crew = Array.isArray(dashboard?.crew) ? dashboard.crew : []
+  const member = crew.find((item) => item.call_sign === viewer) ?? crew[0] ?? null
+  if (!member) {
     return (
-      <div>
-        <h1 className="text-3xl font-bold mb-6 text-white">Resumo Geral da Saúde</h1>
-        
-        <div className={`p-6 rounded-xl border mb-6 flex items-center justify-between ${
-          dados.status === 'CRÍTICO' ? 'bg-red-900/30 border-red-500' : 
-          dados.status === 'ATENÇÃO' ? 'bg-yellow-900/30 border-yellow-500' : 'bg-green-900/30 border-green-500'
-        }`}>
-          <div>
-            <h2 className="text-2xl font-bold text-white">Status: {dados.status}</h2>
-            <p className="text-gray-400 text-sm mt-1">Última avaliação: Agora mesmo</p>
-          </div>
-          {dados.emergencia_override && (
-            <div className="bg-red-600 px-4 py-2 rounded-lg font-bold animate-pulse text-white">
-              EMERGÊNCIA ATIVADA
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="bg-panel p-6 rounded-xl border border-gray-800">
-            <Heart className="text-red-500 mb-3" size={28} />
-            <p className="text-3xl font-bold text-white">{dados.dados.fc_bpm} <span className="text-sm font-normal text-gray-400">bpm</span></p>
-            <p className="text-sm text-gray-400 mt-1">Freq. Cardíaca</p>
-          </div>
-          <div className="bg-panel p-6 rounded-xl border border-gray-800">
-            <Activity className="text-blue-500 mb-3" size={28} />
-            <p className="text-3xl font-bold text-white">{dados.dados.spo2}<span className="text-sm font-normal text-gray-400">%</span></p>
-            <p className="text-sm text-gray-400 mt-1">Oxigenação</p>
-          </div>
-          <div className="bg-panel p-6 rounded-xl border border-gray-800">
-            <Wind className="text-gray-400 mb-3" size={28} />
-            <p className="text-3xl font-bold text-white">{dados.dados.co2_percentual}<span className="text-sm font-normal text-gray-400">%</span></p>
-            <p className="text-sm text-gray-400 mt-1">CO2</p>
-          </div>
-        </div>
-
-        <div className="bg-panel p-6 rounded-xl border border-gray-800">
-          <h2 className="text-xl font-bold text-accent mb-4">Assistente de Decisão</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-400 mb-1">Ação Recomendada:</p>
-              <p className="text-lg font-medium text-white">{dados.acao}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-400 mb-1">Análise Preditiva:</p>
-              <p className="text-lg font-medium text-yellow-400">{dados.previsao}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+      <Empty>The API returned no crew member for {viewer}. Check that the API is running and try again.</Empty>
+    )
   }
 
+  const visible = member.visible === 'full'
+  const roleLabel = ROLES.find((item) => item.id === role)?.label ?? role
+  const alerts = Array.isArray(dashboard?.alerts) ? dashboard.alerts : []
+
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center opacity-70 mt-20">
-      <AlertTriangle size={64} className="text-yellow-500 mb-4" />
-      <h1 className="text-3xl font-bold mb-2 capitalize text-white">Módulo {categoria}</h1>
-      <p className="text-gray-400">Integração de sensores desta área em desenvolvimento pela equipe.</p>
+    <div className="space-y-6">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
+            Crew overview · {dashboard?.group?.name ?? 'Inspiration4 open data'}
+          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-bold text-white">
+              {member.call_sign} · {member.full_name}
+            </h1>
+            {visible ? bandChip(member.overall_band) : <Chip kind="neutral">Private in this role</Chip>}
+            {member.is_cmo && <Chip kind="real">CMO</Chip>}
+          </div>
+          <p className="mt-1 text-sm text-slate-400">
+            {member.role_title ?? 'Crew member'} · viewing as {roleLabel}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2" aria-label="Data composition">
+          <Chip kind="real">Real NASA data</Chip>
+          <span className="text-slate-500" aria-hidden="true">
+            ·
+          </span>
+          <Chip kind="simulated">Simulated vitals</Chip>
+        </div>
+      </header>
+
+      {!visible && (
+        <Callout tone="warn">
+          Role {roleLabel}: this crew member&apos;s vitals and labs are hidden. Crew-wide notices stay visible.
+        </Callout>
+      )}
+
+      {alerts.map((alert) => (
+        <AlertCard key={alert.id ?? alert.title} alert={alert} />
+      ))}
+
+      <CrewRow crew={crew} selected={viewer} onSelect={setViewer} />
+
+      <VitalsGrid readings={member.readings} role={role} title="Vitals" subtitle="Simulated estimates, labelled one by one." />
+
+      <LabsTable labs={member.labs} role={role} />
+
+      <div className="grid gap-6 xl:grid-cols-3">
+        <div className="xl:col-span-2">
+          <BodyMap
+            body={dashboard?.body}
+            title="Body map"
+            subtitle="Plain-language effects and prevention from CSA, HRP, and OCHMO."
+          />
+        </div>
+        <div className="space-y-6">
+          <HygieneCard hygiene={dashboard?.hygiene} viewer={viewer} />
+          <RecommendationPreview recommendations={data?.recommendations} />
+        </div>
+      </div>
+
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-accent/30 bg-accent/5 p-5">
+        <div>
+          <h2 className="text-base font-semibold text-white">See the privacy and radiation story</h2>
+          <p className="mt-0.5 text-sm text-slate-400">
+            Four guided steps through the role rules and the real DosTel and DONKI records.
+          </p>
+        </div>
+        <Link
+          to="/demo"
+          className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-cyan-300"
+        >
+          <PlayCircle size={16} aria-hidden="true" />
+          Open guided demo
+          <ArrowRight size={14} aria-hidden="true" />
+        </Link>
+      </section>
     </div>
-  );
+  )
 }

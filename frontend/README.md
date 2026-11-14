@@ -1,16 +1,41 @@
-# React + Vite
+# Crew dashboard (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The product UI. It talks to the FastAPI service with same-origin relative paths
+(`/api/dashboard`, `/eda/...`, `/predict/...`, `/recommendations`).
 
-Currently, two official plugins are available:
+## Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```text
+index.html            Vite entry
+src/main.jsx          React root
+src/App.jsx           routes: /login, /dashboard, /dashboard/:categoria,
+                      /insights, /demo, /profile
+src/api.js            API client + role/crew constants
+src/hooks/useFetch.js loading, error, retry
+src/context/          viewer/role context (OCHMO privacy demo)
+src/components/       Layout, Card, Chip, SourceLinks, StateView, dashboard/*,
+                      insights/*
+src/pages/            Login, Dashboard, CategoryPage, Insights, Demo, Profile
+public/favicon.svg    app icon
+```
 
-## React Compiler
+## Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```sh
+npm ci
+npm run dev        # http://127.0.0.1:5173
+```
 
-## Expanding the Oxlint configuration
+`vite.config.js` proxies `/api`, `/eda`, `/predict`, `/recommendations`,
+`/health`, and `/docs` to `VITE_DEV_API` (default `http://127.0.0.1:8080`), so
+the pages never hard-code an API origin and production stays same-origin.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```sh
+npm run lint       # oxlint
+npm run build      # dist/, staged into public/ for Vercel by scripts/stage_vercel_public.py
+```
+
+The design baseline is the deep-space dark surface with Arctic Cyan (`#00e5ff`)
+and Royal Purple (`#7851a9`). Colour is never the only state signal: every chip
+carries a text label, and explanations sit behind `<details>` so the board stays
+short.

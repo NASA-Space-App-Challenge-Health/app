@@ -1,22 +1,32 @@
-import { useNavigate } from 'react-router-dom';
-import { Fingerprint } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'
+import { Fingerprint } from 'lucide-react'
 
+// Access screen from the design screens. The demo has no login: the button
+// models the biometric hand-off and drops the visitor on the crew board.
 export default function Login() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-space flex items-center justify-center">
-      <div className="bg-panel p-10 rounded-2xl border border-gray-800 text-center max-w-md w-full shadow-2xl">
-        <Fingerprint size={64} className="text-accent mx-auto mb-6" />
-        <h1 className="text-2xl font-bold text-white mb-2">Identificação Biométrica</h1>
-        <p className="text-gray-400 mb-8">Aproxime o crachá ou use o reconhecimento facial (IA).</p>
-        <button 
+    <div className="flex min-h-screen items-center justify-center bg-space px-4 text-slate-100">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-panel/80 p-10 text-center shadow-2xl">
+        <span className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/10">
+          <Fingerprint size={36} className="text-accent" aria-hidden="true" />
+        </span>
+        <h1 className="text-2xl font-bold text-white">Crew access</h1>
+        <p className="mt-2 text-sm text-slate-400">
+          Biometric identification is simulated in this prototype. The board opens with the C001 view.
+        </p>
+        <button
+          type="button"
           onClick={() => navigate('/dashboard')}
-          className="w-full bg-accent text-black font-bold py-3 rounded-lg hover:bg-cyan-400 transition-colors"
+          className="mt-8 w-full rounded-xl bg-accent py-3 text-sm font-bold text-black transition-colors hover:bg-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
-          Simular Acesso Autorizado
+          Simulate authorised access
         </button>
+        <p className="mt-6 text-[11px] text-slate-500">
+          NASA Space Apps Challenge 2026 · demo only, no real crew data.
+        </p>
       </div>
     </div>
-  );
+  )
 }

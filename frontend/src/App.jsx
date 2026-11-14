@@ -1,23 +1,30 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import Login from './pages/Login';
-import Profile from './pages/Profile';
-import Dashboard from './pages/Dashboard';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import Layout from './components/Layout'
+import { ViewerProvider } from './context/ViewerContext'
+import CategoryPage from './pages/CategoryPage'
+import Dashboard from './pages/Dashboard'
+import Demo from './pages/Demo'
+import Insights from './pages/Insights'
+import Login from './pages/Login'
+import Profile from './pages/Profile'
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route element={<Sidebar />}>
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/:categoria" element={<Dashboard />} /> 
-        </Route>
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+      <ViewerProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/:categoria" element={<CategoryPage />} />
+            <Route path="/insights" element={<Insights />} />
+            <Route path="/demo" element={<Demo />} />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </ViewerProvider>
     </BrowserRouter>
-  );
+  )
 }
-
-export default App;

@@ -1,45 +1,44 @@
-"""Copy the static site into public/ so the Vercel CDN can serve it.
+"""Stage the built React app into public/ for the Vercel CDN.
 
-Includes the crew board, the insights page, charts, and fonts. API routes
-are not files here; vercel.json rewrites those to the FastAPI function.
+The Vercel build command runs `npm --prefix frontend ci`, then
+`npm --prefix frontend run build`, then this script. Static files in `public/`
+are served by the CDN; API paths are rewritten to the FastAPI function in
+`api/index.py`.
+
+Local equivalent:
+
+    npm --prefix frontend run build && python3 scripts/stage_vercel_public.py
 """
 
 from __future__ import annotations
 
 import shutil
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CSV_NAMES = (
-    "labs_long.csv",
-    "radiation_iss.csv",
-    "donki_sep.csv",
-    "reference_ranges.csv",
-    "datasets.csv",
-)
 
 
-def main() -> None:
-    source = ROOT / "frontend"
+def main() -> int:
+    source = ROOT / "frontend" / "dist"
     dest = ROOT / "public"
+
+    if not (source / "index.html").is_file():
+        print(
+            f"Missing {source / 'index.html'}. Run `npm --prefix frontend ci && "
+            "npm --prefix frontend run build` before staging.",
+            file=sys.stderr,
+        )
+        return 1
+
     if dest.exists():
         shutil.rmtree(dest)
-    shutil.copytree(
-        source,
-        dest,
-        ignore=shutil.ignore_patterns("*.test.mjs", "__pycache__", "*.pyc"),
-    )
-    data_dest = dest / "data"
-    data_dest.mkdir(parents=True, exist_ok=True)
-    for name in CSV_NAMES:
-        shutil.copy2(ROOT / "data" / name, data_dest / name)
-    reference = ROOT / "data" / "reference" / "nasa_saude_tripulacao.json"
-    if reference.is_file():
-        ref_dest = data_dest / "reference"
-        ref_dest.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(reference, ref_dest / reference.name)
-    print(f"Staged {source}, {len(CSV_NAMES)} CSVs, and the NASA reference JSON into {dest}")
+    shutil.copytree(source, dest)
+
+    files = sum(1 for path in dest.rglob("*") if path.is_file())
+    print(f"Staged {files} built files from {source.relative_to(ROOT)} into {dest.relative_to(ROOT)}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
