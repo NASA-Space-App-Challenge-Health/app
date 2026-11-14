@@ -39,7 +39,13 @@ const state = {
 
 function apiBase() {
   const fromQuery = new URLSearchParams(window.location.search).get("api");
-  return (fromQuery || window.CREW_HEALTH_API_BASE || "http://127.0.0.1:8080").replace(/\/$/, "");
+  if (fromQuery) return fromQuery.replace(/\/$/, "");
+  // config.js sets "" on Vercel so requests stay on this origin. An empty
+  // string is that choice, not a missing value.
+  if (typeof window.CREW_HEALTH_API_BASE === "string") {
+    return window.CREW_HEALTH_API_BASE.replace(/\/$/, "");
+  }
+  return "http://127.0.0.1:8080";
 }
 
 function text(id, value) {
@@ -457,19 +463,18 @@ function guidanceList(payload) {
 
 async function loadGuidance() {
   if (state.recPayload !== null) return;
-  const [recs, predict, predictLabs] = await Promise.all([
+  const [recs, predictLabs] = await Promise.all([
     getJson("/recommendations"),
-    getJson("/predict"),
     getJson("/predict/labs"),
   ]);
   state.recPayload = recs;
-  state.forecastPayloads = [predict, predictLabs];
+  state.forecastPayloads = [predictLabs];
 }
 
 async function renderGuidance() {
   await loadGuidance();
   const recs = state.recPayload;
-  const [predict, predictLabs] = state.forecastPayloads;
+  const [predictLabs] = state.forecastPayloads;
   const recList = guidanceList(recs).filter((item) => matchRecommendation(item, state.filters));
   const host = document.querySelector("#recs");
   if (!recList.length) {
@@ -491,7 +496,7 @@ async function renderGuidance() {
       sources: item.sources,
     })));
   }
-  const forecasts = guidanceList(predict).concat(guidanceList(predictLabs)).filter((item) => matchRecommendation(item, state.filters)).slice(0, 3);
+  const forecasts = guidanceList(predictLabs).filter((item) => matchRecommendation(item, state.filters)).slice(0, 3);
   const box = document.querySelector("#forecasts");
   if (!forecasts.length) {
     box.replaceChildren();

@@ -28,6 +28,7 @@ from app.repository import (
     list_readings,
     load_on_startup,
     save_image,
+    upload_dir,
     save_note,
     set_indicator_share,
     set_share_mode,
@@ -323,7 +324,7 @@ async def post_image(
         raise HTTPException(status_code=413, detail="Images are limited to 5 MB")
     if not raw:
         raise HTTPException(status_code=422, detail="Empty file")
-    folder = __import__("pathlib").Path(__import__("os").environ.get("UPLOAD_DIR", "data/uploads"))
+    folder = upload_dir()
     folder.mkdir(parents=True, exist_ok=True)
     safe = (file.filename or "ultrasound").replace("/", "").replace("..", "")[:80]
     stored = f"{crew_id}-{body_region}-{safe}"

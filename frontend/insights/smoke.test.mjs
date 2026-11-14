@@ -106,6 +106,14 @@ test("overview offers at most three takeaways", () => {
   assert.match(lines[0], /Blood sugar/);
 });
 
+test("an empty API base stays same-origin instead of falling back to localhost", () => {
+  const source = readFileSync(join(root, "frontend", "insights.js"), "utf8");
+  assert.match(source, /typeof window\.CREW_HEALTH_API_BASE === "string"/);
+  assert.doesNotMatch(source, /CREW_HEALTH_API_BASE \|\| "http:\/\/127\.0\.0\.1:8080"/);
+  assert.match(source, /getJson\("\/predict\/labs"\)/);
+  assert.doesNotMatch(source, /getJson\("\/predict"\)/);
+});
+
 test("the insights page is linked once from the existing nav", () => {
   const html = readFileSync(join(root, "frontend", "index.html"), "utf8");
   const matches = html.match(/insights\.html/g) || [];
