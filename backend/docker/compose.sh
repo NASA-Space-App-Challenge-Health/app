@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Compose entry point for the local stack. Creates backend/docker/.env from the
+# example on first use and loads the ignored local override when present.
 set -euo pipefail
 
 DOCKER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -20,20 +22,11 @@ COMPOSE_ARGS=(
 )
 
 if [[ ! -f "$ENV_FILE" ]]; then
-  if [[ "${BACKEND_DEPLOYMENT:-local}" == vm ]]; then
-    printf 'Server environment file is missing: %s\n' "$ENV_FILE" >&2
-    exit 1
-  fi
   cp "$ENV_EXAMPLE" "$ENV_FILE"
   echo "Created local backend environment file: $ENV_FILE"
 fi
 
-if [[ "${BACKEND_DEPLOYMENT:-local}" == vm ]]; then
-  COMPOSE_ARGS+=(--file "$DOCKER_DIR/compose.vm.yaml")
-elif [[ "${BACKEND_DEPLOYMENT:-local}" != local ]]; then
-  printf 'Unknown BACKEND_DEPLOYMENT: %s\n' "$BACKEND_DEPLOYMENT" >&2
-  exit 1
-elif [[ -f "$LOCAL_COMPOSE_FILE" ]]; then
+if [[ -f "$LOCAL_COMPOSE_FILE" ]]; then
   COMPOSE_ARGS+=(--file "$LOCAL_COMPOSE_FILE")
 fi
 

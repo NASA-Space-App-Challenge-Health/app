@@ -144,12 +144,13 @@ service, lints and builds the frontend, and stages the Vercel output.
 One Vercel project serves the React dashboard and the FastAPI function.
 `vercel.json` sets the build command, the `public` output directory, and the
 rewrites for the API and the client-side routes. Read
-[docs/DEPLOY_VERCEL.md](docs/DEPLOY_VERCEL.md) for project settings, env vars,
-and the one-off database seed.
+[docs/deploy-vercel.md](docs/deploy-vercel.md) for project settings, env vars,
+routing, and the one-off database seed.
 
-VM deploy (`scripts/deploy_backend.sh` over SSH with Caddy) and Cloudflare Pages
-(`scripts/deploy_frontend.sh` for `frontend/dist`) remain available. Read
-[@docs/DEPLOYMENT.md](@docs/DEPLOYMENT.md) for setup and commands.
+The Vercel project is not connected to GitHub, so publishing is an explicit
+`vercel deploy --prod` from the repository root (the local link lives in
+`.vercel/`, which stays ignored). Local development and CI do not need any
+Vercel credential.
 
 ## Configuration
 
@@ -177,8 +178,8 @@ three-day flight, one ISS DosTel week in June 2024 (a vehicle measurement, not a
 personal dosimeter), and 119 DONKI SEP rows for 2024. There is no in-flight
 blood draw and no continuous crew vitals in the public tables. Risk cutoffs in
 `backend/services/api/rules/rules.yaml` are app settings, not flight-surgeon
-limits. Read [data/README.md](data/README.md), [docs/EDA.md](docs/EDA.md), and
-[docs/PREDICTIVE.md](docs/PREDICTIVE.md) for the numbers and the methods.
+limits. Read [data/README.md](data/README.md), [docs/eda.md](docs/eda.md), and
+[docs/predictive.md](docs/predictive.md) for the numbers and the methods.
 
 ## Layout
 
@@ -188,10 +189,11 @@ backend/services/api/     FastAPI app, rules, tests, Dockerfile
 backend/services/database migrations, pgvector init, SCHEMA.md
 backend/docker/           Compose stack and local env example
 api/index.py              Vercel entrypoint for the FastAPI app
-scripts/                  start, serve, stage, and deploy helpers
+scripts/                  start, serve, and stage helpers
 data/                     NASA open data (CSVs and source manifest)
-@docs/                    bootstrap, deployment, research, journal
-docs/                     EDA, predictive notes, Vercel deploy
+docs/                     EDA, predictive notes, deploy, research, journal,
+                          screenshots
+notebooks/                analysis scripts that back the docs
 ```
 
 See [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md).

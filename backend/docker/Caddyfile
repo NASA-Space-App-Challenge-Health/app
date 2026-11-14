@@ -1,3 +1,0 @@
-{$BACKEND_DOMAIN} {
-    reverse_proxy api:{$API_CONTAINER_PORT}
-}

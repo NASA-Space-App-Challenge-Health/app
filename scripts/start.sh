@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Small project menu: start the local stack, run the Vite dashboard, or build
+# the API image. Production publishing is `vercel deploy --prod` (see
+# docs/deploy-vercel.md).
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -14,7 +17,7 @@ else
   RESET=""
 fi
 
-MENU_ITEMS=("Start" "Build" "Deploy backend" "Deploy frontend" "Exit")
+MENU_ITEMS=("Start stack" "Dashboard" "Build images" "Exit")
 
 print_plain_menu() {
   printf '\n%sProject control%s\n' "$ROYAL_PURPLE" "$RESET"
@@ -70,7 +73,7 @@ choose_menu_action() {
         choice=$((selected_index + 1))
         return 0
         ;;
-      [1-5])
+      [1-4])
         choice="$key"
         return 0
         ;;
@@ -90,6 +93,10 @@ start_backend() {
   printf '%sthen open%s http://127.0.0.1:5173\n\n' "$ARCTIC_CYAN" "$RESET"
 }
 
+run_dashboard() {
+  bash "$ROOT_DIR/scripts/serve_frontend.sh"
+}
+
 build_images() {
   if [[ ! -x "$BACKEND_COMPOSE" ]]; then
     echo "Backend Compose wrapper not found: $BACKEND_COMPOSE"
@@ -98,41 +105,13 @@ build_images() {
   "$BACKEND_COMPOSE" build
 }
 
-run_placeholder() {
-  local label="$1"
-  printf '\n%s%s is not implemented yet.%s\n' "$ROYAL_PURPLE" "$label" "$RESET"
-  printf '%sUpdate %s or add project-specific scripts in %s.%s\n\n' \
-    "$ARCTIC_CYAN" "$0" "$ROOT_DIR" "$RESET"
-}
-
 run_choice() {
   case "$1" in
-    1)
-      start_backend
-      ;;
-    2)
-      build_images
-      ;;
-    3)
-      if [[ -s "$ROOT_DIR/scripts/deploy_backend.sh" ]]; then
-        bash "$ROOT_DIR/scripts/deploy_backend.sh"
-      else
-        run_placeholder "Backend deploy"
-      fi
-      ;;
-    4)
-      if [[ -s "$ROOT_DIR/scripts/deploy_frontend.sh" ]]; then
-        bash "$ROOT_DIR/scripts/deploy_frontend.sh"
-      else
-        run_placeholder "Frontend deploy"
-      fi
-      ;;
-    5)
-      exit 0
-      ;;
-    *)
-      printf '%sInvalid selection.%s\n' "$ROYAL_PURPLE" "$RESET"
-      ;;
+    1) start_backend ;;
+    2) run_dashboard ;;
+    3) build_images ;;
+    4) exit 0 ;;
+    *) printf '%sInvalid selection.%s\n' "$ROYAL_PURPLE" "$RESET" ;;
   esac
 }
 

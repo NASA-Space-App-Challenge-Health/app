@@ -19,21 +19,20 @@ documented ownership; do not guess.
 ## Architecture and ownership
 
 `frontend/` → API (`backend/services/api/`) → PostgreSQL + pgvector
-(`backend/services/database/`) and Redis (`backend/services/queue/`). Browsers
-talk only to the API. The API owns auth, validation, transactions, queue
-submission, and result delivery. PostgreSQL is the system of record; Redis is
-transport and must not silently replace durable storage.
+(`backend/services/database/`). Browsers talk only to the API. The API owns
+validation, transactions, and result delivery. PostgreSQL is the system of
+record. Redis (`backend/services/queue/`) is in the Compose stack for later jobs
+and is not on any request path.
 
 - `backend/docker/compose.yaml` is tracked shared topology.
 - `backend/docker/compose.local.yaml` is an ignored developer override; never
   place team or production requirements there.
-- `backend/docker/compose.vm.yaml` is tracked VM topology; Caddy provides HTTPS.
-- `scripts/deploy_frontend.sh` uploads static output to Pages (`pages.dev`);
-  `scripts/deploy_backend.sh` deploys all services to a persistent Docker VM.
-- `scripts/vm_activate.sh` runs on the VM. Keep the Compose project name fixed
-  across source releases so database/queue volumes retain their identity.
-- Server secrets live outside release directories in `shared/backend.env`.
-  Never overwrite them with a laptop's `.env` or delete volumes during deploy.
+- `api/index.py` + `vercel.json` are the production entrypoint: one Vercel
+  project builds the frontend, serves it as static files, and rewrites API paths
+  to the FastAPI function. There is no VM or Pages deploy path.
+- Production environment variables live on the Vercel project, never in the
+  repository. `DATABASE_URL` is a secret; `LOAD_ON_STARTUP=false` keeps cold
+  starts cheap.
 - `backend/docker/compose.sh` is the Compose entry point.
 - `backend/services/database/init/` runs only for a new database volume.
 - `backend/services/database/migrations/` contains immutable forward migrations.
@@ -48,7 +47,8 @@ transport and must not silently replace durable storage.
 - Keep jobs idempotent, traceable, retry-bounded, replay-safe, and durable where
   their intent or result affects users or downstream systems.
 - Use internal container DNS and service ports; never use `localhost` for a
-  sibling container. The VM exposes only Caddy on public HTTP/HTTPS ports.
+  sibling container. In production the only public entrypoint is the Vercel
+  project (static files plus the Python function).
 - Never commit credentials, tokens, private keys, production data, or generated
   artifacts. Do not add `privileged`, host networking, Docker socket mounts, or
   broad filesystem access as convenience fixes.
@@ -91,7 +91,7 @@ run; state the missing proof and residual risk.
 Report the user-visible result, files changed, contracts/migrations affected,
 security and accessibility decisions, commands and runtime evidence, and any
 deferred risks. Append one completed-response row only to
-`@docs/JOURNAL.csv`: `Prompt Summary,Original Prompt,Timestamp,Tokens,Elapsed`.
+`docs/journal.csv`: `Prompt Summary,Original Prompt,Timestamp,Tokens,Elapsed`.
 Keep `Prompt Summary` concise, and store the complete, exact user prompt as
 typed in `Original Prompt` (using valid CSV quoting so commas, quotes, and
 newlines remain part of that one field). Every row must populate all five

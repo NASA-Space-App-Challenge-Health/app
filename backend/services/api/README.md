@@ -30,7 +30,7 @@ bash scripts/serve_api.sh
 | `GET` | `/api/insights` | Common lab flags, worsening pairs, extremes. |
 | `POST` | `/api/crew/{id}/sharing` | Body `{"share_mode": "full"}` or `"alerts_only"`. |
 | `POST` | `/api/uploads` | Multipart CSV of simulated vitals. See `data/UPLOAD_SCHEMA.md`. |
-| `GET` | `/eda/overview` and the other `/eda/...` routes | Chart JSON from Postgres. See `docs/EDA.md`. |
+| `GET` | `/eda/overview` and the other `/eda/...` routes | Chart JSON from Postgres. See `docs/eda.md`. |
 | `GET` | `/api/crew` | Crew roster and overall band. |
 | `POST` | `/api/crew` | Add a crew member. No readings yet. |
 | `GET` | `/api/crew/{id}` | One crew member, with every indicator filled or marked missing. |
