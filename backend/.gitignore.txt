@@ -1,0 +1,15 @@
+# Ambientes virtuais
+venv/
+.venv/
+
+# Arquivos Python compilados
+__pycache__/
+*.pyc
+
+# Banco de dados local (não deve ir pro github)
+*.db
+space_health.db
+
+# Arquivos de configuração de IDE
+.vscode/
+.idea/
