@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Astronaut Health Monitor — one-pager</title>
+    <style>
+      @page { size: A4; margin: 0; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        width: 210mm;
+        height: 297mm;
+        background: #07080d;
+        color: #e6eaf4;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .page { position: relative; width: 100%; height: 100%; padding: 13mm 14mm 11mm; overflow: hidden; }
+      .glow {
+        position: absolute; inset: -20% -10% auto auto; width: 120mm; height: 120mm;
+        background: radial-gradient(circle, rgba(0,229,255,0.16), transparent 65%);
+      }
+      .glow2 {
+        position: absolute; inset: auto auto -25% -15%; width: 130mm; height: 130mm;
+        background: radial-gradient(circle, rgba(120,81,169,0.20), transparent 65%);
+      }
+      header { position: relative; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 7mm; }
+      .eyebrow { color: #00e5ff; font-size: 8.5pt; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; }
+      h1 { margin: 2.5mm 0 1.5mm; font-size: 27pt; line-height: 1.05; letter-spacing: -0.02em; }
+      .sub { color: #9aa5bf; font-size: 10.5pt; margin: 0; max-width: 150mm; }
+      .links { margin-top: 4mm; font-size: 9pt; color: #9aa5bf; }
+      .links b { color: #00e5ff; font-weight: 600; }
+      .grid { position: relative; display: grid; grid-template-columns: 1.05fr 1fr; gap: 8mm; margin-top: 7mm; }
+      h2 { font-size: 10pt; margin: 0 0 2.5mm; color: #ffffff; letter-spacing: 0.02em; }
+      h2 span { color: #00e5ff; }
+      ul { margin: 0 0 5mm; padding-left: 4.2mm; }
+      li { font-size: 8.6pt; line-height: 1.45; color: #c7cfdf; margin-bottom: 1.6mm; }
+      li b { color: #ffffff; font-weight: 600; }
+      .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.6mm; margin: 1mm 0 6mm; }
+      .metric { border: 1px solid rgba(255,255,255,0.10); border-radius: 3mm; padding: 3mm; background: rgba(255,255,255,0.02); }
+      .metric .n { font-size: 14pt; font-weight: 700; color: #ffffff; line-height: 1; white-space: nowrap; }
+      .metric .l { font-size: 6.8pt; color: #8f9ab4; margin-top: 1.8mm; line-height: 1.3; }
+      table { width: 100%; border-collapse: collapse; font-size: 8pt; margin-top: 1mm; }
+      th { text-align: left; color: #8f9ab4; font-weight: 600; font-size: 7pt; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid rgba(255,255,255,0.12); padding: 1.6mm 1mm; }
+      td { padding: 1.8mm 1mm; border-bottom: 1px solid rgba(255,255,255,0.06); color: #c7cfdf; vertical-align: top; }
+      td:first-child { color: #ffffff; font-weight: 600; white-space: nowrap; }
+      .tag { display: inline-block; border-radius: 99px; padding: 0.6mm 2mm; font-size: 6.6pt; font-weight: 700; letter-spacing: 0.06em; }
+      .real { background: rgba(0,229,255,0.12); color: #7ef0ff; border: 1px solid rgba(0,229,255,0.35); }
+      .sim { background: rgba(120,81,169,0.18); color: #cdb6ff; border: 1px solid rgba(120,81,169,0.5); }
+      .shots { display: grid; gap: 3mm; }
+      figure { margin: 0; }
+      figure img {
+        width: 100%;
+        height: 74mm;
+        object-fit: cover;
+        object-position: top;
+        border-radius: 2.5mm;
+        border: 1px solid rgba(255,255,255,0.12);
+        display: block;
+      }
+      figcaption { font-size: 6.6pt; color: #7f8aa4; margin-top: 1mm; line-height: 1.3; }
+      .note { margin-top: 4mm; border-left: 2px solid #7851a9; padding: 2mm 0 2mm 3mm; font-size: 7.8pt; color: #a9b3c8; line-height: 1.45; }
+      footer { position: absolute; left: 14mm; right: 14mm; bottom: 8mm; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.10); padding-top: 3mm; font-size: 7.2pt; color: #6f7a94; }
+      footer b { color: #b9c3d8; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="glow"></div>
+      <div class="glow2"></div>
+
+      <header>
+        <div class="eyebrow">NASA Space Apps Challenge 2026 · Health Monitoring Software</div>
+        <h1>Astronaut Health Monitor</h1>
+        <p class="sub">
+          A crew health board for astronauts, built on real Inspiration4 labs, ISS radiation and solar
+          particle events — with every simulated value labelled and every claim linked to its NASA source.
+        </p>
+        <p class="links">
+          Live demo <b>nasa-health-app.vercel.app</b> · Code <b>github.com/NASA-Space-App-Challenge-Health/app</b>
+        </p>
+      </header>
+
+      <div class="grid">
+        <div>
+          <div class="metrics">
+            <div class="metric"><div class="n">13,249</div><div class="l">real Inspiration4 lab rows</div></div>
+            <div class="metric"><div class="n">524</div><div class="l">analytes across CBC, CMP, cytokines</div></div>
+            <div class="metric"><div class="n">4.14%</div><div class="l">rows outside the printed range</div></div>
+            <div class="metric"><div class="n">119</div><div class="l">DONKI solar particle events, 2024</div></div>
+          </div>
+
+          <h2>What it does</h2>
+          <ul>
+            <li><b>One board for the crew.</b> Status, emergency notice, vitals, labs, a clickable body map and a hygiene order in one view.</li>
+            <li><b>OCHMO privacy model.</b> Emergencies broadcast generically; labs and notes stay with the CMO and flight surgeon. A crewmate sees a number only when its owner opts it in.</li>
+            <li><b>Guided demo.</b> Two real records: the 528.5 µGy/h DosTel peak paired with the next DONKI SEP, and C003 potassium already low before the next draw.</li>
+            <li><b>Plain-language insights.</b> One takeaway per chart, filters by crew and topic, and forecasts that state their uncertainty (7 draws, 95% interval, not a physiological model).</li>
+          </ul>
+
+          <h2>Real <span>vs</span> simulated — stated on screen</h2>
+          <table>
+            <tr><th>Source</th><th>What</th><th>Label</th></tr>
+            <tr><td>OSD-569/575/656</td><td>CBC, CMP, cytokine labs (4 crew, 7 timepoints)</td><td><span class="tag real">REAL</span></td></tr>
+            <tr><td>RadLab</td><td>ISS DosTel dose rate, one week in June 2024</td><td><span class="tag real">REAL</span></td></tr>
+            <tr><td>DONKI</td><td>119 solar energetic particle events (2024)</td><td><span class="tag real">REAL</span></td></tr>
+            <tr><td>Generated</td><td>Heart rate, SpO₂, CO₂, temperature, sleep, cortisol, hydration, hygiene</td><td><span class="tag sim">SIMULATED</span></td></tr>
+          </table>
+
+          <div class="note">
+            Scope, stated plainly: four civilians on a three-day flight, pre/post-flight labs only, one vehicle
+            radiation week, no personal dosimetry. Risk cutoffs are app settings, not flight-surgeon limits.
+          </div>
+        </div>
+
+        <div class="shots">
+          <figure>
+            <img src="../screenshots/dashboard.png" alt="Crew board" />
+            <figcaption>Crew board — real labs and labelled simulated vitals; the radiation notice pairs the real DosTel peak with the next DONKI SEP.</figcaption>
+          </figure>
+          <figure>
+            <img src="../screenshots/insights.png" alt="Data insights" />
+            <figcaption>Data insights — plain-language takeaways, shareable filters, NASA sources on every card.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <footer>
+        <div>
+          <b>React 19 · Vite · FastAPI · PostgreSQL + pgvector (Neon) · Vercel</b><br />
+          Educational demonstration. Not a medical device and not a diagnosis.
+        </div>
+        <div style="text-align: right">
+          <b>nasa-health-app.vercel.app</b><br />
+          github.com/NASA-Space-App-Challenge-Health/app
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
