@@ -1,6 +1,6 @@
 # Deploy on Vercel
 
-One Vercel project serves the static dashboard and the FastAPI API. The dashboard is copied to `public/` at build time and served from the CDN. API routes stay on the FastAPI app exported from `api/index.py`.
+One Vercel project serves the static site and the FastAPI API. The build copies the whole `frontend/` tree, including the insights page, into `public/` for the CDN. API routes stay on the FastAPI app exported from `api/index.py`.
 
 This follows the current Vercel Python runtime: a FastAPI `app` in `api/index.py` is a recognized entrypoint, the app becomes one Function, and `vercel.json` rewrites send the API paths to that function. Static files in `public/` are matched before those rewrites.
 
@@ -15,7 +15,7 @@ Import the Git repository. Leave the root as the repository root.
 | Framework preset | **FastAPI**. Vercel detects it from `requirements.txt` and `api/index.py`. Do not pick Other, Next.js, or a static-only preset. |
 | Root directory | Repository root (`.`). Not `frontend/` and not `backend/`. |
 | Install command | Default. That runs `pip install -r requirements.txt`, which includes the API requirements. |
-| Build command | `python3 scripts/stage_vercel_public.py` (already set in `vercel.json`). It copies `frontend/` into `public/`. |
+| Build command | `python3 scripts/stage_vercel_public.py` (already set in `vercel.json`). It copies the whole `frontend/` tree, including `insights.html`, into `public/`. |
 | Output directory | **Empty.** Do not set `public` or `frontend`. An output directory would publish a static site and drop the Function. |
 | Development command | Leave empty. Local development stays on Docker Compose. |
 

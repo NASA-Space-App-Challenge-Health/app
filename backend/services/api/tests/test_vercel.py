@@ -45,7 +45,18 @@ class VercelConfigTests(unittest.TestCase):
         self.assertIn("/predict", sources)
         self.assertIn("/predict/(.*)", sources)
         self.assertIn("/recommendations", sources)
+        self.assertIn("/eda/(.*)", sources)
         self.assertIn("data/**", config["functions"]["api/index.py"]["excludeFiles"])
+
+    def test_public_stage_includes_the_insights_page(self):
+        import subprocess
+
+        subprocess.run([sys.executable, str(ROOT / "scripts" / "stage_vercel_public.py")], check=True)
+        public = ROOT / "public"
+        self.assertTrue((public / "insights.html").is_file())
+        self.assertTrue((public / "insights.js").is_file())
+        self.assertTrue((public / "config.js").is_file())
+        self.assertFalse((public / "insights" / "smoke.test.mjs").exists())
 
     def test_remote_database_url_requires_ssl_and_local_does_not(self):
         saved = os.environ.get("DATABASE_URL")

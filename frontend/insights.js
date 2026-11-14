@@ -39,7 +39,13 @@ const state = {
 
 function apiBase() {
   const fromQuery = new URLSearchParams(window.location.search).get("api");
-  return (fromQuery || window.CREW_HEALTH_API_BASE || "http://127.0.0.1:8080").replace(/\/$/, "");
+  if (fromQuery) return fromQuery.replace(/\/$/, "");
+  // config.js sets "" on Vercel so requests stay on this origin. An empty
+  // string is that choice, not a missing value.
+  if (typeof window.CREW_HEALTH_API_BASE === "string") {
+    return window.CREW_HEALTH_API_BASE.replace(/\/$/, "");
+  }
+  return "http://127.0.0.1:8080";
 }
 
 function text(id, value) {
