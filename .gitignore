@@ -21,3 +21,8 @@ data/raw/*
 data/processed/*
 !data/processed/.gitkeep
 data/uploads/
+*.db
+space_health.db
+venv/
+.vscode/
+.idea/

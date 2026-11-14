@@ -2,9 +2,7 @@
 
 One Vercel project serves the static site and the FastAPI API. The build copies the whole `frontend/` tree, including the insights page, into `public/` for the CDN. API routes stay on the FastAPI app exported from `api/index.py`.
 
-This follows the current Vercel Python runtime: a FastAPI `app` in `api/index.py` is a recognized entrypoint, the app becomes one Function, and `vercel.json` rewrites send the API paths to that function. Static files in `public/` are matched before those rewrites.
-
-`/predict` and `/recommendations` are already rewritten to the same function. They answer once the routes from the predictions branch are on `main`. Until then those paths 404 from FastAPI, and the rest of the API still works.
+`api/index.py` exports the FastAPI `app`. `vercel.json` sets `"framework": null` (the dashboard preset **Other**), `"outputDirectory": "public"`, and the build command below. The FastAPI preset is what broke production: `/` returned API JSON, `public/` was not the site, and rewrites handed the function the path `/api/index`, so `/api/dashboard` and `/eda` 404ed. With Other, static files in `public/` are served first and the function still sees the original path.
 
 ## Project settings
 
@@ -12,11 +10,11 @@ Import the Git repository. Leave the root as the repository root.
 
 | Setting | Value |
 | --- | --- |
-| Framework preset | **FastAPI**. Vercel detects it from `requirements.txt` and `api/index.py`. Do not pick Other, Next.js, or a static-only preset. |
+| Framework preset | **Other.** `vercel.json` sets `"framework": null`. Do not switch it back to FastAPI. |
 | Root directory | Repository root (`.`). Not `frontend/` and not `backend/`. |
-| Install command | Default. That runs `pip install -r requirements.txt`, which includes the API requirements. |
-| Build command | `python3 scripts/stage_vercel_public.py` (already set in `vercel.json`). It copies the whole `frontend/` tree, including `insights.html`, into `public/`, plus the five NASA CSVs into `public/data/` for the insights fallback. |
-| Output directory | **Empty.** Do not set `public` or `frontend`. An output directory would publish a static site and drop the Function. |
+| Install command | Default. `requirements.txt` lists the packages itself. A file that only says `-r backend/services/api/requirements.txt` makes the Python build fail with `PYTHON_REQUIREMENTS_PARSE_ERROR`. |
+| Build command | `python3 scripts/stage_vercel_public.py` (already in `vercel.json`). Copies `frontend/` into `public/`, the five NASA CSVs into `public/data/`, and `data/reference/nasa_saude_tripulacao.json` into `public/data/reference/`. |
+| Output directory | **`public`**. Already set as `outputDirectory` in `vercel.json`. |
 | Development command | Leave empty. Local development stays on Docker Compose. |
 
 Python is 3.12 (`.python-version`).
@@ -27,9 +25,9 @@ Set these on the Vercel project. Do not commit them.
 
 | Name | Required | Value |
 | --- | --- | --- |
-| `DATABASE_URL` | Yes | The team's production Postgres URL. `postgres://` is accepted. If `sslmode` is missing and the host is not local, the app adds `sslmode=require`. A pooler URL (PgBouncer, transaction mode) is fine: each request opens one connection and does not prepare statements. |
-| `LOAD_ON_STARTUP` | Yes | `false`. This skips the CSV load on every cold start. Vercel also sets `VERCEL=1`, which skips the load when this variable is unset. Set it anyway. |
-| `DATABASE_STATEMENT_TIMEOUT_MS` | No | Optional. On Vercel the default is 8000 ms. The one-off seed does not use that default. |
+| `DATABASE_URL` | Yes | Neon **pooled** URL (hostname contains `-pooler`). `postgres://` is accepted. `channel_binding` is dropped if present; the pooler rejects it. `sslmode=require` is added when the URL does not set one and the host is not local. |
+| `LOAD_ON_STARTUP` | Yes | `false`. This skips the CSV load on every cold start. |
+| `DATABASE_STATEMENT_TIMEOUT_MS` | No | Leave unset or set `0` on the Neon pooler. A startup `options=-c statement_timeout=...` makes PgBouncer return an error and every database call 503. The app does not send that option when the host contains `-pooler`. A positive value on a pooler is applied with `SET` inside the transaction instead. A direct (non-pooler) Vercel host still defaults to 8000 ms. |
 | `DATABASE_CONNECT_TIMEOUT` | No | Seconds. Default 5. |
 | `FRONTEND_ORIGINS` | No | Not needed for the same-origin dashboard. Set it only if a second origin will call the API. |
 | `REDIS_URL` | No | Leave unset. The API does not connect to Redis. |

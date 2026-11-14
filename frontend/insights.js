@@ -634,6 +634,7 @@ async function applyFilters() {
   if (state.filters.view === "overview") {
     paintHighlights(model);
     await renderKpis(model);
+    await renderNasaRefs();
     return;
   }
   if (state.filters.view === "labs") {
@@ -676,6 +677,84 @@ document.querySelector("#analyte").addEventListener("change", (event) => {
   rememberFilters();
   if (state.model) renderTrend(state.model);
 });
+
+function refCard(title, body, href, linkText) {
+  const card = document.createElement("article");
+  card.className = "info-card";
+  const heading = document.createElement("h3");
+  heading.textContent = title;
+  const copy = document.createElement("p");
+  copy.textContent = body;
+  const link = document.createElement("a");
+  link.href = href;
+  link.textContent = linkText;
+  card.append(heading, copy, link);
+  return card;
+}
+
+async function renderNasaRefs() {
+  const host = document.querySelector("#nasa-refs");
+  if (!host || host.childElementCount) return;
+  let payload = null;
+  try {
+    const response = await fetch("/data/reference/nasa_saude_tripulacao.json");
+    if (response.ok) payload = await response.json();
+  } catch (error) {
+    payload = null;
+  }
+  if (!payload || !payload.registros) {
+    host.replaceChildren(refCard(
+      "Reference list",
+      "The published group numbers are not on this server yet.",
+      "https://www.nasa.gov/ochmo-tb-004-carbon-dioxide-2/",
+      "OCHMO carbon dioxide brief",
+    ));
+    return;
+  }
+  const rows = payload.registros;
+  const pick = (indicador, grupo, periodo) => rows.find((row) => row.indicador === indicador && row.grupo === grupo && row.periodo === periodo);
+  const boneBefore = pick("Densidade mineral do colo do fêmur", "treino padrão", "cerca de 90 dias antes do voo");
+  const boneAfter = pick("Densidade mineral do colo do fêmur", "treino padrão", "7 a 14 dias após pouso");
+  const vo2 = rows.find((row) => row.indicador === "VO2 de pico");
+  const vo2drop = rows.find((row) => row.indicador.startsWith("Variação do VO2"));
+  const co2 = rows.find((row) => row.unidade === "mmHg");
+  const heads = rows.find((row) => row.unidade === "pessoas");
+  const sources = payload.fontes || {};
+  host.replaceChildren(
+    refCard(
+      "Hip bone, as a group",
+      boneBefore && boneAfter
+        ? "Standard-training crews averaged " + boneBefore.valor + " g/cm² at the femoral neck about 90 days before flight, and " + boneAfter.valor + " g/cm² in the first two weeks after landing. These are group averages, not one person’s chart."
+        : "Femoral-neck density is a group average from the Sprint study.",
+      sources.sprint_tabela || sources.sprint,
+      "Sprint study table",
+    ),
+    refCard(
+      "How hard the body can work",
+      vo2 && vo2drop
+        ? "Before flight, peak oxygen use averaged " + vo2.valor + " mL/kg/min (n=" + vo2.n + "). By flight day 15 the model estimate was " + vo2drop.valor + "% versus preflight. Not everyone dropped."
+        : "Peak oxygen use is a preflight group average.",
+      sources.vo2,
+      "NASA technical report",
+    ),
+    refCard(
+      "Cabin carbon dioxide",
+      co2
+        ? "NASA’s habitat rule is an average of one hour at no more than " + co2.valor + " mmHg. That is about 0.39% of sea-level air, not a personal lab result."
+        : "The one-hour cabin limit is 3 mmHg.",
+      sources.co2,
+      "OCHMO carbon dioxide brief",
+    ),
+    refCard(
+      "Headaches on station",
+      heads
+        ? heads.valor + " of " + heads.n + " crew members on Expeditions 2–31 reported a headache. The study links that with carbon dioxide and time in flight. It does not name a cause for one person."
+        : "A station study counted reported headaches.",
+      sources.co2,
+      "Same carbon dioxide brief",
+    ),
+  );
+}
 
 async function boot() {
   statusNode.textContent = "Loading the short version.";

@@ -1,3 +1,8 @@
+"""SQLite prototype. Moved from backend/database.py.
+
+Not used by the FastAPI app. The live store is Postgres. The .db file is gitignored.
+"""
+
 import sqlite3
 
 DB_NAME = "space_health.db"

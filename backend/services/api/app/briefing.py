@@ -26,6 +26,7 @@ from app.seed import GROUP_KIND, GROUP_NAME
 SIMULATED_INDICATORS = (
     "heart_rate",
     "spo2",
+    "cabin_co2_mmhg",
     "temperature_c",
     "sleep_hours",
     "cortisol_ug_dl",
