@@ -1,0 +1,50 @@
+/* Small helpers that go with crew-charts.js. Link this besides your page CSS. */
+
+.crew-kpi {
+  background: #141a28;
+  border: 1px solid #314158;
+  border-radius: 22px;
+  padding: 1rem 1.1rem 1.05rem;
+  min-width: 0;
+}
+
+.crew-kpi-label,
+.crew-kpi-note {
+  margin: 0;
+  color: #b7c3d6;
+  font-size: 0.86rem;
+}
+
+.crew-kpi-value {
+  margin: 0.2rem 0 0.15rem;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  color: #e8eef7;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.55rem 0 0;
+  border-radius: 999px;
+  padding: 0.12rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  width: fit-content;
+}
+
+.status-pill::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-in { color: #b6f5d8; background: #163328; }
+.status-watch { color: #ffe3a3; background: #3a3118; }
+.status-out { color: #ffd0d8; background: #3d2228; }
