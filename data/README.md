@@ -94,4 +94,6 @@ These remain under `raw/OSD-568`, `raw/OSD-583`, and `raw/OSD-715` and were **no
 
 ## Raw downloads
 
-Each source is in `raw/<id>/`. Rebuild tidy files with `python3 build_outputs.py`.
+The raw source files stay outside version control. The tidy tables in this
+directory are the ones the API loads; `datasets.csv` keeps the source manifest
+and the official links.

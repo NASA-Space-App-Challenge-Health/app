@@ -2,22 +2,22 @@
 
 These forecasts read the Postgres tables loaded from `data/`. They do not open the CSVs at request time.
 
-This is a hackathon sketch on **4 Inspiration4 civilians**, **7 lab timepoints** from a **3-day** flight, **one DosTel week** (1–7 Jun 2024), and **119 DONKI SEP rows** for 2024. It is not a long-duration crew record, and it is not a medical device.
+This is a hackathon sketch on **4 Inspiration4 civilians**, **7 lab timepoints** from a **3-day** flight, **one DosTel week** (1â€“7 Jun 2024), and **119 DONKI SEP rows** for 2024. It is not a long-duration crew record, and it is not a medical device.
 
 ## Methods
 
 **Labs.** For each crew member and CBC/CMP analyte with at least 3 numeric draws:
 
-- x is days from launch (`L-92` = −92, `R+194` = 194).
-- A straight least-squares line, plus a Theil–Sen slope so one wild point is visible beside the least-squares slope.
+- x is days from launch (`L-92` = âˆ’92, `R+194` = 194).
+- A straight least-squares line, plus a Theilâ€“Sen slope so one wild point is visible beside the least-squares slope.
 - Change from that person's pre-flight mean (days &lt; 0).
 - z-score against the reference span on the row: the interval is treated as about four standard deviations. That is a sort key, not a lab z-score.
-- 95% prediction interval using the Student-t multiplier for `n − 2` degrees of freedom. With 7 points, df = 5 and t ≈ 2.57, so the band is wide.
+- 95% prediction interval using the Student-t multiplier for `n âˆ’ 2` degrees of freedom. With 7 points, df = 5 and t â‰ˆ 2.57, so the band is wide.
 - Probability of landing outside the last row's reference range, under a normal curve with that prediction standard error. It is not a calibrated clinical risk.
 - **Day 30, 90, and 180** are points on the fitted line. If the series already reaches that day they are marked `inside_observed_span: true`. They are not a simulated longer mission.
 - **next_step** is the only extrapolation: last day plus the median gap between draws. For C003 potassium the last day is 194 and the median gap is 42.5, so the step is day 236.5.
 
-**Radiation.** Hourly mean absorbed dose rate, then simple exponential smoothing (α = 0.3) held flat for 24 hours. The interval is the recent residual scatter. Spikes are raw samples at or above `rules.yaml` `dose_rate_at_least` (400 μGy/h), not a new cutoff. Cumulative figures multiply that week's mean rate by 24 × 30, 90, or 180. That is an **area dose from a dose rate**, and only if the week repeats. It is not a personal dose and it is not compared with a career limit.
+**Radiation.** Hourly mean absorbed dose rate, then simple exponential smoothing (Î± = 0.3) held flat for 24 hours. The interval is the recent residual scatter. Spikes are raw samples at or above `rules.yaml` `dose_rate_at_least` (400 Î¼Gy/h), not a new cutoff. Cumulative figures multiply that week's mean rate by 24 Ã— 30, 90, or 180. That is an **area dose from a dose rate**, and only if the week repeats. It is not a personal dose and it is not compared with a career limit.
 
 **Simulated vitals.** If a heart-rate, sleep, or cortisol series is in `health_readings` with `origin = simulated`, the last point is compared with that series' own mean and standard deviation. "Anomaly" means at least 2 sample SDs. That is not a NASA threshold. A recommendation is emitted only when the value also crosses a cutoff already written in `rules.yaml`.
 
@@ -25,8 +25,8 @@ This is a hackathon sketch on **4 Inspiration4 civilians**, **7 lab timepoints**
 
 | Signal | Tier | Crew broadcast |
 | --- | --- | --- |
-| Area dose rate ≥ 400 μGy/h and a DONKI SEP inside the rules.yaml window | emergency | Yes. Text is "Radiation contingency — follow procedures." No diagnosis. |
-| Simulated heart rate outside 40–130 bpm (the window already in `rules.yaml`) | emergency | Yes. "Crewmate needs assistance." No rate in the public text. |
+| Area dose rate â‰¥ 400 Î¼Gy/h and a DONKI SEP inside the rules.yaml window | emergency | Yes. Text is "Radiation contingency â€” follow procedures." No diagnosis. |
+| Simulated heart rate outside 40â€“130 bpm (the window already in `rules.yaml`) | emergency | Yes. "Crewmate needs assistance." No rate in the public text. |
 | Lab already out of range and the next draw further out | cmo | No |
 | Line points outside the range at the next step, last draw still inside | self | No |
 | Simulated sleep and cortisol past the `rules.yaml` sleep rule | flight_surgeon | No |
@@ -39,7 +39,7 @@ Citations are the source URLs already listed in `rules.yaml` (OSD-569, OSD-575, 
 
 ![C003 potassium](predictive/c003_potassium.png)
 
-C003 potassium, 7 draws. Pre-flight mean 3.5 mmol/L. Least-squares slope about **+0.0014 mmol/L per day**. Theil–Sen slope about **+0.0009**. Last draw R+194 is 3.8, inside 3.5–5.3, and 0.3 above the pre-flight mean. The series still carries the worsening pair L-3 **3.3** → R+1 **3.0** (both low). Next-step estimate **3.92**, 95% interval **2.26 to 5.59**, rough P(out of range) **0.27**. Day 30 / 90 / 180 sit inside the observed span at 3.63, 3.72, and 3.85. The interval covers both the reference range and values outside it. That is the uncertainty, not a precise forecast.
+C003 potassium, 7 draws. Pre-flight mean 3.5 mmol/L. Least-squares slope about **+0.0014 mmol/L per day**. Theilâ€“Sen slope about **+0.0009**. Last draw R+194 is 3.8, inside 3.5â€“5.3, and 0.3 above the pre-flight mean. The series still carries the worsening pair L-3 **3.3** â†’ R+1 **3.0** (both low). Next-step estimate **3.92**, 95% interval **2.26 to 5.59**, rough P(out of range) **0.27**. Day 30 / 90 / 180 sit inside the observed span at 3.63, 3.72, and 3.85. The interval covers both the reference range and values outside it. That is the uncertainty, not a precise forecast.
 
 ![C003 glucose](predictive/c003_glucose.png)
 
@@ -49,16 +49,16 @@ Ranked flags from `GET /predict/labs/risks` (first four):
 
 | Crew | Analyte | Flag | Last | Next-step yhat | P(out of range) |
 | --- | --- | --- | --- | ---: | ---: |
-| C004 | Absolute monocytes | already out and worsening | 988 cells/μL at R+194 | 1004 | 0.72 |
+| C004 | Absolute monocytes | already out and worsening | 988 cells/Î¼L at R+194 | 1004 | 0.72 |
 | C003 | Potassium | already out and worsening | 3.8 mmol/L at R+194 | 3.92 | 0.27 |
-| C003 | MPV | trending toward out of range | 10.2 at R+194 | −97 | 0.99 |
+| C003 | MPV | trending toward out of range | 10.2 at R+194 | âˆ’97 | 0.99 |
 | C003 | RDW | trending toward out of range | 13.1 at R+194 | 6.4 | 0.87 |
 
-The MPV and RDW lines are not usable. C003's L-92 MPV is 330, which is not on the scale of the later draws, and it drags the least-squares line through impossible values. The high probability is the interval exploding, not a prediction that MPV becomes negative. Prefer the Theil–Sen slope, and do not brief those two.
+The MPV and RDW lines are not usable. C003's L-92 MPV is 330, which is not on the scale of the later draws, and it drags the least-squares line through impossible values. The high probability is the interval exploding, not a prediction that MPV becomes negative. Prefer the Theilâ€“Sen slope, and do not brief those two.
 
 ![DosTel hourly means](predictive/radiation_hourly.png)
 
-Week mean area dose rate **15.24 μGy/h**. If that mean repeated: about **11.0 mGy in 30 days**, **32.9 mGy in 90**, **65.8 mGy in 180** (reported by the API in μGy: 10973, 32920, 65839). Twenty raw samples are at or above the 400 μGy/h rule, peak **528.5 μGy/h** on DosTel1 at 2024-06-05 01:20 UTC. The next SEP in the rules window is **2024-06-08 02:25 UTC** (GOES-P SEISS >100 MeV). The smoother does not forecast that spike.
+Week mean area dose rate **15.24 Î¼Gy/h**. If that mean repeated: about **11.0 mGy in 30 days**, **32.9 mGy in 90**, **65.8 mGy in 180** (reported by the API in Î¼Gy: 10973, 32920, 65839). Twenty raw samples are at or above the 400 Î¼Gy/h rule, peak **528.5 Î¼Gy/h** on DosTel1 at 2024-06-05 01:20 UTC. The next SEP in the rules window is **2024-06-08 02:25 UTC** (GOES-P SEISS >100 MeV). The smoother does not forecast that spike.
 
 ## How a card reads
 

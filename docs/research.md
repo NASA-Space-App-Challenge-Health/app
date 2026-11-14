@@ -1,8 +1,8 @@
 # Research
 
 Open-data sources, cleaning decisions, and gaps live in [../data/README.md](../data/README.md).
-The analysis that ships with the product is in [EDA.md](EDA.md) and
-[PREDICTIVE.md](PREDICTIVE.md).
+The analysis that ships with the product is in [eda.md](eda.md) and
+[predictive.md](predictive.md).
 
 ## What runs today
 

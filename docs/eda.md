@@ -2,7 +2,7 @@
 
 Numbers below are from Postgres after `compose up` loads `data/`. The chart endpoints read those tables. They do not open the CSVs.
 
-Scope, stated plainly: this is **4 Inspiration4 civilian crew members**, labs at 7 pre-flight and post-flight timepoints from a **3-day** flight (16–18 Sep 2021 in the data notes). There is **no in-flight blood draw**. Radiation is **one ISS DosTel week, 1–7 Jun 2024**, a vehicle measurement, not a personal dose. SEP counts are **119 DONKI rows for calendar 2024**, many of them separate instrument reports of the same solar event. This is not a long-duration ISS crew medical record.
+Scope, stated plainly: this is **4 Inspiration4 civilian crew members**, labs at 7 pre-flight and post-flight timepoints from a **3-day** flight (16â€“18 Sep 2021 in the data notes). There is **no in-flight blood draw**. Radiation is **one ISS DosTel week, 1â€“7 Jun 2024**, a vehicle measurement, not a personal dose. SEP counts are **119 DONKI rows for calendar 2024**, many of them separate instrument reports of the same solar event. This is not a long-duration ISS crew medical record.
 
 NASA HRP describes space radiation, isolation, distance from Earth, gravity, and closed environments as the hazards of human spaceflight ([hazards](https://www.nasa.gov/hrp/hazards/)). The Canadian Space Agency infographic describes anemia, low white cells with more radiation sensitivity, stiffer vessels and insulin resistance, muscle loss, and up to about 1.5% bone loss per month ([infographic](https://www.asc-csa.gc.ca/eng/multimedia/search/image/8056)). Those are published hazard descriptions. They are **not** frequencies measured in this file.
 
@@ -42,7 +42,7 @@ Glucose is the most often flagged analyte in this small file. That lines up with
 
 ## A shift that was visible before the next draw
 
-Three CBC/CMP pairs were already outside the row's own range and moved further outside on the next timepoint. One of them is C003 potassium: 3.3 mmol/L at L-3 (range 3.5–5.3) and 3.0 mmol/L at R+1. That is the preventive rule on the crew demo. It is one person, not a fleet pattern.
+Three CBC/CMP pairs were already outside the row's own range and moved further outside on the next timepoint. One of them is C003 potassium: 3.3 mmol/L at L-3 (range 3.5â€“5.3) and 3.0 mmol/L at R+1. That is the preventive rule on the crew demo. It is one person, not a fleet pattern.
 
 Largest mean percent changes from L-3 to R+1 (crew mean):
 
@@ -51,16 +51,16 @@ Largest mean percent changes from L-3 to R+1 (crew mean):
 | Analyte | Mean % change | Mean delta |
 | --- | ---: | ---: |
 | EOSINOPHILS | +51.90% | +1.025 percentage points |
-| ABSOLUTE LYMPHOCYTES | −36.26% | −1,055.5 cells/uL |
+| ABSOLUTE LYMPHOCYTES | âˆ’36.26% | âˆ’1,055.5 cells/uL |
 | GLUCOSE | +34.17% | +23.75 mg/dL |
 | MONOCYTES | +28.20% | +2.15 percentage points |
-| WHITE BLOOD CELL COUNT | −26.01% | −2.25 thousand/uL |
+| WHITE BLOOD CELL COUNT | âˆ’26.01% | âˆ’2.25 thousand/uL |
 
 Percent ranks on small bases (a 1-point eosinophil change) sit next to larger cell-count drops. Read the unit column before treating the bar height as clinical importance. CSA's low-white-cell note is a reason to watch the white-cell drop, not a claim that this 3-day flight produced station anemia rates.
 
 ![Glucose by crew](eda/glucose_trends.png)
 
-The shaded band is the reference range stored on the OSD-575 rows (65–99 mg/dL for these glucose rows). C003 is 75 at L-3, 103 at R+1 (high), and 36 at R+45 (low).
+The shaded band is the reference range stored on the OSD-575 rows (65â€“99 mg/dL for these glucose rows). C003 is 75 at L-3, 103 at R+1 (high), and 36 at R+45 (low).
 
 ## Extremes
 
@@ -68,7 +68,7 @@ The shaded band is the reference range stored on the OSD-575 rows (65–99 mg/dL
 
 The largest scores are C003 at L-92: MPV 330 (z 256), RDW 32.4 (z 19.4), absolute monocytes 1,997, absolute lymphocytes 6,826. Those MPV and RDW values are not on the usual scale of later draws for the same person, so they should be treated as suspect rows in the source file, not as the headline medical finding.
 
-The extremes that match their own flag and a familiar unit are the R+45 glucose lows: C003 36 mg/dL (z −5.41), C004 43 (z −4.59), C002 44 (z −4.47).
+The extremes that match their own flag and a familiar unit are the R+45 glucose lows: C003 36 mg/dL (z âˆ’5.41), C004 43 (z âˆ’4.59), C002 44 (z âˆ’4.47).
 
 ## Radiation week and 2024 SEP events
 
@@ -76,7 +76,7 @@ The extremes that match their own flag and a familiar unit are the R+45 glucose 
 
 ![SEP rows by month](eda/sep_by_month.png)
 
-Daily **maximum** absorbed dose rate (μGy/h), not a personal dose:
+Daily **maximum** absorbed dose rate (Î¼Gy/h), not a personal dose:
 
 | Day | Max | Daily mean |
 | --- | ---: | ---: |
@@ -141,7 +141,7 @@ All of these are SQL over the loaded tables. Array fields are shaped for Plotly 
 
 `/eda/labs/flow` returns `phase_to_status` and `crew_to_status`, each with `label`, `source`, `target`, and `value`. Phases are `pre-flight`, `just after flight` (R+1 only), and `recovery`.
 
-`/eda/radiation/series` returns `series` (hourly mean μGy/h by DosTel instrument), `daily.mean_ugy_h` and `daily.max_ugy_h`, and `sep_by_month`.
+`/eda/radiation/series` returns `series` (hourly mean Î¼Gy/h by DosTel instrument), `daily.mean_ugy_h` and `daily.max_ugy_h`, and `sep_by_month`.
 
 Regenerate the figures with:
 

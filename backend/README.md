@@ -31,12 +31,9 @@ Docker Compose subcommands:
 Database initialization SQL belongs in `services/database/init/`; versioned
 application migrations belong in `services/database/migrations/`.
 
-## VM deployment
+## Production
 
-`bash scripts/deploy_backend.sh` from the project root deploys every Compose
-service to a persistent Linux VM. Set `BACKEND_SSH_HOST`, `BACKEND_DEPLOY_DIR`,
-and `BACKEND_DOMAIN` first. The tracked `docker/compose.vm.yaml` adds a Caddy
-HTTPS reverse proxy and removes the API's direct host port. Internal API,
-database, and queue communication uses Docker service DNS. Named volumes persist
-across container replacements and deployments on the same VM.
-See `../@docs/DEPLOYMENT.md` for setup, operations, and backup responsibilities.
+Vercel runs the API as one Python function (`api/index.py`) and serves the built
+frontend from the same project. Read `../docs/deploy-vercel.md` for project
+settings, environment variables, and the one-off database seed. There is no VM
+or Pages deploy path.

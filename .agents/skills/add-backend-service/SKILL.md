@@ -51,9 +51,10 @@ Record the decisions before implementation:
 Prefer internal service DNS and container ports. Never use `localhost` for a
 dependency inside a container. Keep paths relative to the authoritative Compose
 file and preserve the project's Compose wrapper as the normal entry point.
-Keep VM topology in `backend/docker/compose.vm.yaml`, preserve its fixed Compose
-project name and named volumes, and keep secrets in the server's shared
-environment file. Read `@docs/DEPLOYMENT.md` before changing deployment behavior.
+Keep one Compose topology for local runs (`backend/docker/compose.yaml`) and let
+`api/index.py` + `vercel.json` describe production. Vercel project environment
+variables are the only production secrets; never commit them. Read
+`docs/deploy-vercel.md` before changing deployment behavior.
 
 ## Implement completely
 
