@@ -1,0 +1,7 @@
+{
+  "name": "astronaut-health-monitor",
+  "private": true,
+  "scripts": {
+    "start": "bash scripts/start.sh"
+  }
+}

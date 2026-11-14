@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Simulated crew health dashboard for astronauts. Not a medical record."
+    />
+    <title>Astronaut Health Monitor</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23070b14'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%2300E5FF'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to crew dashboard</a>
+    <header class="site-header">
+      <div class="wrap header-row">
+        <div>
+          <p class="eyebrow">NASA Space Apps Challenge 2026</p>
+          <h1>Astronaut Health Monitor</h1>
+          <p class="lede">
+            Vitals, blood glucose, blood counts, and radiation for a demonstration crew.
+          </p>
+        </div>
+        <button type="button" id="reload">Reload readings</button>
+      </div>
+      <div class="wrap">
+        <p class="sim-banner">
+          <strong>Simulated data.</strong>
+          These are not real astronaut medical records. Risk bands are illustrative,
+          not a diagnosis and not flight-surgeon limits.
+        </p>
+        <p id="disclaimer" class="disclaimer">
+          Follow the mission medical checklist and contact the flight surgeon for real symptoms.
+        </p>
+        <p id="status" class="status" role="status" aria-live="polite">
+          Loading simulated crew readings.
+        </p>
+      </div>
+    </header>
+    <main id="main" class="wrap" tabindex="-1" data-state="loading"></main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>
+          Planned NASA sources are not connected.
+          <a id="api-docs" href="http://127.0.0.1:8080/docs">API documentation</a>
+        </p>
+      </div>
+    </footer>
+    <noscript>
+      <p class="wrap sim-banner">
+        Simulated data. JavaScript is off, so the crew readings cannot load from the local API.
+      </p>
+    </noscript>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
