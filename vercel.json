@@ -1,10 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "outputDirectory": "public",
   "buildCommand": "python3 scripts/stage_vercel_public.py",
   "functions": {
     "api/index.py": {
       "maxDuration": 30,
-      "excludeFiles": "{data/**,docs/**,notebooks/**,**/*.png,**/*.csv,**/*.ipynb,.venv/**,**/tests/**,frontend/**,public/**}"
+      "excludeFiles": "{data/**,docs/**,notebooks/**,**/*.png,**/*.csv,**/*.ipynb,**/*.db,.venv/**,**/tests/**,frontend/**,public/**}"
     }
   },
   "rewrites": [

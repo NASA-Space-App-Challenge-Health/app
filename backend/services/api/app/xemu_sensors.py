@@ -1,3 +1,10 @@
+"""Simulated xEMU suit sensors. Moved from backend/mock_sensors.py.
+
+ler_sensores_traje() is unchanged. The API stores a sample in Postgres and
+compares cabin CO2 with NASA-STD-3001 (3 mmHg, one-hour average), not the
+0.5% note in this generator.
+"""
+
 import random
 import time
 

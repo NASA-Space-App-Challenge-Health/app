@@ -124,6 +124,26 @@ INDICATORS: tuple[Indicator, ...] = (
         classify=_bands(nominal_low=95, nominal_high=100, watch_low=92, watch_high=100),
     ),
     _indicator(
+        key="cabin_co2_mmhg",
+        label="Cabin carbon dioxide",
+        group="Vitals",
+        unit="mmHg",
+        decimals=2,
+        explanation=(
+            "Simulated suit-cabin carbon dioxide partial pressure. "
+            "NASA-STD-3001 Volume 2 [V2 6004], as stated in OCHMO-TB-004, "
+            "limits the average one-hour cabin CO2 to no more than 3 mmHg "
+            "(about 0.39% at 760 mmHg). One sample is not that one-hour average."
+        ),
+        physical=(0, 40),
+        guidance=_messages(
+            "Cabin carbon dioxide",
+            "This sample is near the one-hour habitat limit. It is simulated suit air, "
+            "not a diagnosis. Tell the CMO. The whole crew is not paged for this.",
+        ),
+        classify=_bands(nominal_low=0, nominal_high=3, watch_low=0, watch_high=3),
+    ),
+    _indicator(
         key="temperature_c",
         label="Body temperature",
         group="Vitals",

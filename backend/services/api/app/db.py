@@ -10,12 +10,28 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import psycopg
 from psycopg.rows import dict_row
 
 _LOCAL_HOSTS = {"localhost", "127.0.0.1", "postgres", "::1"}
+
+
+def _hostname(url: str) -> str:
+    return (urlsplit(url).hostname or "").lower()
+
+
+def is_pooler(url: str) -> bool:
+    """Neon and similar PgBouncer hosts put ``-pooler`` in the hostname."""
+    host = _hostname(url)
+    return "-pooler" in host or host.startswith("pooler.")
+
+
+def _drop_query_key(url: str, key: str) -> str:
+    parts = urlsplit(url)
+    kept = [(name, value) for name, value in parse_qsl(parts.query, keep_blank_values=True) if name != key]
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(kept), parts.fragment))
 
 
 def database_url() -> str:
@@ -24,37 +40,57 @@ def database_url() -> str:
         raise RuntimeError("DATABASE_URL is not set")
     if url.startswith("postgres://"):
         url = "postgresql://" + url[len("postgres://") :]
-    if "sslmode=" in url:
-        return url
-    host = (urlsplit(url).hostname or "").lower()
-    if host in _LOCAL_HOSTS:
+    # Neon pooler URLs sometimes include channel_binding=require, which the
+    # pooled endpoint rejects. Drop it and keep sslmode.
+    url = _drop_query_key(url, "channel_binding")
+    if "sslmode=" in url or _hostname(url) in _LOCAL_HOSTS:
         return url
     sep = "&" if "?" in url else "?"
     return url + sep + "sslmode=require"
 
 
-def connect(*, statement_timeout_ms: int | None = None) -> psycopg.Connection:
-    """Open one short-lived connection.
+def resolved_statement_timeout(explicit: int | None = None) -> int:
+    """Milliseconds, or 0 when no limit should be sent.
 
-    ``prepare_threshold=None`` disables prepared statements so a pooled
-    PgBouncer URL (transaction mode) works. Remote hosts get
-    ``sslmode=require`` when the URL does not already set it.
+    A non-pooler Vercel host still defaults to 8 seconds. A ``-pooler`` host
+    does not, because Neon rejects the startup ``options`` parameter. Set
+    ``DATABASE_STATEMENT_TIMEOUT_MS=0`` to force that off everywhere.
     """
-    timeout = statement_timeout_ms
-    if timeout is None:
-        raw = os.environ.get("DATABASE_STATEMENT_TIMEOUT_MS", "").strip()
-        if raw:
-            timeout = int(raw)
-        elif os.environ.get("VERCEL"):
-            timeout = 8000
+    if explicit is not None:
+        return explicit
+    raw = os.environ.get("DATABASE_STATEMENT_TIMEOUT_MS", "").strip()
+    if raw:
+        return int(raw)
+    url = os.environ.get("DATABASE_URL", "")
+    if os.environ.get("VERCEL") and url and not is_pooler(database_url()):
+        return 8000
+    return 0
+
+
+def connect_kwargs(url: str, timeout_ms: int) -> dict:
+    """Libpq kwargs. Poolers must not receive ``options=-c statement_timeout``.
+
+    A positive timeout on a pooler is applied after connect with
+    ``set_config(..., is_local=true)`` so it stays inside this transaction.
+    """
     kwargs: dict = {
         "connect_timeout": int(os.environ.get("DATABASE_CONNECT_TIMEOUT", "5")),
         "row_factory": dict_row,
         "prepare_threshold": None,
     }
-    if timeout:
-        kwargs["options"] = f"-c statement_timeout={int(timeout)}"
-    return psycopg.connect(database_url(), **kwargs)
+    if timeout_ms and not is_pooler(url):
+        kwargs["options"] = f"-c statement_timeout={int(timeout_ms)}"
+    return kwargs
+
+
+def connect(*, statement_timeout_ms: int | None = None) -> psycopg.Connection:
+    """Open one short-lived connection."""
+    url = database_url()
+    timeout = resolved_statement_timeout(statement_timeout_ms)
+    conn = psycopg.connect(url, **connect_kwargs(url, timeout))
+    if timeout and is_pooler(url):
+        conn.execute("SELECT set_config('statement_timeout', %s, true)", (str(int(timeout)),))
+    return conn
 
 
 def migrations_dir() -> Path:

@@ -33,7 +33,12 @@ def main() -> None:
     data_dest.mkdir(parents=True, exist_ok=True)
     for name in CSV_NAMES:
         shutil.copy2(ROOT / "data" / name, data_dest / name)
-    print(f"Staged {source} and {len(CSV_NAMES)} CSVs into {dest}")
+    reference = ROOT / "data" / "reference" / "nasa_saude_tripulacao.json"
+    if reference.is_file():
+        ref_dest = data_dest / "reference"
+        ref_dest.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(reference, ref_dest / reference.name)
+    print(f"Staged {source}, {len(CSV_NAMES)} CSVs, and the NASA reference JSON into {dest}")
 
 
 if __name__ == "__main__":
