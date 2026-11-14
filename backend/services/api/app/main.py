@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
+from app import eda_queries
 from app.guidance import DISCLAIMER, IndicatorError
 from app.repository import (
     ConflictError,
@@ -139,6 +140,62 @@ def get_dashboard(viewer: str | None = None, role: str = "self") -> dict:
 @app.get("/api/demo")
 def get_demo(viewer: str | None = None, role: str = "flight_surgeon") -> dict:
     return dashboard(viewer, role)["demo"]
+
+
+def _eda(query):
+    from app import db
+
+    try:
+        with db.connect() as conn:
+            return query(conn)
+    except psycopg.Error as exc:
+        logger.warning("EDA query failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Database is unavailable") from exc
+
+
+@app.get("/eda/overview")
+def eda_overview() -> dict:
+    return _eda(eda_queries.overview)
+
+
+@app.get("/eda/labs/out_of_range")
+def eda_out_of_range(limit: int = 12) -> dict:
+    return _eda(lambda conn: eda_queries.out_of_range(conn, limit))
+
+
+@app.get("/eda/labs/analytes")
+def eda_analytes() -> dict:
+    return _eda(eda_queries.analytes)
+
+
+@app.get("/eda/labs/trends")
+def eda_trends(analyte: str) -> dict:
+    return _eda(lambda conn: eda_queries.trends(conn, analyte))
+
+
+@app.get("/eda/labs/shift")
+def eda_shift(limit: int = 12) -> dict:
+    return _eda(lambda conn: eda_queries.shift(conn, limit))
+
+
+@app.get("/eda/labs/sunburst")
+def eda_sunburst() -> dict:
+    return _eda(eda_queries.sunburst)
+
+
+@app.get("/eda/labs/flow")
+def eda_flow() -> dict:
+    return _eda(eda_queries.flow)
+
+
+@app.get("/eda/radiation/series")
+def eda_radiation() -> dict:
+    return _eda(eda_queries.radiation_series)
+
+
+@app.get("/eda/extremes")
+def eda_extremes(limit: int = 15) -> dict:
+    return _eda(lambda conn: eda_queries.extremes(conn, limit))
 
 
 @app.get("/api/insights")

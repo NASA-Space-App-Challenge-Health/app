@@ -96,7 +96,13 @@ def load_nasa(conn, directory: Path | None = None) -> dict[str, int]:
     root = directory or data_dir()
     loaded: dict[str, int] = {}
     bundle = None
-    for filename in ("labs_long.csv", "radiation_iss.csv", "donki_sep.csv"):
+    for filename in (
+        "labs_long.csv",
+        "radiation_iss.csv",
+        "donki_sep.csv",
+        "reference_ranges.csv",
+        "datasets.csv",
+    ):
         existing = conn.execute(
             "SELECT row_count FROM dataset_loads WHERE filename = %s",
             (filename,),
@@ -162,7 +168,7 @@ def load_nasa(conn, directory: Path | None = None) -> dict[str, int]:
                     ],
                 )
             count = len(bundle["doses"])
-        else:
+        elif filename == "donki_sep.csv":
             with conn.cursor() as cur:
                 cur.executemany(
                     """
@@ -183,9 +189,63 @@ def load_nasa(conn, directory: Path | None = None) -> dict[str, int]:
                     ],
                 )
             count = len(bundle["events"])
+        elif filename == "reference_ranges.csv":
+            count = _load_reference_ranges(conn, root)
+        else:
+            count = _load_dataset_catalog(conn, root)
         conn.execute(
             "INSERT INTO dataset_loads (filename, row_count) VALUES (%s, %s)",
             (filename, count),
         )
         loaded[filename] = count
     return loaded
+
+
+def _load_reference_ranges(conn, root: Path) -> int:
+    rows = []
+    with (root / "reference_ranges.csv").open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            rows.append((
+                row["analyte"],
+                row["unit"],
+                _float(row["ref_low"]),
+                _float(row["ref_high"]),
+                row["panel"],
+            ))
+    with conn.cursor() as cur:
+        cur.executemany(
+            """
+            INSERT INTO reference_ranges (analyte, unit, ref_low, ref_high, panel)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (analyte, unit, panel, ref_low, ref_high) DO NOTHING
+            """,
+            rows,
+        )
+    return len(rows)
+
+
+def _load_dataset_catalog(conn, root: Path) -> int:
+    rows = []
+    with (root / "datasets.csv").open(newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            size = (row.get("size") or "").strip()
+            rows.append((
+                row["id"],
+                row["title"],
+                row.get("official_url") or "",
+                row.get("files") or "",
+                int(size) if size else None,
+                row.get("what_it_contains") or "",
+                row.get("license_access") or "",
+            ))
+    with conn.cursor() as cur:
+        cur.executemany(
+            """
+            INSERT INTO dataset_catalog (
+                dataset_id, title, official_url, files, size_bytes, what_it_contains, license_access
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (dataset_id) DO NOTHING
+            """,
+            rows,
+        )
+    return len(rows)
