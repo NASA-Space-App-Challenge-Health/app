@@ -25,19 +25,48 @@
         <li><span class="status-pill status-watch">Watch</span> worth a clinician’s look</li>
         <li><span class="status-pill status-out">Out of range</span> outside the range on the NASA row</li>
       </ul>
+      <form id="filters" class="filters" aria-label="Filter the insights">
+        <fieldset>
+          <legend>Astronauts</legend>
+          <label><input type="checkbox" name="crew" value="C001" checked /> C001</label>
+          <label><input type="checkbox" name="crew" value="C002" checked /> C002</label>
+          <label><input type="checkbox" name="crew" value="C003" checked /> C003</label>
+          <label><input type="checkbox" name="crew" value="C004" checked /> C004</label>
+        </fieldset>
+        <fieldset>
+          <legend>Topics</legend>
+          <label><input type="checkbox" name="topic" value="metabolism" checked /> Blood sugar &amp; metabolism</label>
+          <label><input type="checkbox" name="topic" value="kidney" checked /> Kidney</label>
+          <label><input type="checkbox" name="topic" value="blood" checked /> Blood cells &amp; immune</label>
+          <label><input type="checkbox" name="topic" value="electrolytes" checked /> Electrolytes</label>
+          <label><input type="checkbox" name="topic" value="liver" checked /> Liver</label>
+          <label><input type="checkbox" name="topic" value="radiation" checked /> Radiation</label>
+        </fieldset>
+        <label class="view-label" for="view">Show
+          <select id="view" name="view">
+            <option value="overview">Overview</option>
+            <option value="labs">Labs</option>
+            <option value="radiation">Radiation</option>
+            <option value="recommendations">Recommendations</option>
+          </select>
+        </label>
+        <label class="oor-toggle"><input type="checkbox" id="oor-only" /> Show only out of range</label>
+        <a id="reset" href="insights.html">Reset filters</a>
+      </form>
     </header>
     <main id="main" class="wrap" tabindex="-1">
       <p id="error" class="error" hidden></p>
-      <section aria-labelledby="kpi-title">
+      <section data-view="overview" aria-labelledby="kpi-title">
         <h2 id="kpi-title">The short version</h2>
         <p id="kpi-takeaway" class="takeaway">Loading the plain-language summary.</p>
+        <ul id="highlights" class="highlights"></ul>
         <div id="kpis" class="kpi-row"></div>
         <div class="gauge-row">
           <div id="gauge" class="plot plot-short"></div>
           <p id="gauge-note" class="caption"></p>
         </div>
       </section>
-      <section aria-labelledby="oor-title">
+      <section data-view="labs" hidden aria-labelledby="oor-title">
         <h2 id="oor-title">Which results sat outside the usual range</h2>
         <p id="oor-takeaway" class="takeaway"></p>
         <p id="oor-note" class="caption"></p>
@@ -46,7 +75,7 @@
         <p id="flags-takeaway" class="takeaway">A flag is not a diagnosis. It means one sample sat outside the range printed on that NASA row.</p>
         <div id="flag-cards" class="card-grid"></div>
       </section>
-      <section aria-labelledby="trend-title">
+      <section data-view="labs" hidden aria-labelledby="trend-title">
         <div class="section-head">
           <h2 id="trend-title">How one test changed</h2>
           <label for="analyte">Test <select id="analyte"></select></label>
@@ -55,23 +84,23 @@
         <p id="trend-note" class="caption"></p>
         <div id="trend" class="plot"></div>
       </section>
-      <section aria-labelledby="shift-title">
+      <section data-view="labs" hidden aria-labelledby="shift-title">
         <h2 id="shift-title">Before launch versus the day after landing</h2>
         <p id="shift-takeaway" class="takeaway"></p>
         <p id="shift-note" class="caption"></p>
         <div id="shift" class="plot"></div>
       </section>
-      <section aria-labelledby="sun-title">
+      <section data-view="labs" hidden aria-labelledby="sun-title">
         <h2 id="sun-title">Which body system the flags belong to</h2>
         <p id="sun-takeaway" class="takeaway">Outside-range results group by body system, then the lab panel, then the test.</p>
         <p id="sun-note" class="caption"></p>
         <div id="sun" class="plot plot-tall"></div>
       </section>
-      <section aria-labelledby="flow-title">
+      <section data-view="labs" hidden aria-labelledby="flow-title">
         <h2 id="flow-title">Where the results flowed</h2>
         <p id="flow-takeaway" class="takeaway">Most samples flow into “In range.” Low and high are the thin ribbons.</p>
         <p class="caption">The moving pictures use true color gradients from the Python library gradient-sankey. It writes video, not a web chart. The charts under the clips are interactive Plotly diagrams with one solid color per ribbon. <span class="status-pill status-in">In range</span> <span class="status-pill status-watch">Low</span> <span class="status-pill status-out">High</span></p>
-        <div class="video-grid">
+        <div id="flow-videos" class="video-grid">
           <figure>
             <figcaption>Before flight, then the day after landing, then recovery.</figcaption>
             <video controls preload="metadata" poster="assets/phase-status-gradient.png">
@@ -99,7 +128,7 @@
         </div>
         <p id="flow-note" class="caption"></p>
       </section>
-      <section aria-labelledby="rad-title">
+      <section data-view="radiation" hidden aria-labelledby="rad-title">
         <h2 id="rad-title">Station radiation and solar particles</h2>
         <p id="rad-takeaway" class="takeaway">This line is the space station’s radiation for one week in June 2024, not a personal dose.</p>
         <p id="rad-note" class="caption"></p>
@@ -108,17 +137,17 @@
         <p id="sep-takeaway" class="takeaway"></p>
         <div id="sep" class="plot"></div>
       </section>
-      <section aria-labelledby="recs-title">
+      <section data-view="recommendations" hidden aria-labelledby="recs-title">
         <h2 id="recs-title">Guidance cards</h2>
         <p id="recs-takeaway" class="takeaway">These cards are explanations, not a diagnosis and not a treatment order.</p>
         <div id="recs" class="card-grid"></div>
       </section>
-      <section aria-labelledby="forecast-title">
+      <section data-view="recommendations" hidden aria-labelledby="forecast-title">
         <h2 id="forecast-title">Forecast</h2>
         <p id="forecast-takeaway" class="takeaway">No forecast is loaded. This page does not predict a diagnosis.</p>
         <div id="forecasts"></div>
       </section>
-      <section aria-labelledby="ext-title">
+      <section data-view="labs" hidden aria-labelledby="ext-title">
         <h2 id="ext-title">The most unusual rows</h2>
         <p id="ext-takeaway" class="takeaway">The biggest scores are suspect lab rows for C003 before launch. Do not treat them as the medical finding.</p>
         <p id="ext-note" class="caption"></p>

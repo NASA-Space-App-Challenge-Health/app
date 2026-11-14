@@ -7,6 +7,7 @@ import test from "node:test";
 import { parseCsv } from "./csv.js";
 import { buildLocal, trends } from "./eda.js";
 import { oorTakeaway, plainName } from "./plain.js";
+import { filterLabRows, filtersToQuery, matchRecommendation, parseFilters, topTakeaways } from "./filters.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -66,6 +67,43 @@ test("extremes flag the suspect C003 L-92 rows at the top", () => {
   assert.equal(top.crew_id, "C003");
   assert.equal(top.timepoint, "L-92");
   assert.ok(top.analyte === "MPV" || top.analyte === "RDW");
+});
+
+test("filters keep one crew and one topic, and round-trip through the query string", () => {
+  const filters = parseFilters("crew=C003&topic=metabolism&view=labs&oor=1&analyte=GLUCOSE");
+  assert.deepEqual(filters.crew, ["C003"]);
+  assert.deepEqual(filters.topics, ["metabolism"]);
+  assert.equal(filters.view, "labs");
+  assert.equal(filters.oorOnly, true);
+  const rows = filterLabRows(model.labs ? [] : [], filters);
+  assert.equal(rows.length, 0);
+  const labs = filterLabRows([
+    { crew_id: "C003", analyte: "GLUCOSE", panel: "CMP", flag: "high" },
+    { crew_id: "C003", analyte: "GLUCOSE", panel: "CMP", flag: "normal" },
+    { crew_id: "C001", analyte: "GLUCOSE", panel: "CMP", flag: "high" },
+    { crew_id: "C003", analyte: "POTASSIUM", panel: "CMP", flag: "low" },
+  ], filters);
+  assert.equal(labs.length, 1);
+  assert.equal(labs[0].crew_id, "C003");
+  assert.equal(labs[0].flag, "high");
+  const again = parseFilters(filtersToQuery(filters));
+  assert.deepEqual(again.crew, ["C003"]);
+  assert.equal(again.view, "labs");
+  assert.equal(again.oorOnly, true);
+});
+
+test("recommendations follow crew and topic", () => {
+  const filters = parseFilters("crew=C003&topic=metabolism");
+  assert.equal(matchRecommendation({ crew_id: "C003", indicator: "GLUCOSE", title: "Blood sugar" }, filters), true);
+  assert.equal(matchRecommendation({ crew_id: "C001", indicator: "GLUCOSE", title: "Blood sugar" }, filters), false);
+  assert.equal(matchRecommendation({ crew_id: "C003", indicator: "POTASSIUM", title: "Potassium" }, filters), false);
+  assert.equal(matchRecommendation({ crew_id: null, id: "predict_radiation_with_sep", title: "Radiation" }, filters), false);
+});
+
+test("overview offers at most three takeaways", () => {
+  const lines = topTakeaways(model.outOfRange, model.shift, model.extremes.rows);
+  assert.equal(lines.length, 3);
+  assert.match(lines[0], /Blood sugar/);
 });
 
 test("the insights page is linked once from the existing nav", () => {

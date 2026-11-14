@@ -11,11 +11,31 @@ import {
   shiftTakeaway,
   trendTakeaway,
 } from "./insights/plain.js";
+import {
+  CREW_IDS,
+  TOPICS,
+  defaultFilters,
+  filterLabRows,
+  filtersToQuery,
+  matchRecommendation,
+  parseFilters,
+  topicAllowed,
+  topTakeaways,
+} from "./insights/filters.js";
 
 const charts = window.CrewCharts;
 const statusNode = document.querySelector("#status");
 const errorNode = document.querySelector("#error");
-const state = { source: "", labs: null, model: null, analyte: "GLUCOSE", trendToken: 0 };
+const state = {
+  source: "",
+  bundle: null,
+  model: null,
+  analyte: "GLUCOSE",
+  trendToken: 0,
+  filters: defaultFilters(),
+  recPayload: null,
+  forecastPayloads: [],
+};
 
 function apiBase() {
   const fromQuery = new URLSearchParams(window.location.search).get("api");
@@ -78,6 +98,13 @@ async function loadCsv() {
     referenceRanges: files[3],
     datasets: files[4],
   });
+  state.bundle = {
+    labs: files[0],
+    doses: files[1],
+    seps: files[2],
+    referenceRanges: files[3],
+    datasets: files[4],
+  };
   state.labs = files[0];
   return {
     overview: local.overview,
@@ -131,8 +158,8 @@ function renderKpis(model) {
     kpi("kpi-crew", "Astronauts", overview.crew_count, "De-identified Inspiration4 IDs", "in", "Research file"),
     kpi("kpi-rows", "Lab results", Number(overview.lab_rows).toLocaleString(), "Blood count, chemistry, and immune signals", "in", "Real NASA"),
     kpi("kpi-oor", "Outside the usual range", overview.out_of_range_rows, pct + "% of results that have a range", pct < 10 ? "in" : "watch", pct < 10 ? "Mostly in range" : "Watch"),
-    kpi("kpi-sep", "Solar-particle reports", overview.sep_events, "DONKI instrument rows for 2024, not separate storms", "watch", "Space weather"),
-    kpi("kpi-dose", "Highest station radiation", peak == null ? "—" : peak.toFixed(1), "μGy/h that week. A vehicle reading, not a personal dose.", "watch", "Not personal"),
+    kpi("kpi-sep", "Solar-particle reports", state.filters.topics.includes("radiation") ? overview.sep_events : "—", "DONKI instrument rows for 2024, not separate storms", "watch", state.filters.topics.includes("radiation") ? "Space weather" : "Filtered out"),
+    kpi("kpi-dose", "Highest station radiation", state.filters.topics.includes("radiation") && peak != null ? peak.toFixed(1) : "—", "μGy/h that week. A vehicle reading, not a personal dose.", "watch", state.filters.topics.includes("radiation") ? "Not personal" : "Filtered out"),
   );
   text("#gauge-note", "Share of results that have a printed range and sit outside it. The gauge runs 0–20% so this small share stays visible. Green means mostly in range. Real NASA rows.");
   return charts.gaugeChart(document.querySelector("#gauge"), {
@@ -195,6 +222,7 @@ function renderFlagCards(model) {
     card.statusLabel = "Suspect row";
     host.append(infoCard(card));
   });
+  if (!state.filters.topics.includes("radiation")) return;
   host.append(infoCard({
     title: "Station radiation",
     status: "watch",
@@ -286,8 +314,11 @@ function fillAnalytes(model) {
     option.textContent = plainName(item.analyte);
     select.append(option);
   });
-  if ([...select.options].some((option) => option.value === "GLUCOSE")) select.value = "GLUCOSE";
-  state.analyte = select.value || "GLUCOSE";
+  const preferred = state.filters.analyte;
+  if ([...select.options].some((option) => option.value === preferred)) select.value = preferred;
+  else if ([...select.options].some((option) => option.value === "GLUCOSE")) select.value = "GLUCOSE";
+  state.analyte = select.value || preferred || "GLUCOSE";
+  state.filters.analyte = state.analyte;
 }
 
 function suspect(row) {
@@ -356,7 +387,9 @@ function renderRest(model) {
   text("#flow-note", (model.flow && model.flow.note) || "");
   text("#rad-note", "Hourly average absorbed dose rate. " + ((model.radiation && model.radiation.series_note) || "Not a personal dosimeter."));
   text("#sep-takeaway", monthTakeaway(model.radiation && model.radiation.sep_by_month));
-  const jobs = [
+  const view = state.filters.view;
+  const jobs = [];
+  if (view === "labs") jobs.push(
     charts.sunburstChart(document.querySelector("#sun"), {
       label: "Outside-range results by body system, lab panel, and test",
       labels: sun.labels,
@@ -377,6 +410,8 @@ function renderRest(model) {
       target: crew.target,
       value: crew.value,
     }),
+  );
+  if (view === "radiation" && state.filters.topics.includes("radiation")) jobs.push(
     charts.lineChart(document.querySelector("#dose"), {
       label: "Hourly space-station radiation, June 2024",
       yTitle: "Station dose rate (μGy/h)",
@@ -392,8 +427,8 @@ function renderRest(model) {
         color: charts.colors.lilac,
       }],
     }),
-  ];
-  renderExtremes(model);
+  );
+  if (view === "labs") renderExtremes(model);
   return Promise.all(jobs);
 }
 
@@ -420,13 +455,22 @@ function guidanceList(payload) {
   return list.filter((item) => item && (item.title || item.what_it_means));
 }
 
-async function renderGuidance() {
+async function loadGuidance() {
+  if (state.recPayload !== null) return;
   const [recs, predict, predictLabs] = await Promise.all([
     getJson("/recommendations"),
     getJson("/predict"),
     getJson("/predict/labs"),
   ]);
-  const recList = guidanceList(recs);
+  state.recPayload = recs;
+  state.forecastPayloads = [predict, predictLabs];
+}
+
+async function renderGuidance() {
+  await loadGuidance();
+  const recs = state.recPayload;
+  const [predict, predictLabs] = state.forecastPayloads;
+  const recList = guidanceList(recs).filter((item) => matchRecommendation(item, state.filters));
   const host = document.querySelector("#recs");
   if (!recList.length) {
     const note = document.createElement("p");
@@ -447,7 +491,7 @@ async function renderGuidance() {
       sources: item.sources,
     })));
   }
-  const forecasts = guidanceList(predict).concat(guidanceList(predictLabs));
+  const forecasts = guidanceList(predict).concat(guidanceList(predictLabs)).filter((item) => matchRecommendation(item, state.filters)).slice(0, 3);
   const box = document.querySelector("#forecasts");
   if (!forecasts.length) {
     box.replaceChildren();
@@ -468,14 +512,16 @@ async function renderGuidance() {
       confidence: item.confidence,
       sources: item.sources,
     }));
-    const y = item.y || item.values;
-    const x = item.x || item.time || (Array.isArray(y) ? y.map((_, index) => index + 1) : null);
+    const points = Array.isArray(item.forecasts) ? item.forecasts : null;
+    const y = points ? points.map((point) => point.yhat) : (item.y || item.values);
+    const x = points ? points.map((point) => point.label) : (item.x || item.time || (Array.isArray(y) ? y.map((_, index) => index + 1) : null));
+    if (!item.title && item.analyte) item.title = plainName(item.analyte) + (item.crew_id ? " · " + item.crew_id : "");
     if (Array.isArray(y) && Array.isArray(x)) {
       const plot = document.createElement("div");
       plot.className = "plot";
       block.append(plot);
-      const low = item.lower || item.low || item.interval_low;
-      const high = item.upper || item.high || item.interval_high;
+      const low = points ? points.map((point) => point.pi95_low) : (item.lower || item.low || item.interval_low);
+      const high = points ? points.map((point) => point.pi95_high) : (item.upper || item.high || item.interval_high);
       await charts.lineChart(plot, {
         label: (item.title || "Forecast") + " with likely range",
         yTitle: item.unit || "",
@@ -487,32 +533,153 @@ async function renderGuidance() {
   }
 }
 
-async function boot() {
-  statusNode.textContent = "Loading charts.";
-  try {
-    let model = await loadApi();
-    if (model) {
-      state.source = "api";
-      statusNode.textContent = "Numbers from the API (/eda). Real NASA rows.";
-    } else {
-      model = await loadCsv();
-      state.source = "csv";
-      statusNode.textContent = "The API did not respond. These numbers were computed in the browser from data/*.csv, using the same definitions as /eda.";
-    }
-    state.model = model;
-    text("#scope", model.overview.scope || "");
+function readForm() {
+  const crew = [...document.querySelectorAll("input[name=crew]:checked")].map((input) => input.value);
+  const topics = [...document.querySelectorAll("input[name=topic]:checked")].map((input) => input.value);
+  state.filters = {
+    crew: crew.length ? crew : CREW_IDS.slice(),
+    topics: topics.length ? topics : TOPICS.map((topic) => topic.id),
+    view: document.querySelector("#view").value || "overview",
+    oorOnly: document.querySelector("#oor-only").checked,
+    analyte: state.filters.analyte || "GLUCOSE",
+  };
+}
+
+function writeForm() {
+  const filters = state.filters;
+  document.querySelectorAll("input[name=crew]").forEach((input) => {
+    input.checked = filters.crew.includes(input.value);
+  });
+  document.querySelectorAll("input[name=topic]").forEach((input) => {
+    input.checked = filters.topics.includes(input.value);
+  });
+  document.querySelector("#view").value = filters.view;
+  document.querySelector("#oor-only").checked = filters.oorOnly;
+}
+
+function rememberFilters() {
+  const query = filtersToQuery(state.filters);
+  const next = query ? `${location.pathname}?${query}` : location.pathname;
+  history.replaceState(null, "", next);
+}
+
+function showView(view) {
+  document.querySelectorAll("[data-view]").forEach((section) => {
+    section.hidden = section.dataset.view !== view;
+  });
+  const videos = document.querySelector("#flow-videos");
+  if (videos) {
+    const narrowed = state.filters.crew.length < CREW_IDS.length || state.filters.topics.length < TOPICS.length || state.filters.oorOnly;
+    videos.hidden = narrowed;
+  }
+}
+
+function modelFor(filters) {
+  const bundle = state.bundle;
+  const counted = filterLabRows(bundle.labs, filters, { ignoreOor: true });
+  const shown = filterLabRows(bundle.labs, filters);
+  const base = buildLocal({ ...bundle, labs: counted });
+  const focused = filters.oorOnly ? buildLocal({ ...bundle, labs: shown }) : base;
+  return {
+    overview: base.overview,
+    outOfRange: focused.outOfRange,
+    analytes: focused.analytes,
+    shift: focused.shift,
+    sunburst: focused.sunburst,
+    flow: focused.flow,
+    radiation: base.radiation,
+    extremes: focused.extremes,
+    trend: null,
+  };
+}
+
+function paintHighlights(model) {
+  const lines = topTakeaways(model.outOfRange, model.shift, model.extremes.rows);
+  text("#kpi-takeaway", lines[0] || "Most results in this selection were in range.");
+  const list = document.querySelector("#highlights");
+  list.replaceChildren();
+  lines.slice(1).forEach((line) => {
+    const item = document.createElement("li");
+    item.textContent = line;
+    list.append(item);
+  });
+}
+
+async function applyFilters() {
+  if (!state.bundle) return;
+  state.analyte = state.filters.analyte;
+  const model = modelFor(state.filters);
+  const names = (model.analytes.analytes || []).map((item) => item.analyte);
+  if (names.length && !names.includes(state.filters.analyte)) {
+    state.filters.analyte = names.includes("GLUCOSE") ? "GLUCOSE" : names[0];
+    state.analyte = state.filters.analyte;
+  }
+  state.model = model;
+  text("#scope", model.overview.scope || "");
+  showView(state.filters.view);
+  writeForm();
+  if (state.filters.view === "overview") {
+    paintHighlights(model);
+    await renderKpis(model);
+    return;
+  }
+  if (state.filters.view === "labs") {
     fillAnalytes(model);
-    await Promise.all([renderKpis(model), renderBars(model), renderTrend(model), renderRest(model)]);
-    await renderGuidance();
+    if (document.querySelector("#analyte").value) state.filters.analyte = document.querySelector("#analyte").value;
+    await Promise.all([renderBars(model), renderTrend(model), renderRest(model)]);
+    return;
+  }
+  if (state.filters.view === "radiation") {
+    if (!state.filters.topics.includes("radiation")) {
+      text("#rad-takeaway", "Radiation is turned off in Topics. Check Radiation to see the station dose.");
+      return;
+    }
+    text("#rad-takeaway", "This line is the space station’s radiation for one week in June 2024, not a personal dose.");
+    await renderRest(model);
+    return;
+  }
+  await renderGuidance();
+}
+
+function onFilterInput(event) {
+  if (event.target.id === "analyte") return;
+  readForm();
+  rememberFilters();
+  applyFilters();
+}
+
+document.querySelector("#filters").addEventListener("change", onFilterInput);
+document.querySelector("#reset").addEventListener("click", (event) => {
+  event.preventDefault();
+  state.filters = defaultFilters();
+  rememberFilters();
+  writeForm();
+  applyFilters();
+});
+
+document.querySelector("#analyte").addEventListener("change", (event) => {
+  state.filters.analyte = event.target.value;
+  state.analyte = event.target.value;
+  rememberFilters();
+  if (state.model) renderTrend(state.model);
+});
+
+async function boot() {
+  statusNode.textContent = "Loading the short version.";
+  state.filters = parseFilters(location.search);
+  writeForm();
+  try {
+    const api = await loadApi();
+    await loadCsv();
+    state.source = api ? "api" : "csv";
+    statusNode.textContent = api
+      ? "Live totals match /eda. Filters run in this browser, with no reload."
+      : "The API did not respond. These numbers were computed in the browser from data/*.csv, using the same definitions as /eda.";
+    await applyFilters();
   } catch (error) {
     statusNode.textContent = "Charts did not load.";
     showError("Start the API for /eda, or serve this folder with /data pointing at the NASA CSVs.");
   }
 }
-
-document.querySelector("#analyte").addEventListener("change", (event) => {
-  state.analyte = event.target.value;
-  if (state.model) renderTrend(state.model);
-});
 
 boot();
