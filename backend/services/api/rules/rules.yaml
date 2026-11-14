@@ -1,0 +1,100 @@
+# Extend rules here. Source URLs are pages this project opened.
+# Numeric cutoffs in this file are app settings, not NASA flight limits.
+
+sources:
+  hrp_hazards:
+    url: https://www.nasa.gov/hrp/hazards/
+    title: 5 Hazards of Human Spaceflight
+  hrp_risks:
+    url: https://www.nasa.gov/hrp/risks/
+    title: Risks of Human Spaceflight
+  osd_575:
+    url: https://osdr.nasa.gov/bio/repo/data/studies/OSD-575
+    title: OSD-575 Inspiration4 serum metabolic panel
+  osd_569:
+    url: https://osdr.nasa.gov/bio/repo/data/studies/OSD-569/
+    title: OSD-569 Inspiration4 whole-blood CBC
+  radlab_api:
+    url: https://visualization.osdr.nasa.gov/radlab/gui/data-api/
+    title: NASA RadLab data API
+  donki_sep_31338:
+    url: https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31338/-1
+    title: DONKI SEP 31338, 2024-06-08T02:25Z
+  i4_datasets:
+    url: https://www.nasa.gov/osdr-latest-news-i4-mission-datasets/
+    title: Inspiration4 datasets on NASA OSDR
+  ochmo_tb_044:
+    url: https://www.nasa.gov/wp-content/uploads/2025/08/ochmo-tb-044-medical-operations.pdf
+    title: OCHMO-TB-044 Medical Operations
+  csa_body:
+    url: https://www.asc-csa.gc.ca/eng/iss/science/why-do-we-conduct-science-experiments-in-space.asp
+    title: CSA — why science is done in space
+  csa_infographic:
+    url: https://www.asc-csa.gc.ca/eng/multimedia/search/image/8056
+    title: CSA infographic — how space affects the human body
+
+# tier: self | cmo | flight_surgeon | emergency
+# emergency is the only tier that may set broadcast: true, and the public text must not name a diagnosis.
+
+emergency:
+  radiation_with_sep:
+    tier: emergency
+    broadcast: true
+    severity: critical
+    mission_impact: true
+    dose_rate_at_least: 400
+    sep_after_hours_max: 96
+    public_title: Radiation contingency — follow procedures
+    public_detail: Radiation contingency. Follow procedures. This notice does not name a crew member or a diagnosis.
+    sources: [hrp_hazards, ochmo_tb_044, radlab_api, donki_sep_31338]
+  heart_rate:
+    tier: emergency
+    broadcast: true
+    severity: critical
+    mission_impact: true
+    low: 40
+    high: 130
+    public_title: Crewmate needs assistance
+    public_detail: Crewmate needs assistance at the module. Follow procedures. No diagnosis is included.
+    sources: [hrp_risks, ochmo_tb_044]
+  impact:
+    tier: emergency
+    broadcast: true
+    severity: critical
+    mission_impact: true
+    public_title: Crewmate needs assistance
+    public_detail: Crewmate needs assistance at crew quarters. Follow procedures. No diagnosis is included.
+    sources: [hrp_risks, ochmo_tb_044]
+  critical_glucose:
+    tier: cmo
+    broadcast: false
+    severity: watch
+    mission_impact: false
+    below: 54
+    sources: [osd_575, hrp_hazards]
+
+preventive:
+  worsening_lab:
+    tier: cmo
+    broadcast: false
+    mission_impact: false
+    panels: [CBC, CMP]
+    sources_by_panel:
+      CMP: [osd_575, hrp_hazards, ochmo_tb_044]
+      CBC: [osd_569, csa_infographic, hrp_hazards]
+    highlight:
+      crew_id: C003
+      analyte: POTASSIUM
+      earlier_timepoint: L-3
+      later_timepoint: R+1
+  sleep_and_cortisol:
+    tier: flight_surgeon
+    broadcast: false
+    mission_impact: false
+    sleep_mean_below: 6
+    cortisol_mean_above: 18
+    window: 3
+    sources: [hrp_risks, hrp_hazards, ochmo_tb_044]
+
+demo:
+  order: [legend, emergency, preventive, simulated]

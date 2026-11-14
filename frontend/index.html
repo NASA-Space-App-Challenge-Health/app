@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Crew health dashboard with real NASA Inspiration4 labs and simulated vitals." />
+    <title>Astronaut Health Monitor</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23070b14'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%2300E5FF'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap header-row">
+        <div>
+          <p class="eyebrow">NASA Space Apps Challenge 2026</p>
+          <h1>Astronaut Health Monitor</h1>
+          <p class="lede">Shared crew board for a desktop web app. Real NASA labs and vehicle radiation sit next to simulated vitals.</p>
+        </div>
+        <div class="header-actions">
+          <a class="button-link" href="#/demo">Start guided demo</a>
+          <button type="button" id="reload">Reload</button>
+        </div>
+      </div>
+      <nav class="wrap nav" aria-label="Sections">
+        <a href="#/">Dashboard</a>
+        <a href="#/alerts">Alerts</a>
+        <a href="#/demo">Demo</a>
+        <a href="#/schedule">Hygiene</a>
+        <a href="#/insights">Insights</a>
+        <a href="#/check">Check-in</a>
+        <a href="#/upload">Upload</a>
+      </nav>
+      <div class="wrap">
+        <p class="demo-banner" id="demo-banner">Demo only, no login.</p>
+        <div class="viewer-row">
+          <label for="viewer">Member</label>
+          <select id="viewer"></select>
+          <label for="role">Role</label>
+          <select id="role">
+            <option value="self">Self</option>
+            <option value="cmo">CMO</option>
+            <option value="flight_surgeon">Ground flight surgeon</option>
+            <option value="crewmate">Crewmate</option>
+            <option value="commander">Commander</option>
+          </select>
+        </div>
+        <p class="sim-banner" id="banner">
+          <strong>Real NASA data and simulated vitals.</strong>
+          Labs, DosTel dose rates, and DONKI events are real. Heart rate, sleep, cortisol, hydration, and hygiene timing are simulated.
+        </p>
+        <p id="disclaimer" class="disclaimer"></p>
+        <p id="status" class="status" role="status" aria-live="polite">Loading the crew board.</p>
+        <div id="alert-strip"></div>
+      </div>
+    </header>
+    <main id="main" class="wrap" tabindex="-1" data-state="loading"></main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>Group model is a crew today. The same member list can later describe a family. <a id="api-docs" href="http://127.0.0.1:8080/docs">API documentation</a></p>
+      </div>
+    </footer>
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
