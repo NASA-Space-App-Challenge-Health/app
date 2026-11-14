@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
-from app import eda_queries
+from app import eda_queries, predict_queries
 from app.guidance import DISCLAIMER, IndicatorError
 from app.repository import (
     ConflictError,
@@ -196,6 +196,35 @@ def eda_radiation() -> dict:
 @app.get("/eda/extremes")
 def eda_extremes(limit: int = 15) -> dict:
     return _eda(lambda conn: eda_queries.extremes(conn, limit))
+
+
+@app.get("/predict/labs")
+def predict_labs(crew: str | None = None, analyte: str | None = None) -> dict:
+    return _eda(lambda conn: predict_queries.predict_labs(conn, crew, analyte))
+
+
+@app.get("/predict/labs/risks")
+def predict_lab_risks(limit: int = 20) -> dict:
+    return _eda(lambda conn: predict_queries.lab_risks(conn, limit))
+
+
+@app.get("/predict/radiation")
+def predict_radiation() -> dict:
+    return _eda(predict_queries.predict_radiation)
+
+
+@app.get("/predict/vitals")
+def predict_vitals(crew: str | None = None) -> dict:
+    return _eda(lambda conn: predict_queries.predict_vitals(conn, crew))
+
+
+@app.get("/recommendations")
+def predict_recommendations(
+    crew: str | None = None,
+    role: str = "flight_surgeon",
+    viewer: str | None = None,
+) -> dict:
+    return _eda(lambda conn: predict_queries.recommendations(conn, crew, role, viewer))
 
 
 @app.get("/api/insights")
