@@ -1,25 +1,16 @@
-# Frontend
+# React + Vite
 
-Static crew dashboard. No package manager and no build step. Geist Sans (OFL,
-see `fonts/OFL.txt`) is vendored. Tokens live in `styles.css`:
-`color-bg-deep-space`, `color-surface`, `color-text-primary`,
-`color-accent-arctic-cyan` (`#00E5FF`), and `color-accent-royal-purple`
-(`#7851A9`).
+This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
-## Run
+Currently, two official plugins are available:
 
-Start the API first, then:
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-```sh
-bash scripts/serve_frontend.sh
-```
+## React Compiler
 
-Open <http://127.0.0.1:5173>. The page always shows a simulated-data banner.
-Readings come from `GET /api/dashboard`. `config.js` sets the API origin.
-`?api=http://127.0.0.1:8080` overrides it for one visit.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-The dashboard talks only to the API. It never receives database credentials.
+## Expanding the Oxlint configuration
 
-For Cloudflare Pages, set `FRONTEND_OUTPUT_DIR=frontend`. Point
-`CREW_HEALTH_API_BASE` at the public API and add the Pages origin to
-`FRONTEND_ORIGINS`.
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.

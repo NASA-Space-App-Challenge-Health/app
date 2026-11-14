@@ -1,69 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Crew health dashboard with real NASA Inspiration4 labs and simulated vitals." />
-    <title>Astronaut Health Monitor</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23070b14'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%2300E5FF'/%3E%3C/svg%3E" />
-    <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
   </head>
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
-    <header class="site-header">
-      <div class="wrap header-row">
-        <div>
-          <p class="eyebrow">Space Apps 2026</p>
-          <h1>Astronaut Health Monitor</h1>
-        </div>
-        <div class="header-actions">
-          <a class="button-link" href="#/demo">Start guided demo</a>
-          <button type="button" id="reload">Reload</button>
-        </div>
-      </div>
-      <nav class="wrap nav" aria-label="Sections">
-        <a href="#/">Dashboard</a>
-        <a href="#/alerts">Alerts</a>
-        <a href="#/demo">Demo</a>
-        <a href="#/schedule">Hygiene</a>
-        <a href="#/insights">Insights</a>
-        <a href="insights.html">Data insights</a>
-        <a href="#/check">Check-in</a>
-        <a href="#/upload">Upload</a>
-      </nav>
-      <div class="wrap">
-        <p class="chip-row">
-          <span class="chip" id="demo-banner">Demo only</span>
-          <span class="origin origin-real">Real NASA</span>
-          <span class="origin origin-simulated">Simulated vitals</span>
-        </p>
-        <div class="viewer-row">
-          <label for="viewer">Member</label>
-          <select id="viewer"></select>
-          <label for="role">Role</label>
-          <select id="role">
-            <option value="self">Self</option>
-            <option value="cmo">CMO</option>
-            <option value="flight_surgeon">Ground flight surgeon</option>
-            <option value="crewmate">Crewmate</option>
-            <option value="commander">Commander</option>
-          </select>
-        </div>
-        <details class="learn-more">
-          <summary>Learn more</summary>
-          <p id="disclaimer" class="disclaimer"></p>
-        </details>
-        <p id="status" class="status" role="status" aria-live="polite">Loading.</p>
-        <div id="alert-strip"></div>
-      </div>
-    </header>
-    <main id="main" class="wrap" tabindex="-1" data-state="loading"></main>
-    <footer class="site-footer">
-      <div class="wrap">
-        <p><a id="api-docs" href="http://127.0.0.1:8080/docs">API</a></p>
-      </div>
-    </footer>
-    <script src="config.js"></script>
-    <script src="app.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
