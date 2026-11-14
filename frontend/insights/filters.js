@@ -114,7 +114,7 @@ export function topTakeaways(oor, shift, extremeRows) {
   if (shift && shift.analyte && shift.analyte.length) lines.push(shiftTakeaway(shift));
   const suspect = (extremeRows || []).some((row) => row.crew_id === "C003" && row.timepoint === "L-92" && (row.analyte === "MPV" || row.analyte === "RDW"));
   lines.push(suspect
-    ? "Platelet size and red-cell size spread for C003 before launch look like suspect source rows, not a medical finding."
-    : "Most results in this selection sat inside the printed range.");
+    ? "C003 L-92 platelet size and RDW look like suspect rows."
+    : "Most results in this selection were in range.");
   return lines.slice(0, 3);
 }

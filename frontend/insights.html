@@ -10,20 +10,20 @@
   <body>
     <a class="skip" href="#main">Skip to content</a>
     <header class="wrap">
-      <p class="demo-banner">Demo only. Published research tables, not a live medical record and not a diagnosis.</p>
+      <p class="chip-row"><span class="chip">Demo only</span> <span class="origin origin-real">Real NASA</span></p>
       <div class="top">
         <div>
           <p class="eyebrow">NASA Space Apps 2026</p>
           <h1>Data insights</h1>
-          <p id="scope" class="lede">Loading the Inspiration4, DosTel, and DONKI tables.</p>
+          <details class="learn-more"><summary>Learn more</summary><p id="scope" class="lede"></p></details>
         </div>
         <a class="back" href="index.html">Back to the crew board</a>
       </div>
       <p id="status" class="status" role="status">Loading charts.</p>
       <ul class="legend" aria-label="Status colors">
-        <li><span class="status-pill status-in">In range</span> inside the reference range</li>
-        <li><span class="status-pill status-watch">Watch</span> worth a clinician’s look</li>
-        <li><span class="status-pill status-out">Out of range</span> outside the range on the NASA row</li>
+        <li><span class="status-pill status-in">In range</span></li>
+        <li><span class="status-pill status-watch">Watch</span></li>
+        <li><span class="status-pill status-out">Out of range</span></li>
       </ul>
       <form id="filters" class="filters" aria-label="Filter the insights">
         <fieldset>
@@ -77,7 +77,7 @@
         <p id="oor-note" class="caption"></p>
         <div id="oor" class="plot"></div>
         <h3 id="flags-title">What a flag means</h3>
-        <p id="flags-takeaway" class="takeaway">A flag is not a diagnosis. It means one sample sat outside the range printed on that NASA row.</p>
+        <p id="flags-takeaway" class="takeaway">A flag is not a diagnosis.</p>
         <div id="flag-cards" class="card-grid"></div>
       </section>
       <section data-view="labs" hidden aria-labelledby="trend-title">
@@ -104,7 +104,7 @@
       <section data-view="labs" hidden aria-labelledby="flow-title">
         <h2 id="flow-title">Where the results flowed</h2>
         <p id="flow-takeaway" class="takeaway">Most samples flow into “In range.” Low and high are the thin ribbons.</p>
-        <p class="caption">The moving pictures use true color gradients from the Python library gradient-sankey. It writes video, not a web chart. The charts under the clips are interactive Plotly diagrams with one solid color per ribbon. <span class="status-pill status-in">In range</span> <span class="status-pill status-watch">Low</span> <span class="status-pill status-out">High</span></p>
+        <p class="caption">Gradient clips are video. Charts below are Plotly. <span class="status-pill status-in">In range</span> <span class="status-pill status-watch">Low</span> <span class="status-pill status-out">High</span></p>
         <div id="flow-videos" class="video-grid">
           <figure>
             <figcaption>Before flight, then the day after landing, then recovery.</figcaption>

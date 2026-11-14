@@ -13,9 +13,8 @@
     <header class="site-header">
       <div class="wrap header-row">
         <div>
-          <p class="eyebrow">NASA Space Apps Challenge 2026</p>
+          <p class="eyebrow">Space Apps 2026</p>
           <h1>Astronaut Health Monitor</h1>
-          <p class="lede">Shared crew board for a desktop web app. Real NASA labs and vehicle radiation sit next to simulated vitals.</p>
         </div>
         <div class="header-actions">
           <a class="button-link" href="#/demo">Start guided demo</a>
@@ -33,7 +32,11 @@
         <a href="#/upload">Upload</a>
       </nav>
       <div class="wrap">
-        <p class="demo-banner" id="demo-banner">Demo only, no login.</p>
+        <p class="chip-row">
+          <span class="chip" id="demo-banner">Demo only</span>
+          <span class="origin origin-real">Real NASA</span>
+          <span class="origin origin-simulated">Simulated vitals</span>
+        </p>
         <div class="viewer-row">
           <label for="viewer">Member</label>
           <select id="viewer"></select>
@@ -46,19 +49,18 @@
             <option value="commander">Commander</option>
           </select>
         </div>
-        <p class="sim-banner" id="banner">
-          <strong>Real NASA data and simulated vitals.</strong>
-          Labs, DosTel dose rates, and DONKI events are real. Heart rate, sleep, cortisol, hydration, and hygiene timing are simulated.
-        </p>
-        <p id="disclaimer" class="disclaimer"></p>
-        <p id="status" class="status" role="status" aria-live="polite">Loading the crew board.</p>
+        <details class="learn-more">
+          <summary>Learn more</summary>
+          <p id="disclaimer" class="disclaimer"></p>
+        </details>
+        <p id="status" class="status" role="status" aria-live="polite">Loading.</p>
         <div id="alert-strip"></div>
       </div>
     </header>
     <main id="main" class="wrap" tabindex="-1" data-state="loading"></main>
     <footer class="site-footer">
       <div class="wrap">
-        <p>Group model is a crew today. The same member list can later describe a family. <a id="api-docs" href="http://127.0.0.1:8080/docs">API documentation</a></p>
+        <p><a id="api-docs" href="http://127.0.0.1:8080/docs">API</a></p>
       </div>
     </footer>
     <script src="config.js"></script>

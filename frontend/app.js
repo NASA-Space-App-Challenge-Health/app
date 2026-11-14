@@ -37,6 +37,7 @@
       else node.setAttribute(key, String(value));
     });
     (children || []).forEach(function (child) {
+      if (child == null || child === false) return;
       node.append(child instanceof Node ? child : document.createTextNode(String(child)));
     });
     return node;
@@ -79,15 +80,36 @@
     status.textContent = text;
   }
 
+  function firstSentence(text) {
+    const clean = String(text || "").trim();
+    const cut = clean.split(/(?<=\.)\s/)[0];
+    return cut || clean;
+  }
+
+  function learnMore(parts) {
+    const body = (parts || []).filter(Boolean);
+    if (!body.length) return null;
+    return el("details", { class: "learn-more" }, [
+      el("summary", null, ["Learn more"]),
+    ].concat(body));
+  }
+
   function renderAlertStrip() {
     const alerts = (state.payload && state.payload.alerts) || [];
     const critical = alerts.filter(function (item) { return item.severity === "critical"; });
     strip.replaceChildren();
     if (!critical.length) return;
     const top = critical[0];
-    strip.append(el("a", { class: "alert-strip", href: "#/alerts" }, [
-      el("strong", null, ["Emergency · " + top.title + ". "]),
-      top.detail,
+    const headline = top.public_title || top.title || "Emergency";
+    const sentence = top.public_detail || firstSentence(top.detail);
+    strip.append(el("article", { class: "alert-card" }, [
+      el("a", { class: "alert-head", href: "#/alerts" }, [headline]),
+      el("p", null, [sentence]),
+      learnMore([
+        top.detail && top.detail !== sentence ? el("p", null, [top.detail]) : null,
+        top.suggested_action ? el("p", null, [top.suggested_action]) : null,
+        sourceList(top.sources),
+      ]),
     ]));
   }
 
@@ -111,20 +133,19 @@
     main.replaceChildren(el("div", { class: "body-layout" }, [
       bodySvg(regions, selected),
       el("article", { class: "card", id: "region-panel" }, [
-        el("p", { class: "eyebrow" }, ["Selected member · " + (state.payload.viewer || "") + " · " + (state.payload.role || "")]),
+        el("p", { class: "eyebrow" }, [(state.payload.viewer || "") + " · " + (state.payload.role || "")]),
         el("h2", null, [region.label]),
-        el("p", null, ["Status: " + region.status + ". " + region.function]),
-        el("h3", null, ["Why this test"]),
-        el("p", null, [region.why]),
-        el("h3", null, ["How spaceflight shows up"]),
-        el("p", null, [region.spaceflight]),
-        el("h3", null, ["What prevents a critical condition"]),
-        el("p", null, [region.prevention]),
-        sourceList(region.sources),
+        el("p", null, [region.function]),
+        learnMore([
+          el("p", null, [region.why]),
+          el("p", null, [region.spaceflight]),
+          el("p", null, [region.prevention]),
+          sourceList(region.sources),
+        ]),
         memberSnapshot(),
       ]),
     ]));
-    setStatus("Body map for " + (state.payload.viewer || "the crew") + " as " + state.payload.role + ".");
+    setStatus((state.payload.viewer || "Crew") + " · " + state.payload.role + ".");
   }
 
   function bodySvg(regions, selected) {
@@ -177,7 +198,7 @@
       lines.push(el("p", null, [originBadge(reading.origin), " " + reading.label + " " + formatNumber(reading.value, reading.decimals) + " " + reading.unit]));
     });
     (member.labs || []).slice(0, 4).forEach(function (lab) {
-      lines.push(el("p", null, [originBadge("real"), " " + lab.analyte + " " + formatNumber(lab.value, 1) + " " + (lab.unit || "") + " · released research data"]));
+      lines.push(el("p", null, [originBadge("real"), " " + lab.analyte + " " + formatNumber(lab.value, 1) + " " + (lab.unit || "")]));
     });
     return el("div", null, lines);
   }
@@ -192,7 +213,7 @@
     ];
     if (member.visible !== "full") {
       head.push(el("p", { class: "hidden-note" }, [
-        "Sharing alerts only. Full vitals and lab numbers are hidden in this view. Emergency alerts still broadcast.",
+        "Alerts only. Numbers stay private.",
       ]));
       return el("article", { class: "card" }, head);
     }
@@ -225,17 +246,21 @@
   function renderAlerts() {
     const alerts = state.payload.alerts || [];
     main.dataset.state = alerts.length ? "ready" : "empty";
-    const blocks = [el("h2", null, ["Alerts broadcast to the crew"])];
+    const blocks = [el("h2", null, ["Crew alerts"])];
     if (!alerts.length) blocks.push(el("p", null, ["No alerts."]));
     alerts.forEach(function (alert) {
-      blocks.push(el("article", { class: alert.severity === "critical" ? "alert-strip" : "notice notice-watch" }, [
+      const sentence = alert.public_detail || firstSentence(alert.detail);
+      blocks.push(el("article", { class: "alert-card" }, [
         el("div", { class: "badge-row" }, [
           originBadge(alert.origin),
-          el("strong", null, [(alert.severity ? alert.severity + " · " : "") + alert.title]),
+          el("strong", null, [alert.public_title || alert.title]),
         ]),
-        el("p", null, [alert.detail]),
-        el("p", null, ["Suggested action: " + alert.suggested_action]),
-        sourceList(alert.sources),
+        el("p", null, [sentence]),
+        learnMore([
+          alert.detail && alert.detail !== sentence ? el("p", null, [alert.detail]) : null,
+          alert.suggested_action ? el("p", null, [alert.suggested_action]) : null,
+          sourceList(alert.sources),
+        ]),
       ]));
     });
     main.replaceChildren(el("section", null, blocks));
@@ -251,13 +276,16 @@
       return;
     }
     const body = [
-      el("p", { class: "eyebrow" }, [step.kicker + " of " + steps.length + (step.tier ? " · tier " + step.tier : "")]),
+      el("p", { class: "eyebrow" }, [step.kicker + " / " + steps.length]),
       el("h2", null, [step.title]),
-      el("p", null, [step.body]),
+      el("p", null, [firstSentence(step.body)]),
     ];
-    if (step.alert) body.push(renderNotice(step.alert));
-    if (step.recommendation) body.push(renderNotice(step.recommendation));
-    if (step.hygiene) body.push(el("p", null, [step.hygiene.suggestion || ""]));
+    body.push(learnMore([
+      el("p", null, [step.body]),
+      step.alert ? renderNotice(step.alert) : null,
+      step.recommendation ? renderNotice(step.recommendation) : null,
+      step.hygiene ? el("p", null, [step.hygiene.suggestion || ""]) : null,
+    ]));
     body.push(el("div", { class: "step-actions" }, [
       el("button", { type: "button", onclick: function () { moveDemo(-1); }, disabled: state.demoStep === 0 ? "true" : null }, ["Back"]),
       el("button", { type: "button", onclick: function () { moveDemo(1); }, disabled: state.demoStep >= steps.length - 1 ? "true" : null }, ["Next"]),
@@ -269,9 +297,12 @@
   function renderNotice(item) {
     return el("article", null, [
       el("div", { class: "badge-row" }, [originBadge(item.origin), el("strong", null, [item.title])]),
-      el("p", null, [item.detail]),
-      el("p", null, ["Suggested action: " + item.suggested_action]),
-      sourceList(item.sources),
+      el("p", null, [firstSentence(item.detail)]),
+      learnMore([
+        el("p", null, [item.detail]),
+        item.suggested_action ? el("p", null, [item.suggested_action]) : null,
+        sourceList(item.sources),
+      ]),
     ]);
   }
 
@@ -280,10 +311,10 @@
     main.dataset.state = "ready";
     main.replaceChildren(el("section", { class: "card" }, [
       el("div", { class: "badge-row" }, [originBadge("simulated"), el("h2", null, [hygiene.station || "Hygiene station"])]),
-      el("p", null, [hygiene.suggestion || ""]),
-      el("p", null, ["Suggested order: " + (hygiene.order || []).join(", ")]),
-      el("p", { class: "hidden-note" }, [
-        "Windows are estimates from simulated fluid intake and clock time. They are not measured bathroom events.",
+      el("p", null, [(hygiene.order || []).join(" → ")]),
+      learnMore([
+        el("p", null, [hygiene.suggestion || ""]),
+        el("p", null, ["Estimated from simulated fluid intake. Not a measured bathroom time."]),
       ]),
     ]));
     setStatus("Hygiene estimate ready.");
@@ -311,14 +342,13 @@
       return el("tr", null, [el("th", null, [entry[0].replaceAll("_", " ")]), el("td", null, [label])]);
     });
     main.replaceChildren(el("section", null, [
-      el("h2", null, ["Insights across the crew"]),
-      el("p", null, [
-        "Common out-of-range CBC and CMP flags in the Inspiration4 file. A repeat that moves further out of range is counted as something an earlier check could have caught. " + preventable.length + " of those worsening pairs are in the recommendation list.",
-      ]),
+      el("h2", null, ["Out-of-range labs"]),
+      el("p", null, [issues.length + " common flags. " + preventable.length + " got worse on the next draw."]),
+      learnMore([el("p", null, ["Counts use the reference range printed on each Inspiration4 row. Real NASA."])]),
       el("div", { class: "insight-grid" }, issueCards),
       el("h3", null, ["Extremes"]),
       el("table", null, [el("tbody", null, extremeRows)]),
-      el("p", null, ["DONKI SEP rows loaded: " + (insights.space_weather_events_in_file || 0) + ". All of these figures are real NASA rows."]),
+      el("p", null, [(insights.space_weather_events_in_file || 0) + " SEP rows. Real NASA."]),
     ]));
     setStatus("Insights use the committed NASA tables.");
   }
@@ -327,9 +357,8 @@
     main.dataset.state = "ready";
     const form = el("form", { class: "upload-card", onsubmit: submitUpload }, [
       el("h2", null, ["Upload a vitals CSV"]),
-      el("p", null, [
-        "Columns: crew_id, indicator, value, recorded_at. Optional uploads are stored as simulated, not as NASA data. Real labs, DosTel, and DONKI load from the data/ folder when the API starts.",
-      ]),
+      el("p", null, ["CSV columns: crew_id, indicator, value, recorded_at."]),
+      learnMore([el("p", null, ["Uploads are stored as simulated, not as NASA data."])]),
       el("input", { type: "file", id: "csv-file", accept: ".csv,text/csv", required: "true" }),
       el("button", { type: "submit" }, ["Upload"]),
       el("p", { id: "upload-result", class: "status" }, [""]),
@@ -347,9 +376,8 @@
     }
     const form = el("form", { class: "upload-card", onsubmit: submitNote }, [
       el("h2", null, ["Typed check-in"]),
-      el("p", null, [
-        "Saved in the local database for you, the CMO, and the flight surgeon. A 15-minute private medical conference block, including before and after EVA, is the sample on OCHMO-TB-044 page 9.",
-      ]),
+      el("p", null, ["Private to you, the CMO, and the flight surgeon."]),
+      learnMore([el("p", null, ["OCHMO-TB-044 page 9 shows a 15-minute private medical conference, including before and after EVA."])]),
       el("label", { for: "note-kind" }, ["Kind"]),
       el("select", { id: "note-kind" }, [
         el("option", { value: "symptom" }, ["Symptom or periodic status"]),
@@ -368,7 +396,7 @@
     ]);
     const image = el("form", { class: "upload-card", onsubmit: submitImage }, [
       el("h2", null, ["Ultrasound or camera image"]),
-      el("p", null, ["The file is queued for CMO / flight surgeon review. This screen does not interpret the image."]),
+      el("p", null, ["Queued for review. The app does not read the image."]),
       el("input", { type: "file", id: "image-file", accept: "image/*", required: "true" }),
       el("button", { type: "submit" }, ["Queue image"]),
       el("p", { id: "image-result", class: "status" }, [""]),
@@ -494,7 +522,7 @@
       if (seq !== state.requestSeq) return;
       state.payload = body;
       state.error = "";
-      if (body.demo_banner) demoBanner.textContent = body.demo_banner;
+      demoBanner.textContent = "Demo only";
       fillViewer();
       render();
     } catch (error) {
