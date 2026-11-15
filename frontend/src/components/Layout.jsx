@@ -8,10 +8,10 @@ import {
   LineChart,
   Menu,
   Radiation,
+  Users,
   X,
 } from 'lucide-react'
 import { CREW, ROLES } from '../api'
-import AboutUs from './AboutUs'
 import { useViewer } from '../context/ViewerContext'
 
 const NAV = [
@@ -21,6 +21,7 @@ const NAV = [
   { to: '/dashboard/radiation', label: 'Radiation & temp', icon: Radiation },
   { to: '/dashboard/muscles', label: 'Muscles & bones', icon: Bone },
   { to: '/insights', label: 'Data insights', icon: LineChart },
+  { to: '/about', label: 'About us', icon: Users },
 ]
 
 
@@ -77,18 +78,8 @@ export default function Layout() {
         <div className="flex-1 overflow-y-auto p-3">
           <NavItems />
         </div>
-        <div className="border-t border-white/10 p-4">
-          <details className="group">
-            <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400 hover:text-cyan-200">
-              About us
-            </summary>
-            <div className="mt-2 max-h-[45vh] overflow-y-auto pr-1">
-              <AboutUs />
-            </div>
-          </details>
-          <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
-            Demo only, no login. Real NASA data is labelled; simulated vitals are labelled too.
-          </p>
+        <div className="border-t border-white/10 p-4 text-[11px] leading-relaxed text-slate-500">
+          Demo only, no login. Real NASA data is labelled; simulated vitals are labelled too.
         </div>
       </aside>
 
@@ -121,19 +112,9 @@ export default function Layout() {
             <div className="flex-1 overflow-y-auto">
               <NavItems onNavigate={() => setMenuOpen(false)} />
             </div>
-            <div className="mt-4 border-t border-white/10 pt-3">
-              <details>
-                <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
-                  About us
-                </summary>
-                <div className="mt-2 max-h-[40vh] overflow-y-auto pr-1">
-                  <AboutUs />
-                </div>
-              </details>
-              <p className="mt-2 text-[11px] text-slate-500">
-                Demo only. Real NASA data is labelled; simulated vitals are labelled too.
-              </p>
-            </div>
+            <p className="mt-4 border-t border-white/10 pt-3 text-[11px] text-slate-500">
+              Demo only. Real NASA data is labelled; simulated vitals are labelled too.
+            </p>
           </div>
         </div>
       )}
