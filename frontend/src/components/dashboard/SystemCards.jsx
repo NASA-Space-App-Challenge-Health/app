@@ -162,9 +162,6 @@ export default function SystemCards({ member, radiation, visible }) {
           <h2 id="systems-title" className="text-base font-semibold text-white">
             Systems at a glance
           </h2>
-          <p className="mt-0.5 text-sm text-slate-400">
-            Tap a system for the charts and evidence. Each row shows its real or POC band.
-          </p>
         </div>
         <Chip kind="real">Real NASA</Chip>
       </div>

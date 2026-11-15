@@ -18,7 +18,6 @@ export default function LabsSummary({ labs, role }) {
   return (
     <Card
       title="Released research labs"
-      subtitle="Released CBC/CMP lab rows, de-identified by NASA. Full table and charts in Blood & heart."
       action={<Chip kind="real">Real NASA</Chip>}
     >
       {labs === null || labs === undefined ? (

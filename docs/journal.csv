@@ -75,3 +75,4 @@ aproveita para atualizar o readme que deve conter:
 Replace the stale README screenshots with compressed current production captures and delete the old giant PNGs,atualiza ou remove as imagens dos prints do app lá no readme rambém. Tem prints gigantes que devem ser deletados,2026-11-15T16:34:00-03:00,unavailable,520
 "Add the missing GitHub profiles (Milena Greff, Amanda Paul Dull) to the README team table",aqui os membros do repo já que não achasse,2026-11-15T16:40:00-03:00,unavailable,180
 "Add the T.H.A.I.S. logo to the repo, sidebar/mobile/login, favicon and README, then deploy",adicione essa logo no repo e no website,2026-11-15T17:10:00-03:00,unavailable,420
+Remove the remaining explanatory subtitles/callouts and the duplicate body-map blocks from the category pages,"reparei que aqueles coments redundantes ainda estão noutras páginas em prod, cheque lá e remova-os",2026-11-15T17:52:00-03:00,unavailable,520

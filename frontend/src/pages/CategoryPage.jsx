@@ -20,8 +20,6 @@ import SourceLinks from '../components/SourceLinks'
 import { Empty, ErrorState, Loading } from '../components/StateView'
 import { AXIS_PROPS, CREW_COLORS, FALLBACK_COLORS, GRID_PROPS, LEGEND_PROPS } from '../components/dashboard/chartTheme'
 import AlertCard from '../components/dashboard/AlertCard'
-import BodyMap from '../components/dashboard/BodyMap'
-import Callout from '../components/dashboard/Callout'
 import CategoryHeader from '../components/dashboard/CategoryHeader'
 import ChartFrame from '../components/dashboard/ChartFrame'
 import ChartTooltip from '../components/dashboard/ChartTooltip'
@@ -72,10 +70,6 @@ const CATEGORIES = {
     purpose: 'What the public sources say, and an honest empty state for measurements.',
     icon: Bone,
   },
-}
-
-function bodyByIds(body, ids) {
-  return safeArray(body).filter((region) => ids.includes(region.id))
 }
 
 function UnknownCategory({ categoria }) {
@@ -296,7 +290,6 @@ function HeartSection({ member, role, viewer, data }) {
         role={role}
         indicators={['heart_rate', 'spo2']}
         title="Heart and oxygen"
-        subtitle="Simulated vitals, labelled on each card."
         emptyMessage="No heart rate or oxygen reading for this crew member."
       />
 
@@ -305,7 +298,6 @@ function HeartSection({ member, role, viewer, data }) {
         role={role}
         analytes={HEART_LAB_ANALYTES}
         title="Blood panel"
-        subtitle="Released CBC/CMP, de-identified. Reference ranges come from the NASA rows."
         emptyMessage="No haemoglobin, white-cell, platelet, or glucose rows for this crew member."
       />
 
@@ -546,7 +538,6 @@ function RadiationSection({ member, role, dashboard, radiation, prediction }) {
         role={role}
         indicators={['temperature_c']}
         title="Body temperature"
-        subtitle="Simulated vital, labelled on the card."
         emptyMessage="No temperature reading for this crew member."
       />
 
@@ -561,34 +552,22 @@ function RadiationSection({ member, role, dashboard, radiation, prediction }) {
 
 // ---- Brain and muscles -----------------------------------------------------
 
-function BrainSection({ member, role, body }) {
+function BrainSection({ member, role }) {
   return (
     <>
-      <Callout>
-        The public package has no balance test, EEG, or cognitive score. Sleep and cortisol here are simulated
-        estimates, not OSD-575 assays.
-      </Callout>
-
       <VitalsGrid
         readings={member.readings}
         role={role}
         indicators={['sleep_hours', 'cortisol_ug_dl']}
         title="Sleep and cortisol"
-        subtitle="Simulated estimates, labelled on each card."
         emptyMessage="No sleep or cortisol estimate for this crew member."
       />
 
-      <BodyMap
-        body={bodyByIds(body, ['head', 'eyes'])}
-        title="Head and eyes"
-        subtitle="What the public sources say, and what to do about it."
-        initialId="head"
-      />
     </>
   )
 }
 
-function MusclesSection({ body }) {
+function MusclesSection() {
   return (
     <>
       <Card title="No measured bone or muscle values" subtitle="An honest empty state, not a fake number.">
@@ -598,12 +577,6 @@ function MusclesSection({ body }) {
         </Empty>
       </Card>
 
-      <BodyMap
-        body={bodyByIds(body, ['muscles', 'bones'])}
-        title="Muscles and bones"
-        subtitle="Prevention guidance from CSA, HRP, and OCHMO."
-        initialId="muscles"
-      />
     </>
   )
 }
@@ -667,7 +640,7 @@ export default function CategoryPage() {
           <AlertCard key={alert.id ?? alert.title} alert={alert} />
         ))}
 
-      {category.id === 'brain' && <BrainSection member={member} role={role} body={dashboard?.body} />}
+      {category.id === 'brain' && <BrainSection member={member} role={role} />}
       {category.id === 'heart' && <HeartSection member={member} role={role} viewer={viewer} data={data} />}
       {category.id === 'radiation' && (
         <RadiationSection
@@ -678,7 +651,7 @@ export default function CategoryPage() {
           prediction={data?.prediction}
         />
       )}
-      {category.id === 'muscles' && <MusclesSection body={dashboard?.body} />}
+      {category.id === 'muscles' && <MusclesSection />}
     </div>
   )
 }
