@@ -1,6 +1,8 @@
 /docs
 /notebooks
 **/*.png
+# The app logo is a source asset used by the Vite build, unlike generated screenshots.
+!frontend/public/thais-logo.png
 **/*.ipynb
 /.venv
 /.git
