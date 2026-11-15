@@ -5,24 +5,21 @@ import { Link } from 'react-router-dom'
 // https://commons.wikimedia.org/wiki/File:Human_silhouette_gender_neutral_front.svg
 // The body path is used as a neutral anatomical base; no attribution required
 // under CC0, but the source is recorded here for traceability.
-// Hotspots are 44px links with the status in the accessible name; a tap opens
-// the matching system page.
+// One hotspot per destination: head -> Brain, heart -> Blood, muscles ->
+// Muscles, environment -> Radiation. Duplicate links to the same page are
+// deliberately avoided; each target is 44px with its status in the name.
 
 const POSITIONS = {
   head: { top: '11%', left: '50%' },
   heart: { top: '36%', left: '50%' },
-  blood: { top: '45%', left: '27%' },
   muscles: { top: '65%', left: '42%' },
-  bones: { top: '80%', left: '58%' },
   environment: { top: '51%', left: '88%' },
 }
 
 const REGION_META = {
   head: { label: 'Head', to: '/dashboard/brain', target: 'Brain & balance' },
   heart: { label: 'Heart and vessels', to: '/dashboard/heart', target: 'Blood & heart' },
-  blood: { label: 'Blood', to: '/dashboard/heart', target: 'Blood & heart' },
   muscles: { label: 'Muscles', to: '/dashboard/muscles', target: 'Muscles & bones' },
-  bones: { label: 'Bones', to: '/dashboard/muscles', target: 'Muscles & bones' },
   environment: { label: 'Environment', to: '/dashboard/radiation', target: 'Radiation & temperature' },
 }
 
