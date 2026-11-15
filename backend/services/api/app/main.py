@@ -26,7 +26,6 @@ from app.repository import (
     get_crew,
     import_vitals_csv,
     list_readings,
-    load_on_startup,
     save_image,
     upload_dir,
     save_note,
@@ -52,10 +51,13 @@ def _origins() -> list[str]:
 
 @asynccontextmanager
 async def _lifespan(_app: FastAPI):
-    # LOAD_ON_STARTUP=false (the Vercel setting) skips migrations-with-CSV.
-    # Seed the database once with `python -m app load` instead.
-    if load_on_startup():
+    # Pending migrations and the simulated crew are prepared on startup on every
+    # host. On Vercel the CSV load stays off (LOAD_ON_STARTUP=false), so a cold
+    # start applies only the schema changes and idempotent seed.
+    try:
         ensure_ready()
+    except Exception:  # noqa: BLE001 - the API should answer 503, not fail boot
+        logger.exception("Startup database preparation failed; serving with a degraded database")
     yield
 
 

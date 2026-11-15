@@ -35,7 +35,7 @@ Set these on the Vercel project. Do not commit them.
 | Name | Required | Value |
 | --- | --- | --- |
 | `DATABASE_URL` | Yes | Neon **pooled** URL (hostname contains `-pooler`). `postgres://` is accepted. `channel_binding` is dropped if present; the pooler rejects it. `sslmode=require` is added when the URL does not set one and the host is not local. |
-| `LOAD_ON_STARTUP` | Yes | `false`. This skips the CSV load on every cold start. |
+| `LOAD_ON_STARTUP` | Yes | `false`. Keeps the CSV load off on cold starts. Pending migrations still apply on boot (idempotent). |
 | `DATABASE_STATEMENT_TIMEOUT_MS` | No | Leave unset or set `0` on the Neon pooler. A startup `options=-c statement_timeout=...` makes PgBouncer return an error and every database call 503. The app does not send that option when the host contains `-pooler`. |
 | `DATABASE_CONNECT_TIMEOUT` | No | Seconds. Default 5. |
 | `FRONTEND_ORIGINS` | No | Not needed for the same-origin SPA. Set it only if a second origin will call the API. |
@@ -59,13 +59,13 @@ DATABASE_URL='postgresql://USER:PASSWORD@HOST:5432/DBNAME' \
 Then deploy. The function does not read the CSVs; they are not staged into
 `public/` and `vercel.json` excludes `data/**` from the function bundle.
 
-### Applying a new migration
+### Migrations on deploy
 
-The Vercel function runs with `LOAD_ON_STARTUP=false`, so it does **not** apply
-migrations on a cold start. After adding a migration (for example
-`005_help_requests.sql`), run the same one-off command once against the Neon
-`DATABASE_URL` before deploying. It is idempotent: it applies only the pending
-migration and skips CSVs/tables that are already loaded.
+Every cold start calls `ensure_ready()`: pending forward migrations are applied
+and the simulated crew is seeded idempotently. `LOAD_ON_STARTUP=false` only
+turns the CSV load off, so the schema is current right after a deploy without a
+manual step. The one-off command above remains available — it is still what
+loads the CSVs once in a brand-new database.
 
 ## Routing
 
