@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
-from app import db, eda_queries, help as help_loop, predict_queries
+from app import db, eda_queries, help as help_loop, predict_queries, replay
 from app.guidance import DISCLAIMER, IndicatorError
 from app.repository import (
     ConflictError,
@@ -454,6 +454,19 @@ def post_help_close(request_id: str, payload: HelpAction) -> dict:
     except help_loop.HelpError as exc:
         raise _help_http_error(exc) from exc
     return closed
+
+
+@app.get("/api/radiation/alert")
+def get_radiation_alert(at: str, viewer: str | None = None, role: str = "self") -> dict:
+    """Rule answer at one instant of the recorded DosTel replay.
+
+    The UI calls this at each replay frame where the rate crosses the rule
+    threshold; the alert is projected by the same role matrix as the board.
+    """
+    try:
+        return replay.radiation_alert(at=at, viewer=viewer, role=role)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @app.get("/api/crew/{crew_id}")

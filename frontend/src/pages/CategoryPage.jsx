@@ -25,8 +25,10 @@ import Callout from '../components/dashboard/Callout'
 import CategoryHeader from '../components/dashboard/CategoryHeader'
 import ChartFrame from '../components/dashboard/ChartFrame'
 import ChartTooltip from '../components/dashboard/ChartTooltip'
+import LabTimeline from '../components/dashboard/LabTimeline'
 import LabsTable from '../components/dashboard/LabsTable'
 import PrivacyNote from '../components/dashboard/PrivacyNote'
+import RadiationReplay from '../components/dashboard/RadiationReplay'
 import StatGrid from '../components/dashboard/StatGrid'
 import VitalsGrid from '../components/dashboard/VitalsGrid'
 import {
@@ -309,6 +311,8 @@ function HeartSection({ member, role, viewer, data }) {
 
       <GlucoseChart trends={data?.trends} viewer={viewer} />
 
+      <LabTimeline />
+
       <ForecastPanel payload={data?.forecast} role={role} visible={visible} canForecast={canForecast} />
     </>
   )
@@ -549,6 +553,8 @@ function RadiationSection({ member, role, dashboard, radiation, prediction }) {
       <SepByMonthChart radiation={radiation} />
 
       <RadiationSummary prediction={prediction} />
+
+      <RadiationReplay />
     </>
   )
 }
