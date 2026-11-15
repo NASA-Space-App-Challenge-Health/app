@@ -25,8 +25,9 @@ CSV NASA (repo) ──seed idempotente──▶ PostgreSQL/Neon ──SQL──�
 - **API**: FastAPI; as rotas `/eda/*` e `/predict/*` leem o Postgres, não os CSVs.
 - **Front**: React consome `same-origin` (`/api/dashboard`, `/api/insights`,
   `/eda/*`, `/predict/*`, `/recommendations`, `/api/demo`).
-- **Produção**: `LOAD_ON_STARTUP=false` (não recarrega CSV em cold start);
-  seed único rodado por `python -m app load`.
+- **Produção**: `LOAD_ON_STARTUP=false` (não recarrega CSV em cold start); as
+  migrações pendentes são aplicadas no boot (idempotente) e o CSV entra uma vez
+  pelo seed.
 - **Sem alteração manual no banco de produção**: as linhas vêm do seed/loader
   idempotente; uploads, notas e imagens são dados de usuário (demo).
 
@@ -150,8 +151,9 @@ loader (`nasa_loader.py`). Onde houve escolha, **não se inventou valor**.
 - `options=-c statement_timeout=...` **não** é enviado ao pooler; timeout é
   aplicado com `set_config` na transação. `DATABASE_STATEMENT_TIMEOUT_MS=0`
   desliga o timeout em produção; fora do pooler o default é 8 s.
-- `LOAD_ON_STARTUP=false` na Vercel → sem carga de CSV em cold start; o seed é
-  feito uma vez pelo comando `python -m app load`.
+- `LOAD_ON_STARTUP=false` na Vercel → sem carga de CSV em cold start. As
+  migrações são aplicadas no boot; o CSV entra uma vez pelo comando
+  `python -m app load`.
 - A extensão `vector` é tentada no startup; se o papel do banco não puder
   criá-la, o app **segue sem pgvector** (log de warning). Hoje não há tabela
   vetorial.
