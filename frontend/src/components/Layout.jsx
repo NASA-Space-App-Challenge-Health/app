@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
   Brain,
   Bone,
+  Gauge,
   HeartPulse,
   Home,
   LineChart,
@@ -18,6 +19,7 @@ import AstronautAvatar from './AstronautAvatar'
 
 const NAV = [
   { to: '/dashboard', label: 'Overview', icon: Home, end: true },
+  { to: '/status', label: 'Health status', icon: Gauge },
   { to: '/dashboard/brain', label: 'Brain & balance', icon: Brain },
   { to: '/dashboard/heart', label: 'Blood & heart', icon: HeartPulse },
   { to: '/dashboard/radiation', label: 'Radiation & temp', icon: Radiation },
