@@ -46,3 +46,4 @@ Além disso, queremos adicionar na homepage um avatar do astronauta, o figma com
 
 Cheque-o para ver se conseguimos melhorar a UI/UX, no caso, seria modo dark apenas mesmo",2026-11-15T14:44:00-03:00,unavailable,800
 Desktop usability pass: in-page navigation and grouped recommendations (mobile deferred),"esquece foco no mobile e outras plataformas agora, faremos para web (notebook), etc, foco na usabilidade",2026-11-15T15:04:00-03:00,unavailable,760
+"Fix recommendations/card framing: full-width recommendation cards, resilient card headers, auto-fit vitals","eu reparei que o card de recommendations tá meio cagado e mal encaixado na página, assim como o enquadramento de outros... arruma isso",2026-11-15T15:00:00-03:00,unavailable,570
