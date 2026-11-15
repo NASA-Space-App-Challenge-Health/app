@@ -62,6 +62,12 @@ export default function VitalsGrid({
 }) {
   const all = safeArray(readings)
   const filtered = indicators ? all.filter((reading) => indicators.includes(reading.indicator)) : all
+  const gridClass =
+    filtered.length <= 2
+      ? 'sm:grid-cols-2'
+      : filtered.length === 3
+        ? 'sm:grid-cols-2 xl:grid-cols-3'
+        : 'sm:grid-cols-2 xl:grid-cols-4'
 
   return (
     <Card title={title} subtitle={subtitle}>
@@ -70,7 +76,7 @@ export default function VitalsGrid({
       ) : filtered.length === 0 ? (
         <Empty>{emptyMessage}</Empty>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <ul className={`grid gap-3 ${gridClass}`}>
           {filtered.map((reading) => (
             <ReadingCard key={reading.indicator} reading={reading} />
           ))}

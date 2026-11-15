@@ -48,6 +48,12 @@ export default function AlertCard({ alert }) {
           {sentence}
         </p>
       )}
+      {action && (
+        <p className={`mt-2 text-xs font-medium ${emergency ? 'text-red-100' : 'text-slate-300'}`}>
+          <span className="font-semibold">Next step: </span>
+          {action}
+        </p>
+      )}
 
       <details
         className={`mt-3 rounded-xl border px-3 py-2 ${

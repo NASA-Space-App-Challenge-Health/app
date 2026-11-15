@@ -83,6 +83,9 @@ export const api = {
   predictRadiation: () => getJSON('/predict/radiation'),
   predictVitals: ({ crew } = {}) => getJSON(`/predict/vitals${query({ crew })}`),
 
+  radiationAlert: ({ at, viewer, role } = {}) =>
+    getJSON(`/api/radiation/alert${query({ at, viewer, role })}`),
+
   helpRequests: ({ viewer, role } = {}) => getJSON(`/api/help-requests${query({ viewer, role })}`),
   createHelpRequest: (payload) => postJSON('/api/help-requests', payload),
   acceptHelpRequest: (requestId, { crew }) => postJSON(`/api/help-requests/${requestId}/accept`, { crew }),

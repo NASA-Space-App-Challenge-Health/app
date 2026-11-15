@@ -112,7 +112,8 @@ def predict_radiation(conn) -> dict[str, Any]:
     rows = conn.execute(
         """
         SELECT to_char(date_trunc('hour', recorded_at), 'YYYY-MM-DD"T"HH24:00') AS hour,
-               avg(absorbed_dose_rate) AS rate
+               avg(absorbed_dose_rate) AS rate,
+               max(absorbed_dose_rate) AS max_rate
         FROM radiation_readings
         GROUP BY date_trunc('hour', recorded_at)
         ORDER BY date_trunc('hour', recorded_at)
@@ -120,6 +121,9 @@ def predict_radiation(conn) -> dict[str, Any]:
     ).fetchall()
     hourly = [{"hour": row["hour"], "rate": float(row["rate"])} for row in rows]
     forecast = radiation_forecast(hourly, spike_at_least=floor)
+    # The rule threshold applies to the raw ~2-minute samples, so the chart also
+    # needs the hourly maximum. The hourly mean alone never reaches 400 uGy/h.
+    forecast["history"]["max"] = [float(row["max_rate"]) for row in rows]
     raw_spikes = conn.execute(
         """
         SELECT recorded_at, instrument_id, absorbed_dose_rate

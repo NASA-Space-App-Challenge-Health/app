@@ -44,6 +44,11 @@ Project: **T.H.A.I.S. — Astronaut Health Monitor**
   chip (with a tooltip), plus the study or instrument when it applies. The board
   header lists the data sources and the footer repeats that NASA open data is
   labelled Real NASA and the POC layer is labelled Simulated.
+- **Health status page (`/status`):** a one-screen, big-number read of the
+  "am I OK?" question — four real NASA lab markers with their printed ranges,
+  the vehicle radiation peak and 30-day area dose, and six simulated POC vitals,
+  each with a provenance chip and one action line. It sits next to Overview and
+  does not replace the detailed board.
 - **Forecasts state their uncertainty:** straight-line fits on 7 draws, 95%
   prediction intervals, and an explicit "not a physiological model" note.
 - **Help loop (closes the care loop):** a crew member asks for help, another

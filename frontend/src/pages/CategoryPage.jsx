@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Bone, Brain, HeartPulse, Radiation } from 'lucide-react'
 import {
@@ -25,8 +25,10 @@ import Callout from '../components/dashboard/Callout'
 import CategoryHeader from '../components/dashboard/CategoryHeader'
 import ChartFrame from '../components/dashboard/ChartFrame'
 import ChartTooltip from '../components/dashboard/ChartTooltip'
+import LabTimeline from '../components/dashboard/LabTimeline'
 import LabsTable from '../components/dashboard/LabsTable'
 import PrivacyNote from '../components/dashboard/PrivacyNote'
+import RadiationReplay from '../components/dashboard/RadiationReplay'
 import StatGrid from '../components/dashboard/StatGrid'
 import VitalsGrid from '../components/dashboard/VitalsGrid'
 import {
@@ -309,6 +311,8 @@ function HeartSection({ member, role, viewer, data }) {
 
       <GlucoseChart trends={data?.trends} viewer={viewer} />
 
+      <LabTimeline />
+
       <ForecastPanel payload={data?.forecast} role={role} visible={visible} canForecast={canForecast} />
     </>
   )
@@ -528,12 +532,14 @@ function RadiationSummary({ prediction }) {
 
 function RadiationSection({ member, role, dashboard, radiation, prediction }) {
   const alerts = safeArray(dashboard?.alerts)
+  const [replayAlert, setReplayAlert] = useState(false)
 
   return (
     <>
-      {alerts.map((alert) => (
-        <AlertCard key={alert.id ?? alert.title} alert={alert} />
-      ))}
+      <RadiationReplay onAlertChange={setReplayAlert} />
+
+      {!replayAlert &&
+        alerts.map((alert) => <AlertCard key={alert.id ?? alert.title} alert={alert} />)}
 
       <VitalsGrid
         readings={member.readings}
@@ -655,6 +661,11 @@ export default function CategoryPage() {
   return (
     <div className="space-y-6">
       <CategoryHeader category={category} />
+
+      {category.id !== 'radiation' &&
+        safeArray(dashboard?.alerts).map((alert) => (
+          <AlertCard key={alert.id ?? alert.title} alert={alert} />
+        ))}
 
       {category.id === 'brain' && <BrainSection member={member} role={role} body={dashboard?.body} />}
       {category.id === 'heart' && <HeartSection member={member} role={role} viewer={viewer} data={data} />}

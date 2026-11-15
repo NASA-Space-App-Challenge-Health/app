@@ -7,6 +7,7 @@ import Demo from './pages/Demo'
 import Insights from './pages/Insights'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
+import Status from './pages/Status'
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/status" element={<Status />} />
             <Route path="/dashboard/:categoria" element={<CategoryPage />} />
             <Route path="/insights" element={<Insights />} />
             <Route path="/demo" element={<Demo />} />
