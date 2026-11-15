@@ -30,7 +30,7 @@ function StatusChip({ item }) {
   return <Chip kind="watch">Waiting for a responder</Chip>
 }
 
-export default function HelpPanel() {
+export default function HelpPanel({ embedded = false }) {
   const { viewer, role } = useViewer()
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
@@ -90,14 +90,17 @@ export default function HelpPanel() {
 
   return (
     <Card
-      title="Ask for help"
-      subtitle="Crew-to-crew: request, acceptance, and “help on the way”."
+      title={embedded ? undefined : 'Ask for help'}
+      subtitle={embedded ? undefined : 'Crew-to-crew: request, acceptance, and “help on the way”.'}
       action={
-        <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-wide text-slate-400">
-          <HandHeart size={14} aria-hidden="true" />
-          {data?.counts?.open ?? 0} open
-        </span>
+        embedded ? undefined : (
+          <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-wide text-slate-400">
+            <HandHeart size={14} aria-hidden="true" />
+            {data?.counts?.open ?? 0} open
+          </span>
+        )
       }
+      className={embedded ? 'border-0 bg-transparent p-0 shadow-none' : ''}
     >
       {error && (
         <p role="alert" className="mb-3 rounded-lg border border-red-500/40 bg-red-500/10 p-2 text-xs text-red-200">

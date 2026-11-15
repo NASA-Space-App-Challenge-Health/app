@@ -1,26 +1,62 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, PlayCircle } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { api, ROLES } from '../api'
 import Chip from '../components/Chip'
 import { Empty, ErrorState, Loading } from '../components/StateView'
 import AlertCard from '../components/dashboard/AlertCard'
-import AstronautAvatar from '../components/AstronautAvatar'
-import BodyMap from '../components/dashboard/BodyMap'
+import AstronautBody from '../components/dashboard/AstronautBody'
 import Callout from '../components/dashboard/Callout'
-import HelpPanel from '../components/dashboard/HelpPanel'
+import HelpDrawer from '../components/dashboard/HelpDrawer'
 import LabsSummary from '../components/dashboard/LabsSummary'
-import RecommendationPreview from '../components/dashboard/RecommendationPreview'
 import SystemCards from '../components/dashboard/SystemCards'
 import { useViewer } from '../context/ViewerContext'
 import useFetch from '../hooks/useFetch'
 
-// Overview board. The viewer and role live in the URL, so every click here
-// re-reads the same filtered payload the rest of the app sees. Recommendations
-// come from the dedicated endpoint because the dashboard payload carries the
-// short alert form while this preview needs what_to_do and a confidence chip.
+// Overview for the station display: the hero is the command center (interactive
+// astronaut body map, status, help and the next action), then alerts, the four
+// system cards and the lab summary. Everything else lives one tap away.
+
+function firstSentence(text, fallback = '') {
+  if (!text) return fallback
+  const sentence = String(text).split(/(?<=\.)\s+/)[0]
+  return sentence.length > 140 ? `${sentence.slice(0, 137)}…` : sentence
+}
+
+function NextAction({ recommendations }) {
+  const next = recommendations.find((item) => !item.broadcast && item.tier !== 'emergency')
+  return (
+    <div className="w-full rounded-xl border border-accent/25 bg-accent/5 p-4 xl:w-80">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300">Next action</p>
+      {next ? (
+        <>
+          <p className="mt-1 text-sm font-semibold leading-snug text-white">{next.title}</p>
+          <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
+            {firstSentence(next.what_to_do ?? next.detail ?? next.suggested_action)}
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="mt-1 text-sm font-semibold leading-snug text-white">No preventive actions for this role</p>
+          <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
+            Switch to the CMO or flight surgeon in the header for clinical detail.
+          </p>
+        </>
+      )}
+      <Link
+        to="/insights"
+        className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:text-cyan-200"
+      >
+        All recommendations
+        <ArrowRight size={13} aria-hidden="true" />
+      </Link>
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const { viewer, role } = useViewer()
+  const [helpOpen, setHelpOpen] = useState(false)
 
   const load = useCallback(async () => {
     const [dashboard, recommendationPayload, radiation] = await Promise.all([
@@ -59,12 +95,15 @@ export default function Dashboard() {
   const lastPoc = lastPocReading?.recorded_at
     ? `${String(lastPocReading.recorded_at).replace('T', ' ').slice(0, 16)} UTC`
     : '—'
+  const statusKind =
+    member.overall_band === 'watch' ? 'watch' : member.overall_band === 'concern' ? 'concern' : 'nominal'
 
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-panel via-panel to-panel2 p-5 shadow-lg shadow-black/20">
-        <div className="flex flex-wrap items-center gap-5">
-          <AstronautAvatar size={92} className="shrink-0" />
+        <div className="flex flex-wrap items-start gap-6 xl:flex-nowrap">
+          <AstronautBody regions={dashboard?.body} />
+
           <div className="min-w-0 flex-1">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
               Crew overview · {dashboard?.group?.name ?? 'Inspiration4 open data'}
@@ -74,16 +113,7 @@ export default function Dashboard() {
                 {member.call_sign} · {member.full_name}
               </h1>
               {visible ? (
-                <Chip
-                  kind={
-                    member.overall_band === 'watch'
-                      ? 'watch'
-                      : member.overall_band === 'concern' || member.overall_band === 'critical'
-                        ? 'concern'
-                        : 'nominal'
-                  }
-                  size="lg"
-                >
+                <Chip kind={statusKind} size="lg">
                   {member.overall_band ?? 'No band'}
                 </Chip>
               ) : (
@@ -91,7 +121,6 @@ export default function Dashboard() {
                   Private
                 </Chip>
               )}
-              {member.is_cmo && <Chip kind="real">CMO</Chip>}
             </div>
             <p className="mt-1 text-sm text-slate-400">
               {member.role_title ?? 'Crew member'} · viewing as {roleLabel}
@@ -103,44 +132,45 @@ export default function Dashboard() {
               <Chip kind="real">Real NASA data</Chip>
               <Chip kind="simulated">Simulated vitals</Chip>
             </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setHelpOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-black hover:bg-amber-300"
+              >
+                Request help
+              </button>
+              <Link
+                to="/dashboard/radiation"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent hover:bg-accent/20"
+              >
+                Radiation replay
+              </Link>
+              <Link
+                to="/insights"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/5"
+              >
+                Data insights
+              </Link>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              to="/dashboard/radiation"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-xs font-semibold text-accent hover:bg-accent/20"
-            >
-              Radiation replay
-            </Link>
-            <Link
-              to="/insights"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/5"
-            >
-              Data insights
-            </Link>
-            <a
-              href="#help-panel"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-500/20"
-            >
-              Request help
-            </a>
-          </div>
+
+          <NextAction recommendations={data?.recommendations ?? []} />
         </div>
       </section>
 
-      <nav aria-label="On this page" className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-panel/60 px-3 py-2 text-[11px]">
+      <nav aria-label="On this page" className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-panel/60 px-3 py-2 text-xs">
         <span className="font-semibold uppercase tracking-wide text-slate-500">Jump to</span>
-        {[
-          ['#alerts', 'Alerts'],
-          ['#systems', 'Systems'],
-          ['#help-panel', 'Help'],
-          ['#labs', 'Labs'],
-          ['#body-map', 'Body map'],
-          ['#recommendations', 'Recommendations'],
-        ].map(([href, label]) => (
-          <a key={href} href={href} className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300 hover:border-cyan-500/40 hover:text-cyan-200">
-            {label}
-          </a>
-        ))}
+        <a href="#alerts" className="rounded-lg border border-white/10 px-3 py-1.5 text-slate-300 hover:border-cyan-500/40 hover:text-cyan-200">
+          Alerts
+        </a>
+        <a href="#systems" className="rounded-lg border border-white/10 px-3 py-1.5 text-slate-300 hover:border-cyan-500/40 hover:text-cyan-200">
+          Systems
+        </a>
+        <a href="#labs" className="rounded-lg border border-white/10 px-3 py-1.5 text-slate-300 hover:border-cyan-500/40 hover:text-cyan-200">
+          Labs
+        </a>
       </nav>
 
       {!visible && (
@@ -159,44 +189,11 @@ export default function Dashboard() {
         <SystemCards member={member} radiation={data?.radiation} visible={visible} />
       </div>
 
-      <div id="help-panel" className="scroll-mt-24">
-        <HelpPanel />
-      </div>
-
       <div id="labs" className="scroll-mt-24">
         <LabsSummary labs={member.labs} role={role} />
       </div>
 
-      <div id="body-map" className="grid scroll-mt-24 items-start gap-6 xl:grid-cols-3">
-        <div className="min-w-0 xl:col-span-2">
-          <BodyMap
-            body={dashboard?.body}
-            title="Body map"
-            subtitle="Plain-language effects and prevention from CSA, HRP, and OCHMO. Only watch regions keep a status chip here; open a region for the detail."
-            compact
-          />
-        </div>
-        <div className="flex flex-col gap-6">
-          <section className="mt-auto rounded-2xl border border-accent/30 bg-accent/5 p-5">
-            <h2 className="text-base font-semibold text-white">See the privacy and radiation story</h2>
-            <p className="mt-0.5 text-sm leading-relaxed text-slate-400">
-              Four guided steps through the role rules and the real DosTel and DONKI records.
-            </p>
-            <Link
-              to="/demo"
-              className="mt-3 inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-cyan-300"
-            >
-              <PlayCircle size={16} aria-hidden="true" />
-              Open guided demo
-              <ArrowRight size={14} aria-hidden="true" />
-            </Link>
-          </section>
-        </div>
-      </div>
-
-      <div id="recommendations" className="scroll-mt-24">
-        <RecommendationPreview recommendations={data?.recommendations} />
-      </div>
+      <HelpDrawer open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   )
 }

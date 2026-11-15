@@ -1,6 +1,6 @@
 # Overview v4 — idealização (astronauta/CMO em estação)
 
-Status: rascunho de design, nada implementado. Objetivo: transformar o hero em **command center**, subir o body map para o avatar e trazer Help/Recomendações para o primeiro scroll.
+Status: implementado localmente na branch `feat/overview-systems` (draft original abaixo). Objetivo: transformar o hero em **command center**, subir o body map para o avatar e trazer Help/Recomendações para o primeiro scroll.
 
 ---
 
