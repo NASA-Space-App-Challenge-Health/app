@@ -13,7 +13,7 @@ export default function LabsTable({
   labs,
   role,
   title = 'Released research labs',
-  subtitle = 'Released CBC/CMP lab rows, de-identified by NASA. Not a diagnosis.',
+  subtitle = '',
   analytes,
   emptyMessage = 'No lab rows for this crew member in the API response.',
 }) {

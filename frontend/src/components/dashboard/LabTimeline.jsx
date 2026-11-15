@@ -98,7 +98,6 @@ export default function LabTimeline() {
   return (
     <Card
       title="Timeline of recorded draws"
-      subtitle="Recorded lab draws, one visit at a time. The line joins recorded visits; no interpolation between them."
       action={
         <div className="flex flex-wrap items-center gap-1.5">
           <Chip kind="real">Real NASA · {selected.study}</Chip>

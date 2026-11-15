@@ -74,7 +74,7 @@ export default function VitalsGrid({
   readings,
   role,
   title = 'Vitals',
-  subtitle = 'Simulated unless a chip says Real.',
+  subtitle = '',
   indicators,
   emptyMessage = 'No readings for this panel in the API response.',
 }) {
