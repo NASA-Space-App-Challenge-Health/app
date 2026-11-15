@@ -1,4 +1,7 @@
-# T.H.A.I.S. = Tech & Health Astronaut Intelligent System
+# T.H.A.I.S. — Astronaut Health Monitor
+
+**T.H.A.I.S. = Tech & Health Astronaut Intelligent System** (the project name
+from the v1 baseline article) — the current monitoring app in this repository.
 
 Visual health-monitoring software for astronauts on space missions, built for
 the NASA Space Apps Challenge 2026 challenge
@@ -30,11 +33,10 @@ T.H.A.I.S. is a station-first health board that joins **real NASA records** (Ins
 
 | Member | Contribution | GitHub |
 | --- | --- | --- |
-| Felipe Gabriel | Data Scientist | [@FG-SC](https://github.com/FG-SC) |
-| Alisson Ricardo | Full-Stack Developer | [@engenheiro-ally](https://github.com/engenheiro-ally) |
+| Felipe Gabriel | Lead: backend, integration, deployment | [@FG-SC](https://github.com/FG-SC) |
+| Alisson Ricardo | Frontend/UX, device and offline path | [@engenheiro-ally](https://github.com/engenheiro-ally) |
 | Joaquim Barreto | Data sources, research, video story | [@engjoaquimbarreto-source](https://github.com/engjoaquimbarreto-source) |
-| Milena Greff | Project Architecture & Product Development | [@milenagreff-tech](https://github.com/milenagreff-tech) |
-| Vinícius Soares  |  Business Development | [@beyondpolymathy](https://github.com/beyondpolymathy) |
+| Milena Greff | Recording and presentation support | [@milenagreff-tech](https://github.com/milenagreff-tech) |
 | Amanda Paul Dull | Design reference | [@pdamanda](https://github.com/pdamanda) |
 
 > All five members are in the GitHub organization [NASA-Space-App-Challenge-Health](https://github.com/NASA-Space-App-Challenge-Health).
