@@ -3,14 +3,11 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
   Brain,
   Bone,
-  Gauge,
   HeartPulse,
   Home,
   LineChart,
   Menu,
-  PlayCircle,
   Radiation,
-  User,
   X,
 } from 'lucide-react'
 import { CREW, ROLES } from '../api'
@@ -18,14 +15,11 @@ import { useViewer } from '../context/ViewerContext'
 
 const NAV = [
   { to: '/dashboard', label: 'Overview', icon: Home, end: true },
-  { to: '/status', label: 'Health status', icon: Gauge },
   { to: '/dashboard/brain', label: 'Brain & balance', icon: Brain },
   { to: '/dashboard/heart', label: 'Blood & heart', icon: HeartPulse },
   { to: '/dashboard/radiation', label: 'Radiation & temp', icon: Radiation },
   { to: '/dashboard/muscles', label: 'Muscles & bones', icon: Bone },
   { to: '/insights', label: 'Data insights', icon: LineChart },
-  { to: '/demo', label: 'Guided demo', icon: PlayCircle },
-  { to: '/profile', label: 'Crew profile', icon: User },
 ]
 
 function NavItems({ onNavigate }) {
