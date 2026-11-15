@@ -9,8 +9,7 @@ Project: **T.H.A.I.S. — Astronaut Health Monitor**
 | Live demo | <https://nasa-health-app.vercel.app> |
 | Repository | <https://github.com/NASA-Space-App-Challenge-Health/app> |
 | Data notes | [../eda.md](../eda.md), [../predictive.md](../predictive.md), [../research.md](../research.md) |
-| Screenshots | [../screenshots/](../screenshots/) |
-| Help loop proof | [../screenshots/help-loop.png](../screenshots/help-loop.png) |
+| Screenshots | [../screenshots/](../screenshots/) (overview, health status, insights, radiation) |
 | One-pager (PDF) | [one-pager.pdf](one-pager.pdf) |
 | Cover image (1200×630) | [cover.png](cover.png) |
 | Video script | [video-script.md](video-script.md) |
