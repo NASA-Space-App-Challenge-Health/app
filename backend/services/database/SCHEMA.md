@@ -52,3 +52,21 @@ PostgreSQL is intentionally available only to services in this Compose project.
 For local inspection, use `../../docker/compose.sh exec postgres psql -U app -d app`
 or add a host-port mapping in `../../docker/compose.local.yaml`. On a host
 install, `psql` connects to `127.0.0.1` with `DATABASE_URL` instead.
+
+## Help loop
+
+`migrations/005_help_requests.sql` adds `help_requests`, the first persisted
+workflow in the app. Alerts stay computed per request; a help request is a row so
+the acceptance survives reloads and both sessions can see it.
+
+- Status: `requested` -> `accepted` -> `closed`; `escalated` is computed when
+  `expires_at` passes without an acceptance (`HELP_REQUEST_TIMEOUT_SECONDS`,
+  default 90 s).
+- Columns: requester, module, generic `reason_code`, private `reason_text`,
+  severity, status, accepted_by/accepted_at, created/closed/expires.
+- Privacy: the crew sees that help is needed, the module and the generic reason;
+  `reason_text` is projected only to the CMO, the flight surgeon and the
+  requester (same `access.py` discipline).
+- Two indexes: active requests by creation time and requests per requester.
+- `time_to_accept_seconds` is returned on read and is the viability metric used in
+  the pitch.

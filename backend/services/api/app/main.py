@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
-from app import db, eda_queries, predict_queries
+from app import db, eda_queries, help as help_loop, predict_queries
 from app.guidance import DISCLAIMER, IndicatorError
 from app.repository import (
     ConflictError,
@@ -105,6 +105,31 @@ class ReadingCreate(BaseModel):
     indicator: str = Field(min_length=1, max_length=64)
     value: float
     recorded_at: datetime | None = None
+
+
+class HelpRequestCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    requester: str = Field(min_length=1, max_length=16)
+    module: str = Field(min_length=1, max_length=40)
+    reason_code: str = Field(min_length=1, max_length=32)
+    reason_text: str | None = Field(default=None, max_length=300)
+    severity: str = Field(default="assist", pattern=r"^(assist|emergency)$")
+
+
+class HelpAction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    crew: str = Field(min_length=1, max_length=16)
+    role: str = Field(default="self", pattern=r"^(self|cmo|flight_surgeon|crewmate|commander)$")
+
+
+def _help_http_error(exc: Exception):
+    if isinstance(exc, help_loop.HelpNotFound):
+        return HTTPException(status_code=404, detail=str(exc))
+    if isinstance(exc, help_loop.HelpConflict):
+        return HTTPException(status_code=409, detail=str(exc))
+    return HTTPException(status_code=422, detail=str(exc))
 
 
 @app.get("/")
@@ -361,6 +386,72 @@ async def post_upload(file: UploadFile = File(...)) -> dict:
         return import_vitals_csv(text)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.post("/api/help-requests", status_code=201)
+def post_help_request(payload: HelpRequestCreate) -> dict:
+    """Ask another crew member for help. One open request per crew member."""
+    try:
+        with db.connect() as conn:
+            created = help_loop.create_request(
+                conn,
+                requester=payload.requester,
+                module=payload.module,
+                reason_code=payload.reason_code,
+                reason_text=payload.reason_text,
+                severity=payload.severity,
+            )
+            conn.commit()
+    except help_loop.HelpError as exc:
+        raise _help_http_error(exc) from exc
+    return created
+
+
+@app.get("/api/help-requests")
+def get_help_requests(viewer: str | None = None, role: str = "self") -> dict:
+    """Open requests plus the viewer's own request (requester can see the detail)."""
+    try:
+        with db.connect() as conn:
+            return help_loop.list_requests(conn, viewer=viewer, role=role)
+    except help_loop.HelpError as exc:
+        raise _help_http_error(exc) from exc
+
+
+@app.get("/api/help-requests/{request_id}")
+def get_help_request(request_id: str, viewer: str | None = None, role: str = "self") -> dict:
+    try:
+        with db.connect() as conn:
+            return help_loop.get_request(conn, request_id=request_id, viewer=viewer, role=role)
+    except help_loop.HelpError as exc:
+        raise _help_http_error(exc) from exc
+
+
+@app.post("/api/help-requests/{request_id}/accept")
+def post_help_accept(request_id: str, payload: HelpAction) -> dict:
+    """Claim the request. The requester then sees who is on the way."""
+    try:
+        with db.connect() as conn:
+            accepted = help_loop.accept_request(conn, request_id=request_id, crew=payload.crew)
+            conn.commit()
+    except help_loop.HelpError as exc:
+        raise _help_http_error(exc) from exc
+    return accepted
+
+
+@app.post("/api/help-requests/{request_id}/close")
+def post_help_close(request_id: str, payload: HelpAction) -> dict:
+    try:
+        with db.connect() as conn:
+            closed = help_loop.close_request(
+                conn,
+                request_id=request_id,
+                crew=payload.crew,
+                role=payload.role,
+            )
+            conn.commit()
+    except help_loop.HelpError as exc:
+        raise _help_http_error(exc) from exc
+    return closed
 
 
 @app.get("/api/crew/{crew_id}")

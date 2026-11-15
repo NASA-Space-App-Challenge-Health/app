@@ -9,10 +9,12 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-space px-4 text-slate-100">
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-panel/80 p-10 text-center shadow-2xl">
-        <span className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/10">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-400">T.H.A.I.S.</p>
+        <span className="mx-auto mb-6 mt-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/10">
           <Fingerprint size={36} className="text-accent" aria-hidden="true" />
         </span>
         <h1 className="text-2xl font-bold text-white">Crew access</h1>
+        <p className="mt-1 text-xs text-slate-400">Tech &amp; Health Astronaut Intelligent System</p>
         <p className="mt-2 text-sm text-slate-400">
           Biometric identification is simulated in this prototype. The board opens with the C001 view.
         </p>

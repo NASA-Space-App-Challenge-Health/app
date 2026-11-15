@@ -21,6 +21,8 @@ Project: **T.H.A.I.S. — Astronaut Health Monitor**
       description, "what we built", tech stack, data sources, links.
 - [ ] Upload the video and paste the live demo + repository links.
 - [ ] Use [cover.png](cover.png) as the project thumbnail.
+- [ ] Rehearse the two-session help loop (C003 asks, C001 accepts) and confirm
+      **Help on the way** appears in ≤3 s before recording.
 - [ ] Re-read the challenge rules on citations and data use.
 - [ ] Final smoke test: open the live demo in an incognito window and walk the
       guided demo once.
@@ -39,6 +41,11 @@ Project: **T.H.A.I.S. — Astronaut Health Monitor**
   source it uses; there is no diagnosis anywhere.
 - **Forecasts state their uncertainty:** straight-line fits on 7 draws, 95%
   prediction intervals, and an explicit "not a physiological model" note.
+- **Help loop (closes the care loop):** a crew member asks for help, another
+  crew member accepts, and the requester sees "Help on the way" plus the time
+  until acceptance (two browser sessions, persisted request, 3 s poll). The
+  free-text reason stays private to the CMO, the flight surgeon and the
+  requester.
 
 ## Paper / pitch (Data & Methods)
 

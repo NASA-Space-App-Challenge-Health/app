@@ -30,6 +30,11 @@ bash scripts/serve_api.sh
 | `GET` | `/api/insights` | Common lab flags, worsening pairs, extremes. |
 | `POST` | `/api/crew/{id}/sharing` | Body `{"share_mode": "full"}` or `"alerts_only"`. |
 | `POST` | `/api/uploads` | Multipart CSV of simulated vitals. See `data/UPLOAD_SCHEMA.md`. |
+| `POST` | `/api/help-requests` | Ask another crew member for help. Persisted; one open request per crew member. |
+| `GET` | `/api/help-requests?viewer=&role=` | Open requests plus the viewer's own request. Private note only for CMO/flight surgeon/requester. |
+| `GET` | `/api/help-requests/{id}` | One help request (same privacy projection). |
+| `POST` | `/api/help-requests/{id}/accept` | Claim the request; the requester then sees who is on the way. |
+| `POST` | `/api/help-requests/{id}/close` | Close (requester, responder, or CMO/flight surgeon). |
 | `GET` | `/eda/overview` and the other `/eda/...` routes | Chart JSON from Postgres. See `docs/eda.md`. |
 | `GET` | `/api/crew` | Crew roster and overall band. |
 | `POST` | `/api/crew` | Add a crew member. No readings yet. |

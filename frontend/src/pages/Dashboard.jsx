@@ -8,6 +8,7 @@ import AlertCard from '../components/dashboard/AlertCard'
 import BodyMap from '../components/dashboard/BodyMap'
 import Callout from '../components/dashboard/Callout'
 import CrewRow from '../components/dashboard/CrewRow'
+import HelpPanel from '../components/dashboard/HelpPanel'
 import HygieneCard from '../components/dashboard/HygieneCard'
 import LabsTable from '../components/dashboard/LabsTable'
 import RecommendationPreview from '../components/dashboard/RecommendationPreview'
@@ -88,6 +89,8 @@ export default function Dashboard() {
       {alerts.map((alert) => (
         <AlertCard key={alert.id ?? alert.title} alert={alert} />
       ))}
+
+      <HelpPanel />
 
       <CrewRow crew={crew} selected={viewer} onSelect={setViewer} />
 

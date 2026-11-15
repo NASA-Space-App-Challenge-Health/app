@@ -56,11 +56,15 @@ Documento para o time e para o **artigo do pitch**: mostra a base científica da
 - **Privacidade**: matriz OCHMO-TB-044 (self, CMO, flight surgeon, crewmate,
   commander), compartilhamento opt-in por indicador.
 - **Frontend**: React 19 + Vite + Tailwind + Recharts; dashboard, páginas por
-  sistema, insights com filtros, demo guiada, perfis; mobile com drawer.
+  sistema, insights com filtros, demo guiada, perfis; mobile com drawer; marca
+  já exibida como **T.H.A.I.S. — Astronaut Health Monitor**.
 - **Deploy/CI**: Vercel (site + função Python) + Neon; GitHub Actions com
   backend, frontend e staging; screenshots e kit de submissão.
-- **Ainda não**: pedido→aceite→"ajuda a caminho", ingest de dispositivo real,
-  contexto de exercício, offline em duas telas, integração VO₂/Sprint, ML.
+- **Implementado agora — help loop**: pedido → aceite → "ajuda a caminho"
+  (migração `005_help_requests.sql`, endpoints, UI com polling de 3 s, teste E2E
+  de duas sessões).
+- **Ainda não**: ingest de dispositivo real, contexto de exercício, offline em
+  duas telas, integração VO₂/Sprint, ML.
 
 ## 4. O que foi mantido (continuidade)
 
@@ -86,6 +90,7 @@ Documento para o time e para o **artigo do pitch**: mostra a base científica da
 | **Escopo preditivo** | "Predição" genérica | Labs, radiação e vitais simulados, com fórmulas documentadas | O artigo precisa do método, não só do resultado |
 | **Alertas** | Normal/Atenção/Crítico | Tiers OCHMO + broadcast só em emergência + fontes | Privacidade de dados médicos e segurança do texto público |
 | **Privacidade** | Não abordada | Matriz por papel (self/CMO/flight surgeon/crewmate/commander) | Requisito OCHMO-TB-044; evita alarme coletivo com dado privado |
+| **Ciclo de ajuda** | Não existia | Help loop persistido (`requested` → `accepted` → `closed`, escalonamento por timeout) + UI com polling de 3 s | Era o diferencial do pitch; primeira mudança de schema nova da v2 |
 | **Sensores** | WHRM 30–200 bpm, PLSS O₂/CO₂/vapor/pressão, mock em tempo real | Gerador xEMU (FC, SpO₂, CO₂%) + endpoint; UI ainda com séries semeadas | Tempo curto de hackathon; integração real ficou como incremento (ingest) |
 | **Offline/edge** | Pilar central: 100% local | Local funciona (Docker/Compose); produção é nuvem | Demo precisava ser acessível por link; "offline em duas telas" ficou como teste pendente |
 | **DTN / energia** | Store-carry-forward + override ICS | **Não implementado** | Exige rede/ground station, fora do que dá para demonstrar; mantido como visão de missão longa |
@@ -106,7 +111,7 @@ Documento para o time e para o **artigo do pitch**: mostra a base científica da
 | WHRM 30–200 bpm / hardline | ⚠️ simulado | Ingest de dispositivo (payload real no endpoint) |
 | PLSS com vapor de água e pressão | ⚠️ parcial | Só SpO₂/CO₂% hoje; adicionar sensores no seed/endpoint |
 | Polling 3 s | ❌ | Volta junto com o aceite do pedido de ajuda |
-| Pedido de ajuda → aceite → "ajuda a caminho" | ❌ (era implícito na v1) | **P0 atual**: tabela + endpoints + UI + polling |
+| Pedido de ajuda → aceite → "ajuda a caminho" | ✅ implementado (P0) | Tabela `help_requests`, endpoints, UI com polling de 3 s; E2E de duas sessões |
 
 ## 7. Como isso aparece no pitch/artigo
 
@@ -168,8 +173,8 @@ Law et al. 2014.
 
 ## 10. Próximos passos para fechar a ponte v1 ↔ v2
 
-1. **P0** — pedido de ajuda → aceite → "ajuda a caminho" (duas sessões, polling
-   ≤3 s, tabela `help_requests`).
+1. ~~**P0** — pedido de ajuda → aceite → "ajuda a caminho"~~ ✅ implementado
+   (migração 005, endpoints, UI, polling ≤3 s, E2E duas sessões).
 2. **P1** — ingest de dispositivo: aceitar payload externo no endpoint de
    telemetria + script bridge.
 3. **P1** — offline em duas telas: Vite em `0.0.0.0`, firewall, stack local.

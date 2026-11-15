@@ -32,6 +32,25 @@ async function getJSON(path) {
   return response.json()
 }
 
+async function postJSON(path, payload) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!response.ok) {
+    let detail = ''
+    try {
+      const body = await response.json()
+      detail = typeof body.detail === 'string' ? body.detail : ''
+    } catch {
+      // Non-JSON error body: keep the status only.
+    }
+    throw new Error(detail || `The API answered ${response.status}.`)
+  }
+  return response.json()
+}
+
 export const ROLES = [
   { id: 'self', label: 'Self' },
   { id: 'cmo', label: 'CMO' },
@@ -63,4 +82,10 @@ export const api = {
   predictRisks: (limit = 20) => getJSON(`/predict/labs/risks${query({ limit })}`),
   predictRadiation: () => getJSON('/predict/radiation'),
   predictVitals: ({ crew } = {}) => getJSON(`/predict/vitals${query({ crew })}`),
+
+  helpRequests: ({ viewer, role } = {}) => getJSON(`/api/help-requests${query({ viewer, role })}`),
+  createHelpRequest: (payload) => postJSON('/api/help-requests', payload),
+  acceptHelpRequest: (requestId, { crew }) => postJSON(`/api/help-requests/${requestId}/accept`, { crew }),
+  closeHelpRequest: (requestId, { crew, role }) =>
+    postJSON(`/api/help-requests/${requestId}/close`, { crew, role }),
 }
