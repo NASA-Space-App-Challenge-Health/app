@@ -9,7 +9,7 @@ Project: **T.H.A.I.S. — Astronaut Health Monitor**
 | Live demo | <https://nasa-health-app.vercel.app> |
 | Repository | <https://github.com/NASA-Space-App-Challenge-Health/app> |
 | Data notes | [../eda.md](../eda.md), [../predictive.md](../predictive.md), [../research.md](../research.md) |
-| Screenshots | [../screenshots/](../screenshots/) (overview, health status, insights, radiation) |
+| Screenshots | [../screenshots/](../screenshots/) (overview, insights, radiation) |
 | One-pager (PDF) | [one-pager.pdf](one-pager.pdf) |
 | Cover image (1200×630) | [cover.png](cover.png) |
 | Video script | [video-script.md](video-script.md) |
@@ -25,7 +25,7 @@ Project: **T.H.A.I.S. — Astronaut Health Monitor**
       **Help on the way** appears in ≤3 s before recording.
 - [ ] Re-read the challenge rules on citations and data use.
 - [ ] Final smoke test: open the live demo in an incognito window and walk the
-      guided demo once.
+      Overview, the radiation replay and the help loop once.
 
 ## Talking points (short)
 
@@ -43,11 +43,10 @@ Project: **T.H.A.I.S. — Astronaut Health Monitor**
   chip (with a tooltip), plus the study or instrument when it applies. The board
   header lists the data sources and the footer repeats that NASA open data is
   labelled Real NASA and the POC layer is labelled Simulated.
-- **Health status page (`/status`):** a one-screen, big-number read of the
-  "am I OK?" question — four real NASA lab markers with their printed ranges,
-  the vehicle radiation peak and 30-day area dose, and six simulated POC vitals,
-  each with a provenance chip and one action line. It sits next to Overview and
-  does not replace the detailed board.
+- **Interactive body map:** the Overview hero is a full-body silhouette; the
+  head, heart, blood, muscles and environment hotspots open the matching system
+  page. The same screen carries the role-aware emergency notice and the next
+  action, so the first scroll answers "am I OK?" and "what do I do now?".
 - **Forecasts state their uncertainty:** straight-line fits on 7 draws, 95%
   prediction intervals, and an explicit "not a physiological model" note.
 - **Help loop (closes the care loop):** a crew member asks for help, another

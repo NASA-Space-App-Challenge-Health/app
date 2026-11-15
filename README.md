@@ -10,10 +10,10 @@ the NASA Space Apps Challenge 2026 challenge
 [Create Health Monitoring Software for Astronauts on Space Missions](https://www.spaceappschallenge.org/2026/challenges/health-monitoring-software/).
 
 One board for the crew: real Inspiration4 labs and ISS/DONKI radiation context
-plus simulated heart rate, sleep, cortisol, hydration, and hygiene timing. A
-guided demo walks a real emergency alert and a real preventive recommendation,
-each with the NASA page it uses. A plain-language insights page turns the same
-tables into short takeaways for non-clinicians.
+plus simulated heart rate, sleep, cortisol, hydration, and hygiene timing. The
+Overview opens with an interactive body map, role-aware alerts and the next
+action; a plain-language insights page turns the same tables into short
+takeaways for non-clinicians.
 
 **Live demo:** <https://nasa-health-app.vercel.app> · **Code:** <https://github.com/NASA-Space-App-Challenge-Health/app>
 
@@ -23,7 +23,7 @@ An astronaut or a flight surgeon has to answer two questions fast: **am I safe n
 
 ## Solution
 
-T.H.A.I.S. is a station-first health board that joins **real NASA records** (Inspiration4 CBC/CMP labs from OSD-569/575/656, the ISS DosTel week from RadLab, and 2024 DONKI SEP events) with a **clearly-labelled simulated POC layer** for vitals the public data does not contain. Every number keeps its Real NASA / Simulated tag; an emergency reaches the whole crew as a generic broadcast while the CMO and flight surgeon see the evidence; the real DosTel week can be replayed and fires the rule at the recorded crossing; and the help loop lets a crewmate ask and another accept. A 3-second **Health status** page answers "am I OK?" while the category pages carry the detail.
+T.H.A.I.S. is a station-first health board that joins **real NASA records** (Inspiration4 CBC/CMP labs from OSD-569/575/656, the ISS DosTel week from RadLab, and 2024 DONKI SEP events) with a **clearly-labelled simulated POC layer** for vitals the public data does not contain. Every number keeps its Real NASA / Simulated tag; an emergency reaches the whole crew as a generic broadcast while the CMO and flight surgeon see the evidence; the real DosTel week can be replayed and fires the rule at the recorded crossing; and the help loop lets a crewmate ask and another accept. The Overview is the command center: interactive body map, role-aware alerts and the next action, while the category pages carry the detail.
 
 ## Who it is for
 
@@ -69,13 +69,11 @@ and keeps that project's layout, Compose stack, scripts, and agent docs.
 
 Current production screens (1440 px wide):
 
-| Crew overview | Health status |
+| Crew overview | Data insights |
 | --- | --- |
-| ![Crew overview](docs/screenshots/overview.jpg) | ![Health status](docs/screenshots/status.jpg) |
+| ![Crew overview](docs/screenshots/overview.jpg) | ![Data insights](docs/screenshots/insights.jpg) |
 
-| Data insights | Radiation & replay |
-| --- | --- |
-| ![Data insights](docs/screenshots/insights.jpg) | ![Radiation and replay](docs/screenshots/radiation.jpg) |
+![Radiation and replay](docs/screenshots/radiation.jpg)
 
 ## Stack
 
@@ -102,9 +100,6 @@ home. That variant is not built.
 | `/dashboard/radiation` | One ISS DosTel week, DONKI SEP counts, and the area-dose summary. |
 | `/dashboard/muscles` | Honest empty panel: the package has no measured bone or muscle values. |
 | `/insights` | Plain-language data insights with filters (crew, topic, view, out-of-range). |
-| `/demo` | Guided four-step demo: privacy, radiation emergency, potassium prevention, what is still simulated. |
-| `/status` | Big-number health status: real lab markers, vehicle radiation, POC vitals and one next action. |
-| `/profile` | Crew profile and the released research labs for the selected member. |
 
 The header selects **viewer** (C001–C004) and **role** (self, CMO, flight
 surgeon, crewmate, commander). That is the OCHMO (Office of the Chief Health and

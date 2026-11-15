@@ -9,7 +9,7 @@ The product UI. It talks to the FastAPI service with same-origin relative paths
 index.html            Vite entry
 src/main.jsx          React root
 src/App.jsx           routes: /login, /dashboard, /dashboard/:categoria,
-                      /insights, /demo, /profile
+                      /insights
 src/api.js            API client + role/crew constants
 src/hooks/useFetch.js loading, error, retry
 src/context/          viewer/role context (OCHMO privacy demo)

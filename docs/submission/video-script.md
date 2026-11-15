@@ -8,9 +8,9 @@ Portuguese version follows).
 
 1. Open <https://nasa-health-app.vercel.app> in a clean incognito window.
 2. Set crew to **C001** and role to **Self** in the header.
-3. Have a second tab on `/insights` and a third on `/demo`.
+3. Have a second tab on `/insights` for the later shot.
 4. Hide the bookmarks bar (Ctrl+Shift+B) and the OS dock.
-5. Close the guided demo on the board until you reach step 2 of the script.
+5. Keep the header at C001 / Self until the role-switch shot.
 
 ## Shot list
 
@@ -19,7 +19,7 @@ Portuguese version follows).
 | 0:00–0:12 | Board (`/dashboard`) | Slow scroll from the header to the vitals grid | "Three days in orbit. Four civilians. NASA released their blood work — we turned it into a crew health board." |
 | 0:12–0:28 | Board, emergency card | Click **Full detail, evidence and sources** | "This alert is not invented. The vehicle's peak absorbed dose rate is 528 microgray per hour on June 5, 2024. The next solar particle event came 73 hours later, from DONKI." |
 | 0:28–0:45 | Board, chips + vitals | Point at the **Real NASA** and **Simulated** chips | "Every number is labelled. Labs, radiation and solar events are real NASA open data. Heart rate, sleep, cortisol and hydration are simulated — and say so." |
-| 0:45–1:02 | Guided demo (`/demo`) | Click through steps 2 and 3 | "The OCHMO privacy model is built in. An emergency reaches the whole crew as a generic notice. A preventive finding — C003 potassium low before the next draw — stays with the CMO and flight surgeon." |
+| 0:45–1:02 | Board, body map + role switch | Hover the body hotspots, then switch the role to CMO and back | "The OCHMO privacy model is built in. An emergency reaches the whole crew as a generic notice. A preventive finding — C003 potassium low before the next draw — stays with the CMO and flight surgeon." |
 | 1:02–1:20 | **Two windows: help loop** | A (C003, self) clicks **Request help**, chooses Node 2 + reason, sends. B (C001, CMO) shows the request, clicks **I'm responding**. A flips to **Help on the way: C001** | "This is the differentiator: closing the care loop. The astronaut asks for help, the CMO sees the request and accepts, and the board shows who is on the way — with the time it took to accept." |
 | 1:20–1:35 | Data insights (`/insights`) | Toggle crew to C003, switch **View → Labs**, hover the glucose chart | "The insights page answers one question at a time. Filters are shareable. Glucose and urea nitrogen are the most flagged tests: 44 of 1,062 rows outside the printed reference range." |
 | 1:35–1:45 | Insights, Labs → risk list | Scroll to **Predicted next-draw risk** | "Forecasts show their uncertainty: a straight line on seven draws, a 95% interval, and an explicit note that this is not a physiological model." |

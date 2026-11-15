@@ -74,7 +74,7 @@ loads the CSVs once in a brand-new database.
 - `/api/*`, `/predict`, `/predict/*`, `/recommendations`, `/eda/*`, `/health`,
   `/docs`, `/redoc`, `/openapi.json` → `/api/index` (the FastAPI function).
 - everything else → `/index.html` (client-side routes, e.g. `/dashboard`,
-  `/dashboard/radiation`, `/insights`, `/demo`, `/profile`).
+  `/dashboard/radiation`, `/insights`).
 
 Hashed assets under `/assets/*` are served straight from the CDN before the
 catch-all applies.
