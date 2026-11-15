@@ -8,10 +8,8 @@ import AlertCard from '../components/dashboard/AlertCard'
 import AstronautAvatar from '../components/AstronautAvatar'
 import BodyMap from '../components/dashboard/BodyMap'
 import Callout from '../components/dashboard/Callout'
-import CrewRow from '../components/dashboard/CrewRow'
 import HelpPanel from '../components/dashboard/HelpPanel'
-import HygieneCard from '../components/dashboard/HygieneCard'
-import LabsTable from '../components/dashboard/LabsTable'
+import LabsSummary from '../components/dashboard/LabsSummary'
 import RecommendationPreview from '../components/dashboard/RecommendationPreview'
 import SystemCards from '../components/dashboard/SystemCards'
 import { useViewer } from '../context/ViewerContext'
@@ -22,7 +20,7 @@ import useFetch from '../hooks/useFetch'
 // come from the dedicated endpoint because the dashboard payload carries the
 // short alert form while this preview needs what_to_do and a confidence chip.
 export default function Dashboard() {
-  const { viewer, role, setViewer } = useViewer()
+  const { viewer, role } = useViewer()
 
   const load = useCallback(async () => {
     const [dashboard, recommendationPayload, radiation] = await Promise.all([
@@ -54,6 +52,13 @@ export default function Dashboard() {
   const visible = member.visible === 'full'
   const roleLabel = ROLES.find((item) => item.id === role)?.label ?? role
   const alerts = Array.isArray(dashboard?.alerts) ? dashboard.alerts : []
+  const lastLab = member.labs?.[0]?.timepoint ?? '—'
+  const lastPocReading = [...(member.readings ?? [])]
+    .filter((reading) => reading.recorded_at)
+    .sort((left, right) => String(right.recorded_at).localeCompare(String(left.recorded_at)))[0]
+  const lastPoc = lastPocReading?.recorded_at
+    ? `${String(lastPocReading.recorded_at).replace('T', ' ').slice(0, 16)} UTC`
+    : '—'
 
   return (
     <div className="space-y-6">
@@ -73,6 +78,9 @@ export default function Dashboard() {
             </div>
             <p className="mt-1 text-sm text-slate-400">
               {member.role_title ?? 'Crew member'} · viewing as {roleLabel}
+            </p>
+            <p className="mt-1 text-[11px] text-slate-500">
+              Last lab draw {lastLab} · Last POC update {lastPoc}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2" aria-label="Data composition">
               <Chip kind="real">Real NASA data</Chip>
@@ -131,10 +139,8 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <CrewRow crew={crew} selected={viewer} onSelect={setViewer} />
-
       <div id="systems" className="scroll-mt-24">
-        <SystemCards member={member} radiation={data?.radiation} alerts={alerts} visible={visible} />
+        <SystemCards member={member} radiation={data?.radiation} visible={visible} />
       </div>
 
       <div id="help-panel" className="scroll-mt-24">
@@ -142,7 +148,7 @@ export default function Dashboard() {
       </div>
 
       <div id="labs" className="scroll-mt-24">
-        <LabsTable labs={member.labs} role={role} />
+        <LabsSummary labs={member.labs} role={role} />
       </div>
 
       <div id="body-map" className="grid scroll-mt-24 items-start gap-6 xl:grid-cols-3">
@@ -150,11 +156,11 @@ export default function Dashboard() {
           <BodyMap
             body={dashboard?.body}
             title="Body map"
-            subtitle="Plain-language effects and prevention from CSA, HRP, and OCHMO."
+            subtitle="Plain-language effects and prevention from CSA, HRP, and OCHMO. Only watch regions keep a status chip here; open a region for the detail."
+            compact
           />
         </div>
         <div className="flex flex-col gap-6">
-          <HygieneCard hygiene={dashboard?.hygiene} viewer={viewer} />
           <section className="mt-auto rounded-2xl border border-accent/30 bg-accent/5 p-5">
             <h2 className="text-base font-semibold text-white">See the privacy and radiation story</h2>
             <p className="mt-0.5 text-sm leading-relaxed text-slate-400">

@@ -107,13 +107,12 @@ function SystemCard({ title, href, count, countKind, rows, note, visible, privat
   )
 }
 
-export default function SystemCards({ member, radiation, alerts = [], visible }) {
+export default function SystemCards({ member, radiation, visible }) {
   const readings = member?.readings ?? []
   const labs = member?.labs ?? []
   const byIndicator = Object.fromEntries(readings.filter(Boolean).map((item) => [item.indicator, item]))
   const byAnalyte = Object.fromEntries(labs.filter(Boolean).map((item) => [item.analyte, item]))
 
-  const emergency = alerts.some((alert) => alert.tier === 'emergency' || alert.severity === 'critical')
   const peak = radiation?.peak
   const peakBand = peak
     ? {
@@ -129,7 +128,6 @@ export default function SystemCards({ member, radiation, alerts = [], visible })
     readingRow(byIndicator.heart_rate),
     readingRow(byIndicator.spo2),
     labRow(byAnalyte.POTASSIUM),
-    labRow(byAnalyte.GLUCOSE),
   ].filter(Boolean)
   const radiationRows = [
     readingRow(byIndicator.temperature_c),
@@ -182,14 +180,14 @@ export default function SystemCards({ member, radiation, alerts = [], visible })
           rows={bloodRows}
           count={visible && bloodRows.length ? `${inRangeCount(bloodRows)} of ${bloodRows.length} in range` : null}
           countKind={visible && inRangeCount(bloodRows) === bloodRows.length ? 'nominal' : 'watch'}
-          note="Potassium and glucose are real OSD-575 draws; heart rate and oxygen are simulated POC estimates."
+          note="Potassium is a real OSD-575 draw. Heart rate and oxygen are simulated POC estimates; glucose and the full lab table stay in Blood & heart."
         />
         <SystemCard
           title="Radiation & temperature"
           href="/dashboard/radiation"
           visible
           rows={radiationRows}
-          count={emergency ? '1 emergency' : null}
+          count={null}
           countKind="emergency"
           note={
             peak

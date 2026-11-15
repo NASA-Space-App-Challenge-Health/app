@@ -51,7 +51,7 @@ function RegionDetail({ region }) {
 // Accessible body map: real buttons with aria-pressed and aria-controls, plus a
 // labelled detail region. Selecting a region reveals the plain-language source
 // text; colour is always paired with the status word.
-export default function BodyMap({ body, title = 'Body map', subtitle, initialId }) {
+export default function BodyMap({ body, title = 'Body map', subtitle, initialId, compact = false }) {
   const regions = safeArray(body)
   const detailId = useId()
   const [selectedId, setSelectedId] = useState(initialId ?? null)
@@ -85,7 +85,13 @@ export default function BodyMap({ body, title = 'Body map', subtitle, initialId 
                     {region.label}
                   </span>
                   <span className="mt-2 flex">
-                    {region.status ? bandChip(region.status) : <Chip kind="neutral">No status</Chip>}
+                    {compact && region.status && region.status !== 'watch' && region.status !== 'concern' ? (
+                      <span className="sr-only">{region.status}</span>
+                    ) : region.status ? (
+                      bandChip(region.status)
+                    ) : (
+                      <Chip kind="neutral">No status</Chip>
+                    )}
                   </span>
                 </button>
               )
