@@ -14,8 +14,8 @@ import { useViewer } from '../context/ViewerContext'
 import useFetch from '../hooks/useFetch'
 
 // Overview for the station display: the hero is the command center (interactive
-// astronaut body map, status, help and the next action), then alerts, the four
-// system cards and the lab summary. Everything else lives one tap away.
+// astronaut body map, status, help, the next action and the embedded alert), then
+// the four system cards and the lab summary. Everything else lives one tap away.
 
 function firstSentence(text, fallback = '') {
   if (!text) return fallback
@@ -94,11 +94,13 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-panel via-panel to-panel2 p-5 shadow-lg shadow-black/20">
-        <div className="flex flex-wrap items-start gap-6 xl:flex-nowrap">
+        <div className="grid gap-5 xl:grid-cols-[210px_minmax(0,1fr)] xl:items-start">
           <AstronautBody regions={dashboard?.body} />
 
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-3">
+          <div className="min-w-0 space-y-4">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-3xl font-bold text-white">{member.call_sign}</h1>
               {visible ? (
                 <Chip kind={statusKind} size="lg">
@@ -131,19 +133,21 @@ export default function Dashboard() {
               >
                 Data insights
               </Link>
+                </div>
+              </div>
+
+              <NextAction recommendations={data?.recommendations ?? []} />
             </div>
-          </div>
 
-          <NextAction recommendations={data?.recommendations ?? []} />
+            {alerts.length > 0 && (
+              <div id="alerts" className="scroll-mt-24 space-y-3 border-t border-white/10 pt-4">
+                {alerts.map((alert) => (
+                  <AlertCard key={alert.id ?? alert.title} alert={alert} embedded />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-
-        {alerts.length > 0 && (
-          <div id="alerts" className="mt-5 scroll-mt-24 space-y-3 border-t border-white/10 pt-4">
-            {alerts.map((alert) => (
-              <AlertCard key={alert.id ?? alert.title} alert={alert} embedded />
-            ))}
-          </div>
-        )}
       </section>
 
       <nav aria-label="On this page" className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-panel/60 px-3 py-2 text-xs">
