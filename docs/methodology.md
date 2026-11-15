@@ -294,7 +294,7 @@ próprios).
 | SPRINT (osso/músculo) | English et al., *npj Microgravity* 6:21, 2020, DOI 10.1038/s41526-020-00111-x (PMC7434884) |
 | Dores de cabeça e CO₂ | Law et al., *J Occup Environ Med*, 2014 (citado no OCHMO-TB-004) |
 | Métodos estatísticos | OLS e t de Student (texto padrão); Theil–Sen (Theil 1950; Sen 1968); suavização exponencial simples |
-| Documento de embasamento da v1 | "T.H.A.I.S.: Arquitetura de Software Edge-First para Monitoramento Autônomo e Preditivo da Saúde de Astronautas", 4 páginas, fornecido pelo time (arquivo associado a Thais Russomano / NASA Team). As referências [1]–[10] do documento não trazem URL/DOI e precisam ser completadas antes de citação formal; o mapeamento está em [evolution-v1-v2.md](evolution-v1-v2.md#9-referências-da-v1-e-status-de-uso-na-v2) |
+| Documento de embasamento da v1 | "T.H.A.I.S.: Arquitetura de Software Edge-First para Monitoramento Autônomo e Preditivo da Saúde de Astronautas", 4 páginas, fornecido pelo time (arquivo associado a Thais Russomano / NASA Team). Cópia em [baseline-v1-thais.pdf](baseline-v1-thais.pdf); as referências [1]–[10] do documento não trazem URL/DOI e precisam ser completadas antes de citação formal; o mapeamento está em [evolution-v1-v2.md](evolution-v1-v2.md#9-referências-da-v1-e-status-de-uso-na-v2) |
 
 ## 8. Bloco em inglês para o artigo (Data & Methods)
 

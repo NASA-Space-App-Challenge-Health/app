@@ -7,9 +7,9 @@ Documento para o time e para o **artigo do pitch**: mostra a base científica da
 > **Documento de embasamento da v1**: "T.H.A.I.S. (Tech & Health Astronaut
 > Intelligent System): Arquitetura de Software Edge-First para Monitoramento
 > Autônomo e Preditivo da Saúde de Astronautas", 4 páginas, fornecido pelo time
-> (nome do arquivo associa o material a Thais Russomano / NASA Team). Guardar
-> como referência de projeto, não como publicação revisada por pares; a versão
-> do arquivo está em `docs/` quando anexada ao repositório final.
+> (nome do arquivo original associa o material a Thais Russomano / NASA Team).
+> Cópia no repositório: [baseline-v1-thais.pdf](baseline-v1-thais.pdf). Guardar
+> como referência de projeto, não como publicação revisada por pares.
 
 ## 1. Resumo em 5 linhas (para o slide)
 
