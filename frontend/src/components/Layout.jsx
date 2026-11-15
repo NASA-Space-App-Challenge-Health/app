@@ -11,6 +11,7 @@ import {
   X,
 } from 'lucide-react'
 import { CREW, ROLES } from '../api'
+import AboutUs from './AboutUs'
 import { useViewer } from '../context/ViewerContext'
 
 const NAV = [
@@ -22,14 +23,6 @@ const NAV = [
   { to: '/insights', label: 'Data insights', icon: LineChart },
 ]
 
-const TEAM = [
-  { name: 'Felipe Gabriel', role: 'Data Scientist', linkedin: 'https://www.linkedin.com/in/felipe-gabriel0/', github: 'FG-SC' },
-  { name: 'Alisson Ricardo', role: 'Full-Stack Developer', linkedin: 'https://www.linkedin.com/in/allyuau', github: 'engenheiro-ally' },
-  { name: 'Joaquim Barreto', role: 'Product Development', linkedin: 'https://www.linkedin.com/in/joaquim-luis-chambo-barreto', github: 'engjoaquimbarreto-source' },
-  { name: 'Milena Greff Lima', role: 'Project Architecture & Product Development', linkedin: 'https://www.linkedin.com/in/milena-greff/', github: 'milenagreff-tech' },
-  { name: 'Amanda Paul Dull', role: 'Designer | UX/UI | IoT', linkedin: 'https://www.linkedin.com/in/amanda-paul-dull/', github: 'pdamanda' },
-  { name: 'Vinícius Soares', role: 'Business Development', linkedin: 'https://www.linkedin.com/in/beyondpolymathy', github: null },
-]
 
 function NavItems({ onNavigate }) {
   return (
@@ -84,8 +77,18 @@ export default function Layout() {
         <div className="flex-1 overflow-y-auto p-3">
           <NavItems />
         </div>
-        <div className="border-t border-white/10 p-4 text-[11px] leading-relaxed text-slate-500">
-          Demo only, no login. Real NASA data is labelled; simulated vitals are labelled too.
+        <div className="border-t border-white/10 p-4">
+          <details className="group">
+            <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400 hover:text-cyan-200">
+              About us
+            </summary>
+            <div className="mt-2 max-h-[45vh] overflow-y-auto pr-1">
+              <AboutUs />
+            </div>
+          </details>
+          <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
+            Demo only, no login. Real NASA data is labelled; simulated vitals are labelled too.
+          </p>
         </div>
       </aside>
 
@@ -118,9 +121,19 @@ export default function Layout() {
             <div className="flex-1 overflow-y-auto">
               <NavItems onNavigate={() => setMenuOpen(false)} />
             </div>
-            <p className="mt-4 border-t border-white/10 pt-3 text-[11px] text-slate-500">
-              Demo only. Real NASA data is labelled; simulated vitals are labelled too.
-            </p>
+            <div className="mt-4 border-t border-white/10 pt-3">
+              <details>
+                <summary className="cursor-pointer list-none text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
+                  About us
+                </summary>
+                <div className="mt-2 max-h-[40vh] overflow-y-auto pr-1">
+                  <AboutUs />
+                </div>
+              </details>
+              <p className="mt-2 text-[11px] text-slate-500">
+                Demo only. Real NASA data is labelled; simulated vitals are labelled too.
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -203,60 +216,13 @@ export default function Layout() {
           <Outlet />
         </main>
 
-        <footer className="border-t border-white/10 px-4 py-6 text-[11px] text-slate-500 lg:px-8">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">About us</p>
-          <p className="mt-1 text-sm font-semibold text-white">Tech &amp; Health Astronaut Intelligent System</p>
-          <p className="mt-1 max-w-3xl leading-relaxed">
-            Thais Russomano Team is a tribute to the Brazilian physician and researcher who pioneered Space Medicine
-            and Physiology in Brazil.
-          </p>
-
-          <ul className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-2 xl:grid-cols-3">
-            {TEAM.map((member) => (
-              <li key={member.name} className="leading-relaxed">
-                <a
-                  className="font-medium text-slate-200 underline decoration-dotted hover:text-white"
-                  href={member.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {member.name}
-                </a>
-                <span> — {member.role}</span>
-                {member.github && (
-                  <a
-                    className="ml-1 text-cyan-300 underline decoration-dotted hover:text-cyan-200"
-                    href={`https://github.com/${member.github}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    @{member.github}
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
-            <a
-              className="inline-flex items-center gap-1 font-semibold text-accent hover:text-cyan-200"
-              href="https://github.com/NASA-Space-App-Challenge-Health/app"
-              target="_blank"
-              rel="noreferrer"
-            >
-              GitHub repository →
-            </a>
-            <span className="text-slate-600">·</span>
-            <span>Educational demonstration for the NASA Space Apps Challenge 2026.</span>
-            <span className="text-slate-600">·</span>
-            <a className="underline decoration-dotted hover:text-slate-300" href="/docs" target="_blank" rel="noreferrer">
-              API docs
-            </a>
-          </div>
-          <p className="mt-2">
-            Real NASA open data is labelled Real NASA; simulated POC vitals are labelled Simulated. Not a medical
-            device and not a diagnosis.
-          </p>
+        <footer className="border-t border-white/10 px-4 py-4 text-[11px] text-slate-500 lg:px-8">
+          T.H.A.I.S. — Tech &amp; Health Astronaut Intelligent System · educational demonstration for the NASA Space
+          Apps Challenge 2026. Real NASA open data is labelled Real NASA; simulated POC values are labelled Simulated.
+          Not a medical device and not a diagnosis.{' '}
+          <a className="underline decoration-dotted hover:text-slate-300" href="/docs" target="_blank" rel="noreferrer">
+            API docs
+          </a>
         </footer>
       </div>
     </div>
