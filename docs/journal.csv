@@ -88,3 +88,37 @@ Move About us from the footer into an expandable sidebar section,"o About Us dev
 Embed the alert card inside the Overview hero and remove the separate alert section,"tenta enquadrar o card do alerta dentro do outro ali na imagem, aí simplificamos melhor a aplicação",2026-11-15T18:52:00-03:00,unavailable,420
 Reduce the body map to one hotspot per destination,"outra coisa, vi que no avatar humano tem links redundantes apontando para as mesmas páginas",2026-11-15T18:58:00-03:00,unavailable,240
 Add a sidebar About us link and a dedicated /about page with the team profiles,"e cara, a ideia é termos um botão clicável na sidebar para sermos direcionados para uma página de about us... não é difícil",2026-11-15T19:06:00-03:00,unavailable,300
+"Move the embedded alert to the lower-right of the overview hero, beside the body map","Quero reorganizar o posicionamento do card de alerta ""Radiation contingency — follow procedures"" na interface atual da sessão Overview.
+
+### Objetivo
+Mover o card de alerta, que atualmente ocupa praticamente toda a largura da tela na parte inferior, para uma posição mais compacta no quadrante inferior direito, ao lado do manequim humano, aproveitando melhor o espaço vazio da interface.
+
+### Alterações de layout
+
+1. **Manequim (lado esquerdo):** manter sua posição e dimensões atuais, preservando os indicadores de sinais vitais e os pontos interativos.
+
+2. **Área central/superior:** preservar a identificação do astronauta (C001), o status NOMINAL e os botões ""Request help"", ""Radiation replay"" e ""Data insights"".
+
+3. **Card ""Next Action"":** manter no canto superior direito, sem alterar seu conteúdo ou comportamento.
+
+4. **Card de alerta (Radiation contingency):**
+   - Remover o posicionamento atual de largura total na parte inferior da página.
+   - Reposicionar o card na região inferior direita, ao lado do manequim.
+   - O card deve ficar abaixo da área principal de identificação e ações, ocupando o espaço disponível à direita do manequim.
+   - Utilizar uma largura proporcional ao espaço disponível, sem esticar o card por toda a tela.
+   - Preservar integralmente o conteúdo: ícone de alerta, badges ""EMERGENCY · CREW BROADCAST"" e ""REAL NASA"", classificação ""SEVERITY: CRITICAL"", título, descrição e seção expansível ""Procedure, evidence and sources"".
+   - Manter a identidade visual de emergência, incluindo fundo avermelhado escuro, borda vermelha e tipografia atual.
+
+### Comportamento responsivo
+- Em desktops, o card deve ficar ao lado direito do manequim, preferencialmente alinhado à região inferior da composição.
+- Em telas menores, adaptar o layout para evitar sobreposição ou conteúdo espremido, permitindo que o card passe para uma nova linha quando necessário.
+- Não utilizar posicionamento absoluto como solução principal se isso comprometer a responsividade.
+
+### Restrições importantes
+- Não modificar a lógica de negócio, os dados, os estados ou os eventos do alerta.
+- Não remover nenhum componente existente.
+- Não alterar a identidade visual geral da aplicação.
+- Reaproveitar os componentes, estilos e estrutura existentes sempre que possível.
+- Evitar espaços vazios desnecessários e buscar um layout visualmente equilibrado.
+
+**Resultado esperado:** uma composição mais organizada, na qual o manequim permaneça à esquerda e o alerta crítico fique em um card compacto na região inferior direita, ao lado dele, em vez de ocupar uma faixa horizontal em toda a parte inferior da tela.",2026-11-15T19:16:00-03:00,unavailable,420
