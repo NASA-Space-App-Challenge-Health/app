@@ -34,6 +34,11 @@ Mobile (390px):
 | --- | --- |
 | ![Mobile board](docs/screenshots/mobile-dashboard.png) | ![Mobile drawer](docs/screenshots/mobile-drawer.png) |
 
+Help loop — one crew member asks, another accepts, and the board shows who is on
+the way (two sessions, 3 s poll):
+
+![Help loop](docs/screenshots/help-loop.png)
+
 ## Stack
 
 - Frontend: React 19 with Vite, Tailwind CSS, Recharts, and `react-router-dom`
