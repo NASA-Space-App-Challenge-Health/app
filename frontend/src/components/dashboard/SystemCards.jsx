@@ -55,15 +55,15 @@ function Row({ row }) {
   return (
     <li className="border-t border-white/5 py-2 first:border-t-0 first:pt-0 last:pb-0">
       <div className="flex items-baseline justify-between gap-2">
-        <span className="truncate text-xs text-slate-300">{row.label}</span>
-        <span className="shrink-0 text-sm font-semibold text-white">
+        <span className="truncate text-[13px] text-slate-300">{row.label}</span>
+        <span className="shrink-0 text-base font-semibold text-white">
           {row.display ?? row.value}
           <span className="ml-1 text-[11px] font-normal text-slate-400">{row.unit}</span>
         </span>
       </div>
       <div className="mt-1 flex items-center gap-2">
         <MetricBar value={row.value} unit={row.unit} bands={row.bands} kind={row.kind} compact className="flex-1" />
-        <span className="shrink-0 text-[10px] uppercase tracking-wide text-slate-500">{row.status}</span>
+        <span className="shrink-0 text-[11px] uppercase tracking-wide text-slate-500">{row.status}</span>
       </div>
     </li>
   )
@@ -72,9 +72,13 @@ function Row({ row }) {
 function SystemCard({ title, href, count, countKind, rows, note, visible, privateNote }) {
   const origins = new Set(rows.map((row) => row.origin).filter(Boolean))
   return (
-    <article className="flex h-full min-w-0 flex-col rounded-2xl border border-white/10 bg-panel/80 p-4 shadow-lg shadow-black/20">
+    <Link
+      to={href}
+      className="group block h-full min-w-0 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/70"
+    >
+      <article className="flex h-full min-w-0 flex-col rounded-2xl border border-white/10 bg-panel/80 p-4 shadow-lg shadow-black/20 transition-colors group-hover:border-accent/40 group-hover:bg-panel2/60">
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-sm font-semibold text-white">{title}</h3>
+        <h3 className="text-base font-semibold text-white">{title}</h3>
         {count && <Chip kind={countKind ?? 'neutral'}>{count}</Chip>}
       </div>
 
@@ -90,7 +94,9 @@ function SystemCard({ title, href, count, countKind, rows, note, visible, privat
         <p className="mt-3 text-xs leading-relaxed text-slate-400">{note ?? 'No measured values for this system.'}</p>
       )}
 
-      {visible && note && rows.length > 0 && <p className="mt-2 text-[11px] leading-relaxed text-slate-500">{note}</p>}
+      {visible && note && rows.length > 0 && (
+        <p className="mt-2 text-xs leading-relaxed text-slate-500">{note}</p>
+      )}
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-3">
         <div className="flex flex-wrap items-center gap-1.5">
@@ -98,12 +104,13 @@ function SystemCard({ title, href, count, countKind, rows, note, visible, privat
           {origins.has('simulated') && <OriginChip origin="simulated" />}
           {!visible && <Chip kind="neutral">Private</Chip>}
         </div>
-        <Link to={href} className="inline-flex items-center gap-1 text-[11px] font-semibold text-accent hover:text-cyan-200">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent group-hover:text-cyan-200">
           Open details
-          <ArrowRight size={12} aria-hidden="true" />
-        </Link>
+          <ArrowRight size={13} aria-hidden="true" />
+        </span>
       </div>
-    </article>
+      </article>
+    </Link>
   )
 }
 
@@ -134,7 +141,7 @@ export default function SystemCards({ member, radiation, visible }) {
     peak
       ? {
           key: 'radiation-peak',
-          label: 'Radiation peak (raw sample)',
+          label: 'Radiation peak',
           value: Number(peak.absorbed_dose_rate).toFixed(1),
           display: Number(peak.absorbed_dose_rate).toFixed(1),
           unit: 'µGy/h',
@@ -155,9 +162,8 @@ export default function SystemCards({ member, radiation, visible }) {
           <h2 id="systems-title" className="text-base font-semibold text-white">
             Systems at a glance
           </h2>
-          <p className="mt-0.5 text-xs text-slate-400">
-            Real measurements and labelled POC estimates, each with its own band. Open a system for the charts,
-            evidence and role detail.
+          <p className="mt-0.5 text-sm text-slate-400">
+            Tap a system for the charts and evidence. Each row shows its real or POC band.
           </p>
         </div>
         <Chip kind="real">Real NASA</Chip>
@@ -171,7 +177,6 @@ export default function SystemCards({ member, radiation, visible }) {
           rows={brainRows}
           count={visible && brainRows.length ? `${brainRows.length} POC` : null}
           countKind="simulated"
-          note="Sleep and cortisol are simulated POC estimates. The open data has no EEG, balance test or cognitive score."
         />
         <SystemCard
           title="Blood & heart"
@@ -180,7 +185,6 @@ export default function SystemCards({ member, radiation, visible }) {
           rows={bloodRows}
           count={visible && bloodRows.length ? `${inRangeCount(bloodRows)} of ${bloodRows.length} in range` : null}
           countKind={visible && inRangeCount(bloodRows) === bloodRows.length ? 'nominal' : 'watch'}
-          note="Potassium is a real OSD-575 draw. Heart rate and oxygen are simulated POC estimates; glucose and the full lab table stay in Blood & heart."
         />
         <SystemCard
           title="Radiation & temperature"
@@ -191,7 +195,7 @@ export default function SystemCards({ member, radiation, visible }) {
           countKind="emergency"
           note={
             peak
-              ? `Real DosTel raw peak ${Number(peak.absorbed_dose_rate).toFixed(1)} µGy/h on ${String(peak.recorded_at).slice(8, 10)}/${String(peak.recorded_at).slice(5, 7)}/${String(peak.recorded_at).slice(0, 4)}. Area dose, not a personal dose.`
+              ? `Real DosTel peak, ${String(peak.recorded_at).slice(8, 10)}/${String(peak.recorded_at).slice(5, 7)}. Area dose, not personal.`
               : 'No DosTel peak in the payload.'
           }
         />

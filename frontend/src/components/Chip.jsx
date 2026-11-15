@@ -19,11 +19,12 @@ const LABELS = {
   emergency: 'Emergency',
 }
 
-export default function Chip({ kind = 'neutral', children, className = '', title }) {
+export default function Chip({ kind = 'neutral', children, className = '', title, size = 'sm' }) {
+  const sizeClass = size === 'lg' ? 'px-3 py-1 text-sm' : 'px-2 py-0.5 text-[11px]'
   return (
     <span
       title={title}
-      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${STYLES[kind] ?? STYLES.neutral} ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full border font-medium uppercase tracking-wide ${sizeClass} ${STYLES[kind] ?? STYLES.neutral} ${className}`}
     >
       {children ?? LABELS[kind] ?? kind}
     </span>

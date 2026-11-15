@@ -55,7 +55,7 @@ export default function BodyMap({ body, title = 'Body map', subtitle, initialId,
   const regions = safeArray(body)
   const detailId = useId()
   const [selectedId, setSelectedId] = useState(initialId ?? null)
-  const selected = regions.find((region) => region.id === selectedId) ?? regions[0] ?? null
+  const selected = selectedId ? (regions.find((region) => region.id === selectedId) ?? null) : null
 
   return (
     <Card title={title} subtitle={subtitle}>
@@ -99,7 +99,11 @@ export default function BodyMap({ body, title = 'Body map', subtitle, initialId,
           </div>
 
           <div id={detailId} aria-live="polite">
-            {selected && <RegionDetail region={selected} />}
+            {selected ? (
+              <RegionDetail region={selected} />
+            ) : (
+              <p className="mt-3 text-xs text-slate-500">Tap a region for plain-language guidance.</p>
+            )}
           </div>
         </>
       )}

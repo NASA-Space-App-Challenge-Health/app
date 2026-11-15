@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, PlayCircle } from 'lucide-react'
 import { api, ROLES } from '../api'
-import Chip, { bandChip } from '../components/Chip'
+import Chip from '../components/Chip'
 import { Empty, ErrorState, Loading } from '../components/StateView'
 import AlertCard from '../components/dashboard/AlertCard'
 import AstronautAvatar from '../components/AstronautAvatar'
@@ -73,19 +73,35 @@ export default function Dashboard() {
               <h1 className="text-2xl font-bold text-white">
                 {member.call_sign} · {member.full_name}
               </h1>
-              {visible ? bandChip(member.overall_band) : <Chip kind="neutral">Private in this role</Chip>}
+              {visible ? (
+                <Chip
+                  kind={
+                    member.overall_band === 'watch'
+                      ? 'watch'
+                      : member.overall_band === 'concern' || member.overall_band === 'critical'
+                        ? 'concern'
+                        : 'nominal'
+                  }
+                  size="lg"
+                >
+                  {member.overall_band ?? 'No band'}
+                </Chip>
+              ) : (
+                <Chip kind="neutral" size="lg">
+                  Private
+                </Chip>
+              )}
               {member.is_cmo && <Chip kind="real">CMO</Chip>}
             </div>
             <p className="mt-1 text-sm text-slate-400">
               {member.role_title ?? 'Crew member'} · viewing as {roleLabel}
             </p>
-            <p className="mt-1 text-[11px] text-slate-500">
+            <p className="mt-1 text-xs text-slate-500">
               Last lab draw {lastLab} · Last POC update {lastPoc}
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2" aria-label="Data composition">
               <Chip kind="real">Real NASA data</Chip>
               <Chip kind="simulated">Simulated vitals</Chip>
-              <span className="text-[11px] text-slate-500">OSDR labs · RadLab DosTel · DONKI SEP + POC layer</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -121,7 +137,7 @@ export default function Dashboard() {
           ['#body-map', 'Body map'],
           ['#recommendations', 'Recommendations'],
         ].map(([href, label]) => (
-          <a key={href} href={href} className="rounded-lg border border-white/10 px-2 py-1 text-slate-300 hover:border-cyan-500/40 hover:text-cyan-200">
+          <a key={href} href={href} className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-300 hover:border-cyan-500/40 hover:text-cyan-200">
             {label}
           </a>
         ))}
