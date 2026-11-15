@@ -52,6 +52,11 @@ class ApiTests(unittest.TestCase):
         self.assertIn("Demo only, no login", body["demo_banner"])
         by_sign = {member["call_sign"]: member for member in body["crew"]}
         self.assertEqual(by_sign["C003"]["labs"][0]["origin"], "real")
+        differential = {item["analyte"]: item for item in by_sign["C003"]["differential"]}
+        self.assertIn("EOSINOPHILS", differential)
+        self.assertIn("ABSOLUTE EOSINOPHILS", differential)
+        self.assertEqual(differential["EOSINOPHILS"]["origin"], "real")
+        self.assertIn("WHITE BLOOD CELL COUNT", [item["analyte"] for item in by_sign["C003"]["labs"]])
         self.assertEqual(by_sign["C003"]["labs"][0]["research_label"] if False else "real", "real")
         heart = next(item for item in by_sign["C001"]["readings"] if item["indicator"] == "heart_rate")
         self.assertEqual(heart["origin"], "simulated")

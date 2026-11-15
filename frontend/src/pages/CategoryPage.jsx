@@ -30,6 +30,7 @@ import RadiationReplay from '../components/dashboard/RadiationReplay'
 import SuitTelemetry from '../components/dashboard/SuitTelemetry'
 import StatGrid from '../components/dashboard/StatGrid'
 import VitalsGrid from '../components/dashboard/VitalsGrid'
+import WbcDifferential from '../components/dashboard/WbcDifferential'
 import {
   flagKind,
   flagLabel,
@@ -299,8 +300,13 @@ function HeartSection({ member, role, viewer, data }) {
         role={role}
         analytes={HEART_LAB_ANALYTES}
         title="Blood panel"
+        subtitle="White blood cell count is the total; the differential below splits it by type."
         emptyMessage="No haemoglobin, white-cell, platelet, or glucose rows for this crew member."
       />
+
+      {Array.isArray(member.differential) && (
+        <WbcDifferential rows={member.differential} role={role} />
+      )}
 
       <GlucoseChart trends={data?.trends} viewer={viewer} />
 

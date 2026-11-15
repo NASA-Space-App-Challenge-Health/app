@@ -5,6 +5,10 @@ import PrivacyNote from './PrivacyNote'
 import MetricBar from './MetricBar'
 import { flagKind, flagLabel, formatMeasurement, formatRange, safeArray, bandsForLab } from './format'
 
+const ANALYTE_LABELS = {
+  'WHITE BLOOD CELL COUNT': 'White blood cell count (total)',
+}
+
 const DEFAULT_ORDER = ['GLUCOSE', 'HEMOGLOBIN', 'WHITE BLOOD CELL COUNT', 'PLATELET COUNT', 'POTASSIUM', 'SODIUM', 'CREATININE']
 
 // Inspiration4 CBC/CMP rows. The API returns `labs: null` for a crew member the
@@ -61,7 +65,7 @@ export default function LabsTable({
               {filtered.map((lab) => (
                 <tr key={`${lab.analyte}-${lab.timepoint}`} className="border-b border-white/5 last:border-0">
                   <th scope="row" className="py-2 pr-4 font-normal">
-                    <span className="block text-slate-200">{lab.analyte}</span>
+                    <span className="block text-slate-200">{ANALYTE_LABELS[lab.analyte] ?? lab.analyte}</span>
                     {lab.timepoint && <span className="block text-[11px] text-slate-500">Draw {lab.timepoint}</span>}
                   </th>
                   <td className="py-2 pr-4 text-white">
