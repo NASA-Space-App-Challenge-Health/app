@@ -8,6 +8,7 @@
 | [research.md](research.md) | Data sources, what is real vs simulated, and the gaps. |
 | [glossary.md](glossary.md) | Siglas e nomenclatura (CMO, OCHMO, OSDR, DONKI, terms, roles, tiers). |
 | [methodology.md](methodology.md) | Dados usados, manipulações, projeções, regras, referências e bloco "Data & Methods" em inglês para o artigo. |
+| [evolution-v1-v2.md](evolution-v1-v2.md) | Base científica da v1 (edge-first/DTN/HUD), o que foi mantido, o que mudou e por quê, e o que foi adiado. |
 | [journal.csv](journal.csv) | One row per completed agent response, per `AGENTS.md`. |
 | [screenshots/](screenshots/) | Production screenshots used in the root README. |
 | [submission/](submission/) | Submission kit: video script, one-pager PDF, cover image, checklist. |

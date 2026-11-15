@@ -28,7 +28,8 @@ Portuguese version follows).
 ## End card
 
 ```
-Astronaut Health Monitor
+T.H.A.I.S. — Astronaut Health Monitor
+Tech & Health Astronaut Intelligent System
 NASA Space Apps Challenge 2026
 nasa-health-app.vercel.app
 github.com/NASA-Space-App-Challenge-Health/app

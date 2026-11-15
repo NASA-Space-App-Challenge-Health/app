@@ -1,4 +1,7 @@
-# Astronaut Health Monitor
+# T.H.A.I.S. — Astronaut Health Monitor
+
+**T.H.A.I.S. = Tech & Health Astronaut Intelligent System** (the project name
+from the v1 baseline article) — the current monitoring app in this repository.
 
 Visual health-monitoring software for astronauts on space missions, built for
 the NASA Space Apps Challenge 2026 challenge
@@ -9,6 +12,11 @@ plus simulated heart rate, sleep, cortisol, hydration, and hygiene timing. A
 guided demo walks a real emergency alert and a real preventive recommendation,
 each with the NASA page it uses. A plain-language insights page turns the same
 tables into short takeaways for non-clinicians.
+
+The scientific baseline of the first version (edge-first architecture, local
+database, DTN, HUD) and the changes that produced this version are documented in
+[docs/evolution-v1-v2.md](docs/evolution-v1-v2.md). Every acronym is expanded in
+[docs/glossary.md](docs/glossary.md).
 
 This repository was generated from
 [founder-haus-engineering/bootstrap_new_project](https://github.com/founder-haus-engineering/bootstrap_new_project)
