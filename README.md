@@ -1,3 +1,5 @@
+<img src="frontend/public/thais-logo.png" alt="T.H.A.I.S. logo" width="120" align="right" />
+
 # T.H.A.I.S. — Astronaut Health Monitor
 
 **T.H.A.I.S. = Tech & Health Astronaut Intelligent System** (the project name
