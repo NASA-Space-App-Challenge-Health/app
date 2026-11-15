@@ -69,22 +69,15 @@ This repository was generated from
 [founder-haus-engineering/bootstrap_new_project](https://github.com/founder-haus-engineering/bootstrap_new_project)
 and keeps that project's layout, Compose stack, scripts, and agent docs.
 
-![Crew board](docs/screenshots/dashboard.png)
+Current production screens (1440 px wide):
 
-| Data insights | Radiation & temperature |
+| Crew overview | Health status |
 | --- | --- |
-| ![Data insights](docs/screenshots/insights.png) | ![Radiation](docs/screenshots/radiation.png) |
+| ![Crew overview](docs/screenshots/overview.jpg) | ![Health status](docs/screenshots/status.jpg) |
 
-Mobile (390px):
-
-| Board | Navigation |
+| Data insights | Radiation & replay |
 | --- | --- |
-| ![Mobile board](docs/screenshots/mobile-dashboard.png) | ![Mobile drawer](docs/screenshots/mobile-drawer.png) |
-
-Help loop — one crew member asks, another accepts, and the board shows who is on
-the way (two sessions, 3 s poll):
-
-![Help loop](docs/screenshots/help-loop.png)
+| ![Data insights](docs/screenshots/insights.jpg) | ![Radiation and replay](docs/screenshots/radiation.jpg) |
 
 ## Stack
 
