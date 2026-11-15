@@ -29,27 +29,27 @@ export default function RecommendationPreview({ recommendations, title = 'Recomm
       {items.length === 0 ? (
         <Empty>No preventive cards for this role. Switch to CMO or Flight surgeon to see them.</Empty>
       ) : (
-        <ul className="space-y-3">
+        <ul className="grid gap-3 md:grid-cols-2">
           {items.map((item, index) => {
             const action = item.what_to_do ?? item.suggested_action ?? item.detail ?? ''
             return (
               <li
                 key={`${item.id ?? 'recommendation'}-${index}`}
-                className="rounded-xl border border-white/10 bg-white/[0.03] p-3"
+                className="flex h-full min-w-0 flex-col rounded-xl border border-white/10 bg-white/[0.03] p-4"
               >
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <p className="text-sm font-medium leading-snug text-white">{item.title ?? 'Preventive card'}</p>
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <OriginChip origin={item.origin} />
-                    {item.confidence ? (
-                      <Chip kind={confidenceKind(item.confidence)}>Confidence: {item.confidence}</Chip>
-                    ) : item.severity ? (
-                      <Chip kind="watch">Severity: {item.severity}</Chip>
-                    ) : null}
-                  </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <OriginChip origin={item.origin} />
+                  {item.confidence ? (
+                    <Chip kind={confidenceKind(item.confidence)}>Confidence: {item.confidence}</Chip>
+                  ) : item.severity ? (
+                    <Chip kind="watch">Severity: {item.severity}</Chip>
+                  ) : null}
                 </div>
+                <p className="mt-2 text-sm font-semibold leading-snug text-white">
+                  {item.title ?? 'Preventive card'}
+                </p>
                 {action && <p className="mt-1 text-xs leading-relaxed text-slate-300">{action}</p>}
-                <SourceLinks sources={item.sources ?? []} className="mt-2" />
+                <SourceLinks sources={item.sources ?? []} className="mt-auto pt-3" />
               </li>
             )
           })}

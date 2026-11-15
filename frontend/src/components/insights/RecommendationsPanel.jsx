@@ -91,7 +91,7 @@ export default function RecommendationsPanel({
             const crewIds = group.crewIds
             return (
               <li key={group.key}>
-                <article className="flex h-full flex-col rounded-2xl border border-white/10 bg-panel/80 p-4 shadow-lg shadow-black/20">
+                <article className="flex h-full min-w-0 flex-col rounded-2xl border border-white/10 bg-panel/80 p-4 shadow-lg shadow-black/20">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <Chip kind={tier.kind}>{tier.label}</Chip>
                     <OriginChip origin={card.origin} />
@@ -124,26 +124,34 @@ export default function RecommendationsPanel({
                   </p>
 
                   <div className="mt-3 space-y-2">
-                    {card.why_it_matters_in_space && (
-                      <Details label="Why it matters in space">
-                        <p>{card.why_it_matters_in_space}</p>
-                      </Details>
-                    )}
-                    {card.what_to_do && (
-                      <Details label="What to do">
-                        <p>{card.what_to_do}</p>
-                      </Details>
-                    )}
-                    {card.who_is_notified && (
-                      <Details label="Who is notified">
-                        <p>{card.who_is_notified}</p>
-                      </Details>
-                    )}
-                    {card.confidence_reason && (
-                      <Details label="Confidence reason">
-                        <p>{card.confidence_reason}</p>
-                      </Details>
-                    )}
+                    <Details label="Context and actions">
+                      <dl className="space-y-1.5">
+                        {card.why_it_matters_in_space && (
+                          <div>
+                            <dt className="text-slate-500">Why it matters in space</dt>
+                            <dd>{card.why_it_matters_in_space}</dd>
+                          </div>
+                        )}
+                        {card.what_to_do && (
+                          <div>
+                            <dt className="text-slate-500">What to do</dt>
+                            <dd>{card.what_to_do}</dd>
+                          </div>
+                        )}
+                        {card.who_is_notified && (
+                          <div>
+                            <dt className="text-slate-500">Who is notified</dt>
+                            <dd>{card.who_is_notified}</dd>
+                          </div>
+                        )}
+                        {card.confidence_reason && (
+                          <div>
+                            <dt className="text-slate-500">Why the confidence is {card.confidence ?? 'unknown'}</dt>
+                            <dd>{card.confidence_reason}</dd>
+                          </div>
+                        )}
+                      </dl>
+                    </Details>
                     {group.cards.length > 1 ? (
                       <Details label={`Per-crew values (${group.cards.length})`}>
                         <div className="overflow-x-auto">

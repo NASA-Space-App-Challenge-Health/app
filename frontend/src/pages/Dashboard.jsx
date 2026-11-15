@@ -143,38 +143,36 @@ export default function Dashboard() {
         <LabsTable labs={member.labs} role={role} />
       </div>
 
-      <div id="body-map" className="grid scroll-mt-24 gap-6 xl:grid-cols-3">
-        <div className="xl:col-span-2">
+      <div id="body-map" className="grid scroll-mt-24 items-start gap-6 xl:grid-cols-3">
+        <div className="min-w-0 xl:col-span-2">
           <BodyMap
             body={dashboard?.body}
             title="Body map"
             subtitle="Plain-language effects and prevention from CSA, HRP, and OCHMO."
           />
         </div>
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           <HygieneCard hygiene={dashboard?.hygiene} viewer={viewer} />
-          <div id="recommendations" className="scroll-mt-24">
-            <RecommendationPreview recommendations={data?.recommendations} />
-          </div>
+          <section className="mt-auto rounded-2xl border border-accent/30 bg-accent/5 p-5">
+            <h2 className="text-base font-semibold text-white">See the privacy and radiation story</h2>
+            <p className="mt-0.5 text-sm leading-relaxed text-slate-400">
+              Four guided steps through the role rules and the real DosTel and DONKI records.
+            </p>
+            <Link
+              to="/demo"
+              className="mt-3 inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-cyan-300"
+            >
+              <PlayCircle size={16} aria-hidden="true" />
+              Open guided demo
+              <ArrowRight size={14} aria-hidden="true" />
+            </Link>
+          </section>
         </div>
       </div>
 
-      <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-accent/30 bg-accent/5 p-5">
-        <div>
-          <h2 className="text-base font-semibold text-white">See the privacy and radiation story</h2>
-          <p className="mt-0.5 text-sm text-slate-400">
-            Four guided steps through the role rules and the real DosTel and DONKI records.
-          </p>
-        </div>
-        <Link
-          to="/demo"
-          className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-cyan-300"
-        >
-          <PlayCircle size={16} aria-hidden="true" />
-          Open guided demo
-          <ArrowRight size={14} aria-hidden="true" />
-        </Link>
-      </section>
+      <div id="recommendations" className="scroll-mt-24">
+        <RecommendationPreview recommendations={data?.recommendations} />
+      </div>
     </div>
   )
 }
