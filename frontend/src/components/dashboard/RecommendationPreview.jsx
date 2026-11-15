@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import Card from '../Card'
-import Chip from '../Chip'
+import Chip, { OriginChip } from '../Chip'
 import SourceLinks from '../SourceLinks'
 import { Empty } from '../StateView'
 import { confidenceKind, safeArray } from './format'
@@ -39,11 +39,14 @@ export default function RecommendationPreview({ recommendations, title = 'Recomm
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <p className="text-sm font-medium leading-snug text-white">{item.title ?? 'Preventive card'}</p>
-                  {item.confidence ? (
-                    <Chip kind={confidenceKind(item.confidence)}>Confidence: {item.confidence}</Chip>
-                  ) : item.severity ? (
-                    <Chip kind="watch">Severity: {item.severity}</Chip>
-                  ) : null}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <OriginChip origin={item.origin} />
+                    {item.confidence ? (
+                      <Chip kind={confidenceKind(item.confidence)}>Confidence: {item.confidence}</Chip>
+                    ) : item.severity ? (
+                      <Chip kind="watch">Severity: {item.severity}</Chip>
+                    ) : null}
+                  </div>
                 </div>
                 {action && <p className="mt-1 text-xs leading-relaxed text-slate-300">{action}</p>}
                 <SourceLinks sources={item.sources ?? []} className="mt-2" />

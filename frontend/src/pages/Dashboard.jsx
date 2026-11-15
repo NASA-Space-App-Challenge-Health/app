@@ -80,6 +80,11 @@ export default function Dashboard() {
         </div>
       </header>
 
+      <p className="text-[11px] leading-relaxed text-slate-500">
+        Data sources: NASA OSDR (OSD-569/575/656 labs), RadLab DosTel, DONKI SEP · Simulated vitals and
+        hygiene are a POC layer, not NASA measurements. Every card repeats its own source tag.
+      </p>
+
       {!visible && (
         <Callout tone="warn">
           Role {roleLabel}: this crew member&apos;s vitals and labs are hidden. Crew-wide notices stay visible.

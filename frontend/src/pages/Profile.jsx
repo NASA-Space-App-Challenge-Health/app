@@ -47,7 +47,11 @@ export default function Profile() {
       )}
 
       {visible && (
-        <Card title="Released research labs" subtitle="Inspiration4 CBC/CMP, de-identified by NASA. Not a diagnosis.">
+        <Card
+          title="Released research labs"
+          subtitle="Inspiration4 CBC/CMP, de-identified by NASA. Not a diagnosis."
+          action={<Chip kind="real">Real NASA</Chip>}
+        >
           {labs.length === 0 ? (
             <Empty>No lab rows for this crew member in the API response.</Empty>
           ) : (

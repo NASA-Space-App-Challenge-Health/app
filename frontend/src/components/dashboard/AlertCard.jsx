@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import Chip from '../Chip'
+import Chip, { OriginChip } from '../Chip'
 import SourceLinks from '../SourceLinks'
 import { evidenceRows } from './format'
 
@@ -28,7 +28,7 @@ export default function AlertCard({ alert }) {
         <Chip kind={emergency ? 'emergency' : 'neutral'}>
           {emergency ? 'Emergency · crew broadcast' : 'Crew-wide notice'}
         </Chip>
-        {alert.origin === 'real' && <Chip kind="real">Real NASA</Chip>}
+        {alert.origin && <OriginChip origin={alert.origin} />}
         {alert.severity && (
           <span
             className={`text-[11px] font-medium uppercase tracking-wide ${

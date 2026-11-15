@@ -19,9 +19,10 @@ const LABELS = {
   emergency: 'Emergency',
 }
 
-export default function Chip({ kind = 'neutral', children, className = '' }) {
+export default function Chip({ kind = 'neutral', children, className = '', title }) {
   return (
     <span
+      title={title}
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide ${STYLES[kind] ?? STYLES.neutral} ${className}`}
     >
       {children ?? LABELS[kind] ?? kind}
@@ -31,4 +32,37 @@ export default function Chip({ kind = 'neutral', children, className = '' }) {
 
 export function bandChip(band) {
   return <Chip kind={band === 'concern' || band === 'critical' ? 'concern' : band === 'watch' ? 'watch' : 'nominal'} />
+}
+
+// Single source-of-truth label for data provenance. Every number the product
+// shows must carry one of these next to it: NASA open data or the simulated
+// POC layer. The tooltip explains what the card's source line already says.
+export function OriginChip({ origin, className = '', title }) {
+  if (origin === 'real') {
+    return (
+      <Chip
+        kind="real"
+        className={className}
+        title={title ?? 'NASA open data; the card lists the study or instrument'}
+      >
+        Real NASA
+      </Chip>
+    )
+  }
+  if (origin === 'simulated') {
+    return (
+      <Chip
+        kind="simulated"
+        className={className}
+        title={title ?? 'Generated for the POC; not a NASA measurement'}
+      >
+        Simulated
+      </Chip>
+    )
+  }
+  return (
+    <Chip kind="neutral" className={className} title="The API did not return an origin for this value">
+      Source n/a
+    </Chip>
+  )
 }

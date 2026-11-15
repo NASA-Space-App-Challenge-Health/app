@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { api } from '../api'
 import Card from '../components/Card'
-import Chip from '../components/Chip'
+import Chip, { OriginChip } from '../components/Chip'
 import SourceLinks from '../components/SourceLinks'
 import { ErrorState, Loading } from '../components/StateView'
 import { useViewer } from '../context/ViewerContext'
@@ -42,6 +42,12 @@ export default function Demo() {
           Each step is generated from the rules the API ships. Emergency notices reach the whole crew; preventive
           cards stay with the CMO and the flight surgeon.
         </p>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+          <Chip kind="real">Real NASA</Chip>
+          <span>RadLab DosTel + DONKI SEP + OSDR labs (OSD-569/575/656)</span>
+          <Chip kind="simulated">Simulated</Chip>
+          <span>Vitals and hygiene are POC, not NASA measurements</span>
+        </div>
       </header>
 
       <ol className="flex flex-wrap gap-2" aria-label="Demo steps">
@@ -71,6 +77,7 @@ export default function Demo() {
           <div className="mt-4 rounded-xl border border-red-500/40 bg-red-500/10 p-4">
             <div className="flex flex-wrap items-center gap-2">
               <Chip kind="emergency">Emergency · crew broadcast</Chip>
+              {alert.origin && <OriginChip origin={alert.origin} />}
               <span className="text-sm font-semibold text-white">{alert.public_title ?? alert.title}</span>
             </div>
             <p className="mt-2 text-sm text-red-100">{alert.public_detail ?? alert.detail}</p>
@@ -83,6 +90,7 @@ export default function Demo() {
           <div className="mt-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
             <div className="flex flex-wrap items-center gap-2">
               <Chip kind="watch">Preventive · {recommendation.tier}</Chip>
+              {recommendation.origin && <OriginChip origin={recommendation.origin} />}
               <span className="text-sm font-semibold text-white">{recommendation.title}</span>
             </div>
             <p className="mt-2 text-sm text-amber-50">{recommendation.detail}</p>
@@ -102,6 +110,9 @@ export default function Demo() {
           <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-slate-300">
             <p className="font-medium text-white">{current.hygiene.suggestion}</p>
             <p className="mt-1 text-xs text-slate-400">{current.hygiene.label}</p>
+            <div className="mt-2">
+              <Chip kind="simulated">Simulated · not a NASA measurement</Chip>
+            </div>
           </div>
         )}
 

@@ -72,6 +72,7 @@ export default function LabsPanel({ data, crew, topics, only }) {
     <div className="space-y-5">
       <ChartCard
         title="Out-of-range flags by test"
+        provenance="real"
         summary="Glucose and urea nitrogen flag most often; a low or high flag means the row fell outside the range printed on the lab report."
       >
         {flagRows.length > 0 ? (
@@ -91,6 +92,7 @@ export default function LabsPanel({ data, crew, topics, only }) {
       <div className="grid gap-5 lg:grid-cols-2">
         <ChartCard
           title="Analyte trend"
+          provenance="real"
           summary="One line per crew across the seven draws; the shaded band is the range printed on the lab rows."
         >
           {options.length === 0 ? (
@@ -144,6 +146,7 @@ export default function LabsPanel({ data, crew, topics, only }) {
 
         <ChartCard
           title="Shift L-3 → R+1"
+          provenance="real"
           summary="Positive bars are higher just after the flight than three days before it; negative bars are lower."
         >
           {shiftRows.length > 0 ? (
@@ -161,6 +164,7 @@ export default function LabsPanel({ data, crew, topics, only }) {
 
       <ChartCard
         title="Predicted next-draw risk"
+        provenance="real"
         summary="Higher percentages mean the straight-line model expects the next draw to fall outside the printed range. It is a model, not a symptom forecast."
       >
         {risks.length === 0 ? (

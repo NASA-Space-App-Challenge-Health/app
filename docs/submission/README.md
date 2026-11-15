@@ -40,6 +40,10 @@ Project: **T.H.A.I.S. — Astronaut Health Monitor**
   and the flight surgeon get the numbers. Potassium and cortisol never broadcast.
 - **Plain language:** every chart has a one-line takeaway and a link to the NASA
   source it uses; there is no diagnosis anywhere.
+- **Provenance on every card:** each number carries a `Real NASA` or `Simulated`
+  chip (with a tooltip), plus the study or instrument when it applies. The board
+  header lists the data sources and the footer repeats that NASA open data is
+  labelled Real NASA and the POC layer is labelled Simulated.
 - **Forecasts state their uncertainty:** straight-line fits on 7 draws, 95%
   prediction intervals, and an explicit "not a physiological model" note.
 - **Help loop (closes the care loop):** a crew member asks for help, another
