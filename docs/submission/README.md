@@ -13,6 +13,7 @@ Project: **T.H.A.I.S. — Astronaut Health Monitor**
 | One-pager (PDF) | [one-pager.pdf](one-pager.pdf) |
 | Cover image (1200×630) | [cover.png](cover.png) |
 | Video script | [video-script.md](video-script.md) |
+| How it works diagram | [how-it-works.png](how-it-works.png) |
 
 ## Before the deadline
 
