@@ -20,6 +20,22 @@ KEY_ANALYTES = (
 )
 
 
+# CBC differential rows that make up the total white blood cell count.
+# Kept separate from KEY_ANALYTES so the compact blood panel stays compact.
+DIFFERENTIAL_ANALYTES = (
+    "NEUTROPHILS",
+    "LYMPHOCYTES",
+    "MONOCYTES",
+    "EOSINOPHILS",
+    "BASOPHILS",
+    "ABSOLUTE NEUTROPHILS",
+    "ABSOLUTE LYMPHOCYTES",
+    "ABSOLUTE MONOCYTES",
+    "ABSOLUTE EOSINOPHILS",
+    "ABSOLUTE BASOPHILS",
+)
+
+
 def data_dir() -> Path:
     override = __import__("os").environ.get("DATA_DIR", "").strip()
     if override:

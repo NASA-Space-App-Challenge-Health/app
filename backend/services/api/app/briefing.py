@@ -11,7 +11,7 @@ from app.access import ROLES, broadcasts, project_finding
 from app.body_map import REGIONS, region_status
 from app.guidance import DISCLAIMER, INDICATORS, get_indicator, guidance_for, worst_band
 from app.insights import extremes, flag_counts
-from app.nasa_loader import KEY_ANALYTES
+from app.nasa_loader import DIFFERENTIAL_ANALYTES, KEY_ANALYTES
 from app.rules_engine import (
     critical_glucose_alerts,
     load_rules,
@@ -321,13 +321,15 @@ def _crew_card(row, vitals, labs, viewer_sign, role, shares) -> dict[str, Any]:
             "bands": spec.band_public(),
         })
     lab_cards = _latest_labs(labs, row["call_sign"])
+    differential = _latest_labs(labs, row["call_sign"], DIFFERENTIAL_ANALYTES)
     if role != "flight_surgeon" and not (role == "self" and viewer_sign == row["call_sign"]):
         readings = [item for item in readings if item["indicator"] not in {"sleep_hours", "cortisol_ug_dl"}]
     if hidden and role == "crewmate":
         allowed = shares.get(row["call_sign"], set())
         readings = [item for item in readings if item["indicator"] in allowed]
         lab_cards = [item for item in lab_cards if item["analyte"] in allowed]
-        hidden = not readings and not lab_cards
+        differential = [item for item in differential if item["analyte"] in allowed]
+        hidden = not readings and not lab_cards and not differential
     bands = [item["risk_band"] for item in readings if item.get("risk_band")]
     bands.extend("concern" if item["flag"] in {"low", "high"} else "nominal" for item in lab_cards)
     return {
@@ -341,20 +343,21 @@ def _crew_card(row, vitals, labs, viewer_sign, role, shares) -> dict[str, Any]:
         "overall_band": None if hidden else worst_band(bands),
         "readings": None if hidden else readings,
         "labs": None if hidden else lab_cards,
+        "differential": None if hidden else differential,
         "research_label": "Released research data" if lab_cards else None,
     }
 
 
-def _latest_labs(labs, call_sign: str) -> list[dict[str, Any]]:
+def _latest_labs(labs, call_sign: str, analytes=KEY_ANALYTES) -> list[dict[str, Any]]:
     chosen: dict[str, Any] = {}
     for row in labs:
-        if row["crew_id"] != call_sign or row["analyte"] not in KEY_ANALYTES or row["value"] is None:
+        if row["crew_id"] != call_sign or row["analyte"] not in analytes or row["value"] is None:
             continue
         current = chosen.get(row["analyte"])
         if current is None or row["days_from_launch"] > current["days_from_launch"]:
             chosen[row["analyte"]] = row
     cards = []
-    for analyte in KEY_ANALYTES:
+    for analyte in analytes:
         row = chosen.get(analyte)
         if row is None:
             continue
