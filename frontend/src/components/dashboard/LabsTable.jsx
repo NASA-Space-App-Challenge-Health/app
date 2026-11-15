@@ -2,7 +2,8 @@ import Card from '../Card'
 import Chip from '../Chip'
 import { Empty } from '../StateView'
 import PrivacyNote from './PrivacyNote'
-import { flagKind, flagLabel, formatMeasurement, formatRange, safeArray } from './format'
+import MetricBar from './MetricBar'
+import { flagKind, flagLabel, formatMeasurement, formatRange, safeArray, bandsForLab } from './format'
 
 const DEFAULT_ORDER = ['GLUCOSE', 'HEMOGLOBIN', 'WHITE BLOOD CELL COUNT', 'PLATELET COUNT', 'POTASSIUM', 'SODIUM', 'CREATININE']
 
@@ -12,7 +13,7 @@ export default function LabsTable({
   labs,
   role,
   title = 'Released research labs',
-  subtitle = 'Inspiration4 CBC/CMP, de-identified by NASA. Not a diagnosis.',
+  subtitle = 'Released CBC/CMP lab rows, de-identified by NASA. Not a diagnosis.',
   analytes,
   emptyMessage = 'No lab rows for this crew member in the API response.',
 }) {
@@ -67,7 +68,20 @@ export default function LabsTable({
                     {formatMeasurement(lab.value)}
                     {lab.unit && <span className="ml-1 text-xs text-slate-400">{lab.unit}</span>}
                   </td>
-                  <td className="py-2 pr-4 text-slate-400">{formatRange(lab.ref_low, lab.ref_high)}</td>
+                  <td className="py-2 pr-4 text-slate-400">
+                    <span className="block">{formatRange(lab.ref_low, lab.ref_high)}</span>
+                    {lab.value != null && (
+                      <MetricBar
+                        value={lab.value}
+                        unit={lab.unit}
+                        bands={bandsForLab(lab)}
+                        kind={lab.flag === 'normal' ? 'nominal' : 'watch'}
+                        compact
+                        label={lab.analyte}
+                        className="mt-1 max-w-[150px]"
+                      />
+                    )}
+                  </td>
                   <td className="py-2 pr-4">
                     <Chip kind={flagKind(lab.flag)}>{flagLabel(lab.flag)}</Chip>
                   </td>

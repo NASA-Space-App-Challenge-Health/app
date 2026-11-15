@@ -45,7 +45,7 @@ emergency:
     dose_rate_at_least: 400
     sep_after_hours_max: 96
     public_title: Radiation contingency — follow procedures
-    public_detail: Radiation contingency. Follow procedures. This notice does not name a crew member or a diagnosis.
+    public_detail: Radiation contingency. A radiation spike was recorded by the vehicle monitor. Follow the contingency procedure and wait for the CMO instructions. No diagnosis is included.
     sources: [hrp_hazards, ochmo_tb_044, radlab_api, donki_sep_31338]
   heart_rate:
     tier: emergency

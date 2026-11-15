@@ -155,3 +155,18 @@ function formatEvidenceValue(key, value) {
   }
   return String(value)
 }
+
+// Reference ranges for a real NASA lab row are already printed in the data, so
+// the same bar can show where the measured value sits without inventing bands.
+export function bandsForLab(lab) {
+  const low = Number(lab?.ref_low)
+  const high = Number(lab?.ref_high)
+  if (!Number.isFinite(low) || !Number.isFinite(high) || high <= low) return null
+  const pad = (high - low) * 0.25
+  return {
+    physical: [low - pad, high + pad],
+    nominal: [low, high],
+    watch: [low - pad, high + pad],
+    label: 'NASA reference range printed on the lab row.',
+  }
+}

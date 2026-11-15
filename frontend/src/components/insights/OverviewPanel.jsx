@@ -75,7 +75,7 @@ export default function OverviewPanel({ data, crew, topics, only }) {
         <BigStat
           label="Lab rows"
           value={formatCount(overview.lab_rows)}
-          hint={`Inspiration4 CBC/CMP results across ${overview.timepoints ?? '—'} timepoints.`}
+          hint={`Released CBC/CMP results across ${overview.timepoints ?? '—'} timepoints.`}
         />
         <BigStat
           label="Analytes"

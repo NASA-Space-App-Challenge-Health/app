@@ -16,7 +16,7 @@ export default function Login() {
         <h1 className="text-2xl font-bold text-white">Crew access</h1>
         <p className="mt-1 text-xs text-slate-400">Tech &amp; Health Astronaut Intelligent System</p>
         <p className="mt-2 text-sm text-slate-400">
-          Biometric identification is simulated in this prototype. The board opens with the C001 view.
+          Simulated biometric access. The board opens with C001.
         </p>
         <button
           type="button"
