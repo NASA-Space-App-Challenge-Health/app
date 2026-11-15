@@ -136,13 +136,18 @@ export default function Dashboard() {
 
           <NextAction recommendations={data?.recommendations ?? []} />
         </div>
+
+        {alerts.length > 0 && (
+          <div id="alerts" className="mt-5 scroll-mt-24 space-y-3 border-t border-white/10 pt-4">
+            {alerts.map((alert) => (
+              <AlertCard key={alert.id ?? alert.title} alert={alert} embedded />
+            ))}
+          </div>
+        )}
       </section>
 
       <nav aria-label="On this page" className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-panel/60 px-3 py-2 text-xs">
         <span className="font-semibold uppercase tracking-wide text-slate-500">Jump to</span>
-        <a href="#alerts" className="rounded-lg border border-white/10 px-3 py-1.5 text-slate-300 hover:border-cyan-500/40 hover:text-cyan-200">
-          Alerts
-        </a>
         <a href="#systems" className="rounded-lg border border-white/10 px-3 py-1.5 text-slate-300 hover:border-cyan-500/40 hover:text-cyan-200">
           Systems
         </a>
@@ -156,12 +161,6 @@ export default function Dashboard() {
           Role {roleLabel}: this crew member&apos;s vitals and labs are hidden. Crew-wide notices stay visible.
         </Callout>
       )}
-
-      <div id="alerts" className="scroll-mt-24 space-y-4">
-        {alerts.map((alert) => (
-          <AlertCard key={alert.id ?? alert.title} alert={alert} />
-        ))}
-      </div>
 
       <div id="systems" className="scroll-mt-24">
         <SystemCards member={member} radiation={data?.radiation} visible={visible} />

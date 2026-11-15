@@ -85,3 +85,4 @@ mudar o nome da descrição do site (a tab tá aparecendo o nome todo, deixa só
 
 Faz uma sessão ""About us"" com o link dos nossos perfis do github e para o repo",2026-11-15T18:28:00-03:00,unavailable,760
 Move About us from the footer into an expandable sidebar section,"o About Us deve ficar na barra lateral né, não embaixo de tudo",2026-11-15T18:40:00-03:00,unavailable,360
+Embed the alert card inside the Overview hero and remove the separate alert section,"tenta enquadrar o card do alerta dentro do outro ali na imagem, aí simplificamos melhor a aplicação",2026-11-15T18:52:00-03:00,unavailable,420
