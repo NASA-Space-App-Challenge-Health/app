@@ -146,3 +146,80 @@ Adicionar em `reading` (dashboard e category) e um teste no backend. Labs já t�
 - Barras de percentual sem unidade real (Balance 99%, Concentration 95%).
 
 Esses itens são bonitos no mock, mas criam afirmações clínicas ou operacionais que o dado não sustenta.
+
+---
+
+## 12. Orçamento de informação — v3.1 (máximo 20)
+
+Princípio: **Overview é triagem**. Cada item tem que responder "estou bem?" ou "o que faço agora?". Detalhe (todas as variáveis, gráficos, evidência) fica na página da categoria.
+
+### Contagem de hoje
+
+| Bloco | Itens visíveis |
+|---|---|
+| Alerta de emergência | 1 |
+| Status das 4 pessoas | 4 |
+| Cards de sistema (linhas + contagens) | 8 linhas + 4 contagens |
+| Tabela de labs | 7 linhas |
+| Body map | 7 regiões |
+| Higiene | 3 pessoas + conflitos |
+| Recomendações | 2 |
+| **Total aproximado** | **~34** |
+
+Isso explica a repetição: potássio e glicose aparecem no card Blood **e** na tabela de labs; as 7 regiões do body map repetem o que as páginas de categoria já dizem.
+
+### Proposta v3.1 — 20 itens
+
+| # | Informação | Tipo | Onde fica |
+|---|---|---|---|
+| 1 | Status geral (Nominal/Monitor/Attention) | resumo | hero |
+| 2 | Alertas ativos (1) | resumo | hero/alerta |
+| 3 | Sleep | POC | card Brain |
+| 4 | Cortisol | POC | card Brain |
+| 5 | Contagem Brain ("2 POC") | resumo | card Brain |
+| 6 | Heart rate | POC | card Blood |
+| 7 | SpO₂ | POC | card Blood |
+| 8 | Potassium (real) | real | card Blood |
+| 9 | Contagem Blood ("3 of 3 in range") | resumo | card Blood |
+| 10 | Body temperature | POC | card Radiation |
+| 11 | Radiation peak (real) | real | card Radiation |
+| 12 | Contagem Radiation ("1 emergency") | resumo | card Radiation |
+| 13 | Muscles & bones: sem medição | estado honesto | card Muscles |
+| 14 | Resumo de labs: "7/7 in range" | resumo | faixa de labs |
+| 15 | Body map: "2 regiões para observar" | resumo | body map |
+| 16 | Recomendação 1 | resumo | recommendations |
+| 17 | Recomendação 2 | resumo | recommendations |
+| 18 | Última coleta (R+194) | contexto | hero/faixa |
+| 19 | Última atualização POC | contexto | hero/faixa |
+| 20 | Alerta ativo (texto e CTA) | resumo | faixa de alerta |
+
+### O que sai do Overview (e vai para a categoria)
+
+- **Tabela de 7 labs** → vira um resumo "7/7 labs in range" + link para Blood & heart; as 7 linhas completas ficam na categoria.
+- **Glicose** no card Blood → fica só potássio (caso real de hipocalemia); glicose continua a um clique.
+- **7 chips do body map** → vira "2 regiões para observar" com mapa clicável; detalhe na categoria.
+- **Higiene** (logística simulada) → sai do Overview; não é variável de saúde. Pode virar link no card de recomendações ou ficar no demo.
+- **Status individual das 4 pessoas** → vira seletor de crew (navegação), não informação clínica.
+
+### Regra para o futuro
+
+- **1 entra, 1 sai**: qualquer novo número no Overview precisa remover outro.
+- Nada de variável duplicada em dois blocos (ex.: K no card e na tabela).
+- Toda linha tem barra de faixa + status + proveniência; toda contagem é de dados reais, sem score.
+
+### Wireframe v3.1
+
+```
+[HERO: avatar · C003 · NOMINAL · 1 alerta · última coleta R+194 · última POC 22:18]
+[JUMP TO: Alerts · Systems · Help · Labs · Body map · Recommendations]
+[ALERTA ativo — CTA]
+[SYSTEMS — 4 cards]
+  Brain 2 POC: Sleep 7.0h ▓ | Cortisol 13.0 ▓
+  Blood 3/3: HR 73 ▓ | SpO2 98 ▓ | K 3.8 ▓ (real)
+  Radiation: Temp 36.5 ▓ | Peak 528.5 (real) | 1 emergency
+  Muscles: sem medição real
+[LABS: 7/7 in range → abrir Blood & heart]
+[BODY MAP: 2 regiões para observar → abrir detalhe]
+[RECOMMENDATIONS: 2 cards]
+[HELP]
+```
