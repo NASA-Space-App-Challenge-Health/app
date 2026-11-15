@@ -101,27 +101,49 @@ export default function Dashboard() {
         </div>
       </section>
 
+      <nav aria-label="On this page" className="flex flex-wrap items-center gap-2 rounded-xl border border-white/10 bg-panel/60 px-3 py-2 text-[11px]">
+        <span className="font-semibold uppercase tracking-wide text-slate-500">Jump to</span>
+        {[
+          ['#alerts', 'Alerts'],
+          ['#vitals', 'Vitals'],
+          ['#help-panel', 'Help'],
+          ['#labs', 'Labs'],
+          ['#body-map', 'Body map'],
+          ['#recommendations', 'Recommendations'],
+        ].map(([href, label]) => (
+          <a key={href} href={href} className="rounded-lg border border-white/10 px-2 py-1 text-slate-300 hover:border-cyan-500/40 hover:text-cyan-200">
+            {label}
+          </a>
+        ))}
+      </nav>
+
       {!visible && (
         <Callout tone="warn">
           Role {roleLabel}: this crew member&apos;s vitals and labs are hidden. Crew-wide notices stay visible.
         </Callout>
       )}
 
-      {alerts.map((alert) => (
-        <AlertCard key={alert.id ?? alert.title} alert={alert} />
-      ))}
+      <div id="alerts" className="scroll-mt-24 space-y-4">
+        {alerts.map((alert) => (
+          <AlertCard key={alert.id ?? alert.title} alert={alert} />
+        ))}
+      </div>
 
       <CrewRow crew={crew} selected={viewer} onSelect={setViewer} />
 
-      <VitalsGrid readings={member.readings} role={role} title="Vitals" subtitle="Simulated estimates, labelled one by one." />
+      <div id="vitals" className="scroll-mt-24">
+        <VitalsGrid readings={member.readings} role={role} title="Vitals" subtitle="Simulated estimates, labelled one by one." />
+      </div>
 
       <div id="help-panel" className="scroll-mt-24">
         <HelpPanel />
       </div>
 
-      <LabsTable labs={member.labs} role={role} />
+      <div id="labs" className="scroll-mt-24">
+        <LabsTable labs={member.labs} role={role} />
+      </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div id="body-map" className="grid scroll-mt-24 gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2">
           <BodyMap
             body={dashboard?.body}
@@ -131,7 +153,9 @@ export default function Dashboard() {
         </div>
         <div className="space-y-6">
           <HygieneCard hygiene={dashboard?.hygiene} viewer={viewer} />
-          <RecommendationPreview recommendations={data?.recommendations} />
+          <div id="recommendations" className="scroll-mt-24">
+            <RecommendationPreview recommendations={data?.recommendations} />
+          </div>
         </div>
       </div>
 
