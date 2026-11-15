@@ -36,18 +36,10 @@ export default function Demo() {
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Guided demo</p>
-        <h1 className="mt-1 text-2xl font-bold text-white">Four steps, two real NASA records</h1>
+        <h1 className="text-2xl font-bold text-white">Guided demo</h1>
         <p className="mt-1 max-w-3xl text-sm text-slate-400">
-          Each step is generated from the rules the API ships. Emergency notices reach the whole crew; preventive
-          cards stay with the CMO and the flight surgeon.
+          Four steps through the role rules and the recorded NASA data.
         </p>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
-          <Chip kind="real">Real NASA</Chip>
-          <span>RadLab DosTel + DONKI SEP + OSDR labs (OSD-569/575/656)</span>
-          <Chip kind="simulated">Simulated</Chip>
-          <span>Vitals and hygiene are POC, not NASA measurements</span>
-        </div>
       </header>
 
       <ol className="flex flex-wrap gap-2" aria-label="Demo steps">

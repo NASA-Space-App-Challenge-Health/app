@@ -57,7 +57,7 @@ const CATEGORIES = {
   heart: {
     id: 'heart',
     title: 'Blood & heart',
-    purpose: 'Heart rate, oxygen, the Inspiration4 blood panel, and a glucose forecast.',
+    purpose: 'Heart rate, oxygen, the released blood panel, and a glucose forecast.',
     icon: HeartPulse,
   },
   radiation: {
@@ -139,7 +139,7 @@ function GlucoseChart({ trends, viewer }) {
 
   if (data.length === 0 || traces.length === 0) {
     return (
-      <Card title="Glucose across the crew" subtitle="Inspiration4 OSD-575 draws.">
+      <Card title="Glucose across the crew" subtitle="Released OSD-575 draws.">
         <Empty>No glucose traces returned by the API.</Empty>
       </Card>
     )
@@ -305,7 +305,7 @@ function HeartSection({ member, role, viewer, data }) {
         role={role}
         analytes={HEART_LAB_ANALYTES}
         title="Blood panel"
-        subtitle="Inspiration4 CBC/CMP, de-identified. Reference ranges come from the NASA rows."
+        subtitle="Released CBC/CMP, de-identified. Reference ranges come from the NASA rows."
         emptyMessage="No haemoglobin, white-cell, platelet, or glucose rows for this crew member."
       />
 

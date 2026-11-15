@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react'
 import { api } from '../api'
-import Chip from '../components/Chip'
 import { ErrorState, Loading } from '../components/StateView'
 import FilterBar from '../components/insights/FilterBar'
 import LabsPanel from '../components/insights/LabsPanel'
@@ -75,19 +74,7 @@ export default function Insights() {
   return (
     <div className="space-y-5">
       <header>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
-          Data insights
-        </p>
-        <h1 className="mt-1 text-2xl font-bold text-white">Plain answers from real NASA data</h1>
-        <p className="mt-1 max-w-3xl text-sm text-slate-400">
-          Every number is labelled real or simulated, and every card links to its NASA source.
-        </p>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
-          <Chip kind="real">Real NASA data</Chip>
-          <span>OSDR labs (OSD-569/575/656) · RadLab DosTel · DONKI SEP</span>
-          <Chip kind="simulated">Simulated</Chip>
-          <span>Shown only where a card says so (POC, not NASA measurements)</span>
-        </div>
+        <h1 className="text-2xl font-bold text-white">Data insights</h1>
       </header>
 
       <FilterBar

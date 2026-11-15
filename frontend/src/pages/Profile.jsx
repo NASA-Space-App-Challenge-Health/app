@@ -27,10 +27,9 @@ export default function Profile() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Crew profile</p>
-          <h1 className="mt-1 text-2xl font-bold text-white">{member.full_name}</h1>
+          <h1 className="text-2xl font-bold text-white">Crew profile</h1>
           <p className="text-sm text-slate-400">
-            {member.role_title} · {member.mission}
+            {member.call_sign} · {member.role_title}
           </p>
         </div>
         <Chip kind={member.is_cmo ? 'real' : 'neutral'}>{member.is_cmo ? 'CMO' : 'Crew member'}</Chip>
@@ -39,9 +38,8 @@ export default function Profile() {
       {!visible && (
         <Card title="This panel is private in the current role" subtitle="OCHMO privacy demo">
           <p className="text-sm text-slate-300">
-            A crewmate sees the full board only for themselves, the CMOs, and the flight surgeon. Switch the role in
-            the header to <strong>Self</strong> or <strong>CMO</strong> to read the numbers, or stay here to confirm
-            that the private panel stays hidden.
+            Switch to <strong>Self</strong>, <strong>CMO</strong> or <strong>Flight surgeon</strong> in the header to
+            read the measurements.
           </p>
         </Card>
       )}
@@ -49,7 +47,7 @@ export default function Profile() {
       {visible && (
         <Card
           title="Released research labs"
-          subtitle="Inspiration4 CBC/CMP, de-identified by NASA. Not a diagnosis."
+          subtitle="Released CBC/CMP lab rows, de-identified by NASA. Not a diagnosis."
           action={<Chip kind="real">Real NASA</Chip>}
         >
           {labs.length === 0 ? (

@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { ArrowRight, Gauge, PhoneCall, Radiation } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { ROLES, api } from '../api'
+import { api } from '../api'
 import AstronautAvatar from '../components/AstronautAvatar'
 import Card from '../components/Card'
 import Chip, { OriginChip } from '../components/Chip'
@@ -180,7 +180,6 @@ export default function Status() {
   const member = crew.find((item) => item.call_sign === viewer) ?? crew[0] ?? null
   if (!member) return <Empty>The API returned no crew member for {viewer}.</Empty>
 
-  const roleLabel = ROLES.find((item) => item.id === role)?.label ?? role
   const visible = member.visible === 'full'
   const alerts = dashboard?.alerts ?? []
   const readings = member.readings ?? []
@@ -204,7 +203,6 @@ export default function Status() {
     .filter((reading) => reading.recorded_at)
     .sort((a, b) => String(b.recorded_at).localeCompare(String(a.recorded_at)))[0]
   const lastLab = labPriorityLabel(labs)
-  const mission = member.mission ?? dashboard?.group?.name ?? 'Inspiration4 open data'
 
   const peak = radiation?.peak
   const nextSep = (radiation?.sep_after_peak ?? [])[0]
@@ -244,9 +242,7 @@ export default function Status() {
           <div className="flex flex-col items-center text-center">
             <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Astronaut profile</p>
             <AstronautAvatar size={92} className="mt-3" />
-            <h1 className="mt-3 text-xl font-bold leading-tight text-white">{member.call_sign}</h1>
-            <p className="text-sm text-slate-300">{member.full_name}</p>
-            <p className="mt-0.5 text-[11px] text-slate-500">{member.role_title ?? 'Crew member'}</p>
+            <h1 className="mt-3 text-2xl font-bold leading-tight text-white">{member.call_sign}</h1>
             <div className="mt-3 flex flex-wrap justify-center gap-1.5">
               <Chip kind={overallKind}>{overallLabel}</Chip>
               {emergency && <Chip kind="emergency">Emergency notice</Chip>}
@@ -255,14 +251,6 @@ export default function Status() {
           </div>
 
           <dl className="mt-5 space-y-2 border-t border-white/10 pt-4 text-[11px]">
-            <div className="flex items-baseline justify-between gap-2">
-              <dt className="text-slate-500">Mission</dt>
-              <dd className="text-right text-slate-200">{mission}</dd>
-            </div>
-            <div className="flex items-baseline justify-between gap-2">
-              <dt className="text-slate-500">Viewing as</dt>
-              <dd className="text-right text-slate-200">{roleLabel}</dd>
-            </div>
             <div className="flex items-baseline justify-between gap-2">
               <dt className="text-slate-500">Last lab draw</dt>
               <dd className="text-right text-slate-200">{visible ? lastLab : 'Private'}</dd>
@@ -297,20 +285,6 @@ export default function Status() {
           </div>
         </Card>
 
-        <Card className="hidden xl:block">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">How to read this</p>
-          <p className="mt-1 text-xs leading-relaxed text-slate-400">
-            Big numbers first: real NASA lab rows keep their printed range and source; simulated POC vitals stay
-            marked. For charts, evidence and role detail, open the board.
-          </p>
-          <Link
-            to="/dashboard"
-            className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-accent hover:text-cyan-200"
-          >
-            Open the detailed board
-            <ArrowRight size={13} aria-hidden="true" />
-          </Link>
-        </Card>
       </aside>
 
       <div className="min-w-0 space-y-6">
@@ -330,8 +304,8 @@ export default function Status() {
               <h2 className="mt-1 text-xl font-bold text-white">{overallLabel}</h2>
               <p className="mt-1 max-w-2xl text-xs leading-relaxed text-slate-400">
                 {visible
-                  ? 'Real NASA lab rows and simulated POC vitals, read in one place. The ring counts released lab rows, not a medical score.'
-                  : 'Personal measurements are hidden for this role. Crew-wide notices and the vehicle radiation record stay visible.'}
+                  ? 'Real NASA lab rows and POC vitals. The ring counts released lab rows, not a medical score.'
+                  : 'Personal measurements are hidden; crew-wide notices and the vehicle record stay visible.'}
               </p>
               <dl className="mt-3 grid gap-3 sm:grid-cols-3">
                 <div>
@@ -385,7 +359,7 @@ export default function Status() {
         {visible && (
           <BigSection
             title="Real NASA measurements"
-            subtitle="The latest released Inspiration4 draw (R+194). Ranges are the ones printed on the NASA rows."
+            subtitle="The latest released draw (R+194). Ranges are printed on the NASA rows."
             action={<Chip kind="real">Real NASA · OSDR</Chip>}
           >
             <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
