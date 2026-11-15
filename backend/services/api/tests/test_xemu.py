@@ -53,6 +53,37 @@ class XemuApiTests(unittest.TestCase):
     def tearDownClass(cls):
         cls._client.__exit__(None, None, None)
 
+    def test_history_returns_the_stored_suit_samples(self):
+        from app import db, xemu
+        from app.main import history as history_fn  # noqa: F401
+
+        original = xemu._sensors
+        xemu._sensors = lambda: {"fc_bpm": 74, "spo2": 97, "co2_percentual": 0.4}
+        ids = []
+        try:
+            first = self.client.post("/api/suit-sensors", params={"crew": "C001"})
+            second = self.client.post("/api/suit-sensors", params={"crew": "C001"})
+        finally:
+            xemu._sensors = original
+        for response in (first, second):
+            self.assertEqual(response.status_code, 200, response.text)
+            ids.extend(item["id"] for item in response.json()["readings"])
+        try:
+            response = self.client.get("/api/suit-sensors/history", params={"crew": "C001", "limit": 5})
+            self.assertEqual(response.status_code, 200, response.text)
+            body = response.json()
+            self.assertEqual(body["origin"], "simulated")
+            self.assertGreaterEqual(body["count"], 2)
+            sample = body["samples"][-1]
+            self.assertEqual(sample["heart_rate_bpm"], 74.0)
+            self.assertEqual(sample["spo2_percent"], 97.0)
+            self.assertFalse(sample["heart_rate_emergency"])
+            self.assertIn("recorded_at", sample)
+        finally:
+            with db.connect() as conn:
+                conn.execute("DELETE FROM health_readings WHERE id = ANY(%s::uuid[])", (ids,))
+                conn.commit()
+
     def test_post_stores_a_simulated_suit_sample(self):
         from app import xemu
 

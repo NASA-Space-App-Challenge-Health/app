@@ -161,3 +161,59 @@ def record_sample(conn, call_sign: str, sample: dict[str, Any] | None = None) ->
     summary["crew_id"] = member["call_sign"]
     summary["readings"] = stored
     return summary
+
+def history(conn, call_sign: str, limit: int = 20) -> dict[str, Any]:
+    """Last N stored xEMU samples for one crew member.
+
+    A sample is the three indicator rows written with the same recorded_at
+    timestamp by record_sample(). Seed rows are ignored unless they happen to
+    share that exact timestamp with a heart-rate row.
+    """
+    limit = max(1, min(int(limit), 50))
+    sign = call_sign.strip().upper()
+    member = conn.execute(
+        "SELECT id, call_sign FROM crew_members WHERE call_sign = %s",
+        (sign,),
+    ).fetchone()
+    if member is None:
+        raise NotFoundError("Crew member not found")
+    rows = conn.execute(
+        """
+        SELECT recorded_at, indicator, value_numeric
+        FROM health_readings
+        WHERE crew_member_id = %s
+          AND indicator IN ('heart_rate', 'spo2', 'cabin_co2_mmhg')
+        ORDER BY recorded_at DESC
+        LIMIT %s
+        """,
+        (member["id"], limit * 6),
+    ).fetchall()
+    grouped: dict[Any, dict[str, float]] = {}
+    for row in rows:
+        grouped.setdefault(row["recorded_at"], {})[row["indicator"]] = float(row["value_numeric"])
+
+    rules = load_rules()
+    hr_spec = rules["emergency"]["heart_rate"]
+    samples = []
+    for recorded_at, values in sorted(grouped.items(), reverse=True):
+        if not {"heart_rate", "spo2", "cabin_co2_mmhg"} <= set(values):
+            continue
+        hr = values["heart_rate"]
+        co2 = values["cabin_co2_mmhg"]
+        samples.append({
+            "recorded_at": recorded_at.isoformat(),
+            "heart_rate_bpm": hr,
+            "spo2_percent": values["spo2"],
+            "co2_mmhg": co2,
+            "co2_above_habitat_limit": co2 > CO2_LIMIT_MMHG,
+            "heart_rate_emergency": hr < float(hr_spec["low"]) or hr > float(hr_spec["high"]),
+        })
+        if len(samples) >= limit:
+            break
+    samples.reverse()
+    return {
+        "origin": "simulated",
+        "label": "Simulated xEMU suit samples stored in Postgres. Not NASA measurements.",
+        "count": len(samples),
+        "samples": samples,
+    }

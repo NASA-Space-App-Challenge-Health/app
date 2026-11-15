@@ -86,6 +86,9 @@ export const api = {
   radiationAlert: ({ at, viewer, role } = {}) =>
     getJSON(`/api/radiation/alert${query({ at, viewer, role })}`),
 
+  suitSensor: ({ crew } = {}) => postJSON(`/api/suit-sensors${query({ crew })}`),
+  suitHistory: ({ crew, limit } = {}) => getJSON(`/api/suit-sensors/history${query({ crew, limit })}`),
+
   helpRequests: ({ viewer, role } = {}) => getJSON(`/api/help-requests${query({ viewer, role })}`),
   createHelpRequest: (payload) => postJSON('/api/help-requests', payload),
   acceptHelpRequest: (requestId, { crew }) => postJSON(`/api/help-requests/${requestId}/accept`, { crew }),

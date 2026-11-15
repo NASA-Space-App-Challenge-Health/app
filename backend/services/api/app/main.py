@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app import db, eda_queries, help as help_loop, predict_queries, replay
 from app.guidance import DISCLAIMER, IndicatorError
+from app.xemu import history
 from app.repository import (
     ConflictError,
     NotFoundError,
@@ -373,6 +374,16 @@ def post_suit_sensors(crew: str = "C001") -> dict:
     except NotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     return body
+
+
+@app.get("/api/suit-sensors/history")
+def get_suit_sensor_history(crew: str = "C001", limit: int = 20) -> dict:
+    """Last stored xEMU samples for one crew member."""
+    try:
+        with db.connect() as conn:
+            return history(conn, crew, limit)
+    except NotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @app.post("/api/uploads")
