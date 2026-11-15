@@ -31,12 +31,28 @@ Software for Astronauts on Space Missions*).
   events for 2024.
 - **Simulated and labelled:** heart rate, SpO2, cabin CO2, temperature, sleep,
   cortisol, hydration, hygiene timing.
-- **OCHMO privacy roles:** a crewmate gets a generic emergency notice only; the
-  CMO and flight surgeon get the numbers. Potassium and cortisol never broadcast.
+- **OCHMO (Office of the Chief Health and Medical Officer) privacy roles:** a
+  crewmate gets a generic emergency notice only; the CMO (Crew Medical Officer)
+  and the flight surgeon get the numbers. Potassium and cortisol never broadcast.
 - **Plain language:** every chart has a one-line takeaway and a link to the NASA
   source it uses; there is no diagnosis anywhere.
 - **Forecasts state their uncertainty:** straight-line fits on 7 draws, 95%
   prediction intervals, and an explicit "not a physiological model" note.
+
+## Paper / pitch (Data & Methods)
+
+The article submitted later uses [../methodology.md](../methodology.md):
+
+- §7 is the reference table: OSD-569/575/656 (NASA OSDR), RadLab, DONKI, HRP,
+  OCHMO-TB-044/004, NASA-STD-3001, CSA, NTRS 20140003748 / Moore et al. 2014,
+  SPRINT, Law et al. 2014.
+- §8 is a paper-ready **Data & Methods** text in English that matches the code
+  (projection formulas, rule tiers, privacy, limitations).
+- [../glossary.md](../glossary.md) expands every acronym (CMO, OCHMO, OSDR, SEP…)
+  for the team and for reviewers.
+- What is **not** in the product and must stay out of the paper's claims:
+  VO₂/Sprint integration, exercise-phase awareness, offline/two-screen demo,
+  help request→accept cycle, pgvector/Redis.
 
 ## Environment
 

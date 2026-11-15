@@ -55,16 +55,20 @@ home. That variant is not built.
 | `/profile` | Crew profile and the released research labs for the selected member. |
 
 The header selects **viewer** (C001–C004) and **role** (self, CMO, flight
-surgeon, crewmate, commander). That is the OCHMO privacy demo: a crewmate sees a
-generic emergency notice only; potassium and cortisol stay with the flight
-surgeon.
+surgeon, crewmate, commander). That is the OCHMO (Office of the Chief Health and
+Medical Officer) privacy demo: a crewmate sees a generic emergency notice only;
+potassium and cortisol stay with the flight surgeon. CMO is the Crew Medical
+Officer (the crew's own designated medic); the flight surgeon is on the ground.
+See [docs/glossary.md](docs/glossary.md) for every acronym used here.
 
 ## Real vs simulated
 
 - **Real NASA**, badged on screen: Inspiration4 CBC/CMP (`labs_long.csv`, OSD-569
-  and OSD-575), urine cytokine rows (OSD-656), one week of ISS DosTel rates
-  (`radiation_iss.csv`), and 2024 DONKI SEP events (`donki_sep.csv`). The
-  manifest is `data/datasets.csv`.
+  and OSD-575 — study IDs from the NASA Open Science Data Repository, OSDR),
+  urine cytokine rows (OSD-656), one week of ISS DosTel (dosimetry instrument)
+  rates from NASA RadLab (`radiation_iss.csv`), and 119 solar energetic particle
+  (SEP) events for 2024 from NASA DONKI (`donki_sep.csv`). The manifest is
+  `data/datasets.csv`.
 - **Simulated**, badged on screen: heart rate, SpO2, cabin CO2, body
   temperature, sleep, cortisol, hydration, and hygiene-station timing. Those
   series are not in the public tables.
@@ -178,8 +182,11 @@ three-day flight, one ISS DosTel week in June 2024 (a vehicle measurement, not a
 personal dosimeter), and 119 DONKI SEP rows for 2024. There is no in-flight
 blood draw and no continuous crew vitals in the public tables. Risk cutoffs in
 `backend/services/api/rules/rules.yaml` are app settings, not flight-surgeon
-limits. Read [data/README.md](data/README.md), [docs/eda.md](docs/eda.md), and
-[docs/predictive.md](docs/predictive.md) for the numbers and the methods.
+limits. Read [data/README.md](data/README.md), [docs/eda.md](docs/eda.md),
+[docs/predictive.md](docs/predictive.md), and
+[docs/methodology.md](docs/methodology.md) for the numbers, the data
+manipulations, the rules, the references, and a paper-ready "Data & Methods"
+block (English).
 
 ## Layout
 

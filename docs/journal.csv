@@ -32,3 +32,6 @@ Take before/after screenshots of each screen. Open ONE PR, don't merge, and repo
 "Ship the React board on the real API, restore insights, fix CI/Vercel, deploy to production","no caso, estávamos trabalhando em cima do repo/org https://github.com/NASA-Space-App-Challenge-Health, leia ele para se contextualizar
 bora conversar e alinhar isso rapidinho então",2026-11-14T19:56:29-03:00,unavailable,3044
 "Consolidate docs/deploy paths, clean dead files, add the submission kit (script, one-pager, cover)","now simplify and organize the repo and after that, continue with the next steps",2026-11-14T20:15:39-03:00,unavailable,338
+Add glossary and a data/methods reference doc for Ricardo and the pitch article,"adiciona um sumario falando sobre essas siglas e outras nomenclaturas em algum canto/doc ou coloca a sigla em parênteses depois pra ficar claro para todos.
+
+Gostaria que você fizesse um doc pro Ricardo falando sobre quais manipulações fizemos nas bases de dados (e quais usamos) no projeto em prod para fazer as projeções, que metodologias/artigos utilizamos para realizar as indicações, gerar os alertas, etc. Lembra que vamos colcoar no artigo do pitch isso para submeter na NASA mais adiante e precisa tá no pitch também.",2026-11-15T11:58:02-03:00,unavailable,1050
