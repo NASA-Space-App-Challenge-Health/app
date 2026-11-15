@@ -13,6 +13,47 @@ guided demo walks a real emergency alert and a real preventive recommendation,
 each with the NASA page it uses. A plain-language insights page turns the same
 tables into short takeaways for non-clinicians.
 
+**Live demo:** <https://nasa-health-app.vercel.app> · **Code:** <https://github.com/NASA-Space-App-Challenge-Health/app>
+
+## Problem
+
+An astronaut or a flight surgeon has to answer two questions fast: **am I safe now?** and **what do I do next?** The public record is fragmented — lab results arrive as research tables, radiation comes from one instrument, solar events from another, and the open Inspiration4 package has no continuous in-flight vitals. A dashboard that hides where a number came from, or invents a composite health score, is worse than useless in operations.
+
+## Solution
+
+T.H.A.I.S. is a station-first health board that joins **real NASA records** (Inspiration4 CBC/CMP labs from OSD-569/575/656, the ISS DosTel week from RadLab, and 2024 DONKI SEP events) with a **clearly-labelled simulated POC layer** for vitals the public data does not contain. Every number keeps its Real NASA / Simulated tag; an emergency reaches the whole crew as a generic broadcast while the CMO and flight surgeon see the evidence; the real DosTel week can be replayed and fires the rule at the recorded crossing; and the help loop lets a crewmate ask and another accept. A 3-second **Health status** page answers "am I OK?" while the category pages carry the detail.
+
+## Who it is for
+
+- **Crew on the station** — glanceable status, one next action, one request-help path.
+- **CMO and flight surgeon in operations** — evidence, dose records and role-filtered detail.
+- **Mission support and reviewers** — reproducible data provenance and a judge-ready demo.
+
+## Team
+
+| Member | Contribution | GitHub |
+| --- | --- | --- |
+| Felipe Gabriel | Lead: backend, integration, deployment | [@FG-SC](https://github.com/FG-SC) |
+| Alisson Ricardo | Frontend/UX, device and offline path | [@engenheiro-ally](https://github.com/engenheiro-ally) |
+| Joaquim Barreto | Data sources, research, video story | [@engjoaquimbarreto-source](https://github.com/engjoaquimbarreto-source) |
+| Milena | Recording and presentation support | — |
+| Amanda | Design reference | — |
+
+## References
+
+- NASA Space Apps Challenge 2026 — [Create Health Monitoring Software for Astronauts on Space Missions](https://www.spaceappschallenge.org/2026/challenges/health-monitoring-software/)
+- NASA OSDR — [OSD-569 Inspiration4 whole-blood CBC](https://osdr.nasa.gov/bio/repo/data/studies/OSD-569/), [OSD-575 Inspiration4 serum metabolic panel](https://osdr.nasa.gov/bio/repo/data/studies/OSD-575), [OSD-656 Inspiration4 urine cytokines](https://osdr.nasa.gov/bio/repo/data/studies/OSD-656)
+- NASA RadLab — [Data API](https://visualization.osdr.nasa.gov/radlab/gui/data-api/)
+- NASA DONKI — [SEP events](https://ccmc.gsfc.nasa.gov/DONKI/)
+- NASA OCHMO — [OCHMO-TB-044 Medical Operations](https://www.nasa.gov/wp-content/uploads/2025/08/ochmo-tb-044-medical-operations.pdf)
+- NASA HRP — [5 Hazards of Human Spaceflight](https://www.nasa.gov/hrp/hazards/)
+- CSA — [How space affects the human body](https://www.asc-csa.gc.ca/eng/multimedia/search/image/8056)
+- Wikimedia Commons — [Human silhouette gender neutral front](https://commons.wikimedia.org/wiki/File:Human_silhouette_gender_neutral_front.svg) (CC0, used for the interactive body map)
+- Project baseline — [T.H.A.I.S. v1 paper (PDF)](docs/baseline-v1-thais.pdf) and [evolution notes](docs/evolution-v1-v2.md)
+- Full data and methods — [docs/methodology.md](docs/methodology.md), [docs/eda.md](docs/eda.md), [docs/predictive.md](docs/predictive.md)
+
+---
+
 The scientific baseline of the first version (edge-first architecture, local
 database, DTN, HUD) and the changes that produced this version are documented in
 [docs/evolution-v1-v2.md](docs/evolution-v1-v2.md). Every acronym is expanded in
@@ -65,6 +106,7 @@ home. That variant is not built.
 | `/dashboard/muscles` | Honest empty panel: the package has no measured bone or muscle values. |
 | `/insights` | Plain-language data insights with filters (crew, topic, view, out-of-range). |
 | `/demo` | Guided four-step demo: privacy, radiation emergency, potassium prevention, what is still simulated. |
+| `/status` | Big-number health status: real lab markers, vehicle radiation, POC vitals and one next action. |
 | `/profile` | Crew profile and the released research labs for the selected member. |
 
 The header selects **viewer** (C001–C004) and **role** (self, CMO, flight

@@ -9,8 +9,7 @@ import { Link } from 'react-router-dom'
 // the matching system page.
 
 const POSITIONS = {
-  head: { top: '13%', left: '50%' },
-  eyes: { top: '17%', left: '50%' },
+  head: { top: '11%', left: '50%' },
   heart: { top: '36%', left: '50%' },
   blood: { top: '45%', left: '27%' },
   muscles: { top: '65%', left: '42%' },
@@ -20,7 +19,6 @@ const POSITIONS = {
 
 const REGION_META = {
   head: { label: 'Head', to: '/dashboard/brain', target: 'Brain & balance' },
-  eyes: { label: 'Eyes', to: '/dashboard/brain', target: 'Brain & balance' },
   heart: { label: 'Heart and vessels', to: '/dashboard/heart', target: 'Blood & heart' },
   blood: { label: 'Blood', to: '/dashboard/heart', target: 'Blood & heart' },
   muscles: { label: 'Muscles', to: '/dashboard/muscles', target: 'Muscles & bones' },
@@ -69,6 +67,16 @@ export default function AstronautBody({ regions = [] }) {
           transform="translate(-5 -20.526)"
         />
 
+        {/* bald head, same CC0 base path */}
+        <path
+          d="M79 59.397c-3.914 0-7.324-2.644-10.175-5.115-.86-.746-1.197-4.034-1.914-4.866-.748.224-2.416-.196-2.946-1.32-.736-1.56-2.257-4.293-2.194-7.266.03-1.354.961-3.111 2.909-3.104-.284-9.913 5.816-16.699 14.317-16.7 8.5 0 14.6 6.786 14.319 16.7 1.947-.009 2.88 1.748 2.909 3.103.063 2.973-1.457 5.705-2.193 7.266-.53 1.124-2.199 1.544-2.946 1.32-.717.833-1.053 4.12-1.914 4.866-2.85 2.472-6.26 5.116-10.173 5.117-3.914 0-7.323-2.645-10.173-5.117-.86-.746-1.197-4.033-1.914-4.866-.747.224-2.415-.196-2.946-1.32-.735-1.56-2.256-4.293-2.192-7.266.029-1.355.96-3.112 2.908-3.104-.282-9.913 5.819-16.699 14.32-16.699 8.5.001 14.6 6.787 14.316 16.7 1.948-.007 2.88 1.75 2.909 3.104.063 2.973-1.458 5.705-2.194 7.266-.53 1.125-2.198 1.544-2.946 1.32-.717.832-1.053 4.12-1.914 4.866-2.85 2.47-6.26 5.115-10.174 5.115"
+          fill="url(#body-fill)"
+          stroke="url(#body-rim)"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+          transform="translate(-5 -20.526)"
+        />
+
         {/* subtle anatomical guides, no decoration */}
         <g stroke="#475569" fill="none" opacity="0.28">
           <path d="M74 78v78" strokeWidth="0.8" />
@@ -92,7 +100,7 @@ export default function AstronautBody({ regions = [] }) {
             style={{ top: position.top, left: position.left }}
           >
             <span
-              className={`h-4 w-4 rounded-full border-2 border-space shadow-sm transition-transform group-hover:scale-125 ${DOT[state] ?? DOT.private}`}
+              className={`h-3 w-3 rounded-full border-2 border-space shadow-sm transition-transform group-hover:scale-125 ${DOT[state] ?? DOT.private}`}
               aria-hidden="true"
             />
             <span className="sr-only">
