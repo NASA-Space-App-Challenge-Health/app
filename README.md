@@ -33,15 +33,18 @@ T.H.A.I.S. is a station-first health board that joins **real NASA records** (Ins
 
 ## Team
 
-| Member | Contribution | GitHub |
-| --- | --- | --- |
-| Felipe Gabriel | Lead: backend, integration, deployment | [@FG-SC](https://github.com/FG-SC) |
-| Alisson Ricardo | Frontend/UX, device and offline path | [@engenheiro-ally](https://github.com/engenheiro-ally) |
-| Joaquim Barreto | Data sources, research, video story | [@engjoaquimbarreto-source](https://github.com/engjoaquimbarreto-source) |
-| Milena Greff | Recording and presentation support | [@milenagreff-tech](https://github.com/milenagreff-tech) |
-| Amanda Paul Dull | Design reference | [@pdamanda](https://github.com/pdamanda) |
+| Member | Role | LinkedIn | GitHub |
+| --- | --- | --- | --- |
+| Felipe Gabriel | Data Scientist | [felipe-gabriel0](https://www.linkedin.com/in/felipe-gabriel0/) | [@FG-SC](https://github.com/FG-SC) |
+| Alisson Ricardo | Full-Stack Developer | [allyuau](https://www.linkedin.com/in/allyuau) | [@engenheiro-ally](https://github.com/engenheiro-ally) |
+| Joaquim Barreto | Product Development | [joaquim-luis-chambo-barreto](https://www.linkedin.com/in/joaquim-luis-chambo-barreto) | [@engjoaquimbarreto-source](https://github.com/engjoaquimbarreto-source) |
+| Milena Greff Lima | Project Architecture & Product Development | [milena-greff](https://www.linkedin.com/in/milena-greff/) | [@milenagreff-tech](https://github.com/milenagreff-tech) |
+| Amanda Paul Dull | Designer · UX/UI · IoT | [amanda-paul-dull](https://www.linkedin.com/in/amanda-paul-dull/) | [@pdamanda](https://github.com/pdamanda) |
+| Vinícius Soares | Business Development | [beyondpolymathy](https://www.linkedin.com/in/beyondpolymathy) | — |
 
-> All five members are in the GitHub organization [NASA-Space-App-Challenge-Health](https://github.com/NASA-Space-App-Challenge-Health).
+> Thais Russomano Team is a tribute to the Brazilian physician and researcher who
+> pioneered Space Medicine and Physiology in Brazil. Five members are in the
+> GitHub organization; Vinícius contributes business development.
 
 ## References
 
