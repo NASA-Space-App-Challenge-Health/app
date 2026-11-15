@@ -1,12 +1,18 @@
 import Card from '../Card'
-import Chip from '../Chip'
+import Chip, { OriginChip } from '../Chip'
+
+export { OriginChip }
 
 // Small presentational pieces shared by the four Insights panels. Colour is
 // always paired with a text label.
 
-export function ChartCard({ title, summary, children, className = '' }) {
+export function ChartCard({ title, summary, provenance, children, className = '' }) {
   return (
-    <Card title={title} className={className}>
+    <Card
+      title={title}
+      className={className}
+      action={provenance ? <OriginChip origin={provenance} /> : undefined}
+    >
       {summary && <p className="mb-3 text-sm leading-relaxed text-slate-300">{summary}</p>}
       {children}
     </Card>
@@ -28,12 +34,6 @@ export function FlagChip({ flag }) {
   if (flag === 'low') return <Chip kind="watch">Low</Chip>
   if (flag === 'normal') return <Chip kind="nominal">In range</Chip>
   return <Chip kind="neutral">No flag</Chip>
-}
-
-export function OriginChip({ origin }) {
-  if (origin === 'simulated') return <Chip kind="simulated">Simulated</Chip>
-  if (origin === 'real') return <Chip kind="real">Real NASA</Chip>
-  return null
 }
 
 export function ConfidenceChip({ confidence }) {

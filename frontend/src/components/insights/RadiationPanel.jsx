@@ -100,6 +100,7 @@ export default function RadiationPanel({ data, topics }) {
       <div className="grid gap-5 lg:grid-cols-2">
         <ChartCard
           title="Daily dose rate, June 2024"
+          provenance="real"
           summary="The daily maximum jumps far above the daily mean, while the mean stays near 15–25 µGy/h all week."
         >
           <RadiationDailyChart
@@ -120,6 +121,7 @@ export default function RadiationPanel({ data, topics }) {
 
         <ChartCard
           title="Solar particle events by month, 2024"
+          provenance="real"
           summary="Solar events appear in 11 of 12 months; October leads with 17, August has 1."
         >
           <SepMonthChart

@@ -106,6 +106,7 @@ export default function OverviewPanel({ data, crew, topics, only }) {
       <div className="grid gap-5 lg:grid-cols-2">
         <ChartCard
           title="Most common out-of-range"
+          provenance="real"
           summary="Glucose and urea nitrogen (BUN) flag most often, and flags are rare overall."
         >
           {labTopicsOn && visibleFlags.length > 0 ? (
@@ -128,6 +129,7 @@ export default function OverviewPanel({ data, crew, topics, only }) {
 
         <ChartCard
           title="Biggest shifts L-3 → R+1"
+          provenance="real"
           summary="Eosinophils and absolute lymphocytes moved most between the last pre-flight and first post-flight draw."
         >
           {labTopicsOn && visibleShift.length > 0 ? (
@@ -160,6 +162,7 @@ export default function OverviewPanel({ data, crew, topics, only }) {
       <div className="grid gap-5 lg:grid-cols-2">
         <ChartCard
           title="Notable extremes"
+          provenance="real"
           summary="A few real records far outside their printed range, one per notable test."
         >
           {picked.length === 0 ? (

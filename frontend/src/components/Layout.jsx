@@ -196,7 +196,8 @@ export default function Layout() {
 
         <footer className="border-t border-white/10 px-4 py-4 text-[11px] text-slate-500 lg:px-8">
           T.H.A.I.S. — Tech &amp; Health Astronaut Intelligent System · educational demonstration for the NASA Space
-          Apps Challenge 2026. Not a medical device and not a diagnosis.{' '}
+          Apps Challenge 2026. NASA open data is labelled Real NASA; simulated POC values are labelled Simulated.
+          Not a medical device and not a diagnosis.{' '}
           <a className="underline decoration-dotted hover:text-slate-300" href="/docs" target="_blank" rel="noreferrer">
             API docs
           </a>

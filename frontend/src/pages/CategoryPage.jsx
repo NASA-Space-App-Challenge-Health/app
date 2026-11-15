@@ -167,6 +167,7 @@ function GlucoseChart({ trends, viewer }) {
     <ChartFrame
       title="Glucose across the crew"
       subtitle="Released OSD-575 research draws, de-identified. Not a diagnosis."
+      provenance="real"
       takeaway={takeaway}
     >
       <ComposedChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
@@ -356,6 +357,7 @@ function RadiationDailyChart({ radiation }) {
     <ChartFrame
       title="Daily vehicle dose rate"
       subtitle="ISS DosTel hourly means reduced to one day per point. Area dose, not a personal dose."
+      provenance="real"
       takeaway={takeaway}
     >
       <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
@@ -421,6 +423,7 @@ function SepByMonthChart({ radiation }) {
     <ChartFrame
       title="Solar particle events by month"
       subtitle="DONKI SEP events in the 2024 extract."
+      provenance="real"
       takeaway={takeaway}
       height={220}
     >
