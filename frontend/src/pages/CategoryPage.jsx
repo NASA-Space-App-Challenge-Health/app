@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Bone, Brain, HeartPulse, Radiation } from 'lucide-react'
 import {
@@ -532,12 +532,14 @@ function RadiationSummary({ prediction }) {
 
 function RadiationSection({ member, role, dashboard, radiation, prediction }) {
   const alerts = safeArray(dashboard?.alerts)
+  const [replayAlert, setReplayAlert] = useState(false)
 
   return (
     <>
-      {alerts.map((alert) => (
-        <AlertCard key={alert.id ?? alert.title} alert={alert} />
-      ))}
+      <RadiationReplay onAlertChange={setReplayAlert} />
+
+      {!replayAlert &&
+        alerts.map((alert) => <AlertCard key={alert.id ?? alert.title} alert={alert} />)}
 
       <VitalsGrid
         readings={member.readings}
@@ -553,8 +555,6 @@ function RadiationSection({ member, role, dashboard, radiation, prediction }) {
       <SepByMonthChart radiation={radiation} />
 
       <RadiationSummary prediction={prediction} />
-
-      <RadiationReplay />
     </>
   )
 }
@@ -661,6 +661,11 @@ export default function CategoryPage() {
   return (
     <div className="space-y-6">
       <CategoryHeader category={category} />
+
+      {category.id !== 'radiation' &&
+        safeArray(dashboard?.alerts).map((alert) => (
+          <AlertCard key={alert.id ?? alert.title} alert={alert} />
+        ))}
 
       {category.id === 'brain' && <BrainSection member={member} role={role} body={dashboard?.body} />}
       {category.id === 'heart' && <HeartSection member={member} role={role} viewer={viewer} data={data} />}

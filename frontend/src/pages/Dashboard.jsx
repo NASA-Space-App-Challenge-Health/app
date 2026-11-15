@@ -5,6 +5,7 @@ import { api, ROLES } from '../api'
 import Chip, { bandChip } from '../components/Chip'
 import { Empty, ErrorState, Loading } from '../components/StateView'
 import AlertCard from '../components/dashboard/AlertCard'
+import AstronautAvatar from '../components/AstronautAvatar'
 import BodyMap from '../components/dashboard/BodyMap'
 import Callout from '../components/dashboard/Callout'
 import CrewRow from '../components/dashboard/CrewRow'
@@ -54,36 +55,51 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
-            Crew overview · {dashboard?.group?.name ?? 'Inspiration4 open data'}
-          </p>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold text-white">
-              {member.call_sign} · {member.full_name}
-            </h1>
-            {visible ? bandChip(member.overall_band) : <Chip kind="neutral">Private in this role</Chip>}
-            {member.is_cmo && <Chip kind="real">CMO</Chip>}
+      <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-panel via-panel to-panel2 p-5 shadow-lg shadow-black/20">
+        <div className="flex flex-wrap items-center gap-5">
+          <AstronautAvatar size={92} className="shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
+              Crew overview · {dashboard?.group?.name ?? 'Inspiration4 open data'}
+            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-bold text-white">
+                {member.call_sign} · {member.full_name}
+              </h1>
+              {visible ? bandChip(member.overall_band) : <Chip kind="neutral">Private in this role</Chip>}
+              {member.is_cmo && <Chip kind="real">CMO</Chip>}
+            </div>
+            <p className="mt-1 text-sm text-slate-400">
+              {member.role_title ?? 'Crew member'} · viewing as {roleLabel}
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2" aria-label="Data composition">
+              <Chip kind="real">Real NASA data</Chip>
+              <Chip kind="simulated">Simulated vitals</Chip>
+              <span className="text-[11px] text-slate-500">OSDR labs · RadLab DosTel · DONKI SEP + POC layer</span>
+            </div>
           </div>
-          <p className="mt-1 text-sm text-slate-400">
-            {member.role_title ?? 'Crew member'} · viewing as {roleLabel}
-          </p>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/dashboard/radiation"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-xs font-semibold text-accent hover:bg-accent/20"
+            >
+              Radiation replay
+            </Link>
+            <Link
+              to="/insights"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 px-3 py-2 text-xs font-semibold text-slate-200 hover:bg-white/5"
+            >
+              Data insights
+            </Link>
+            <a
+              href="#help-panel"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-200 hover:bg-amber-500/20"
+            >
+              Request help
+            </a>
+          </div>
         </div>
-
-        <div className="flex flex-wrap items-center gap-2" aria-label="Data composition">
-          <Chip kind="real">Real NASA data</Chip>
-          <span className="text-slate-500" aria-hidden="true">
-            ·
-          </span>
-          <Chip kind="simulated">Simulated vitals</Chip>
-        </div>
-      </header>
-
-      <p className="text-[11px] leading-relaxed text-slate-500">
-        Data sources: NASA OSDR (OSD-569/575/656 labs), RadLab DosTel, DONKI SEP · Simulated vitals and
-        hygiene are a POC layer, not NASA measurements. Every card repeats its own source tag.
-      </p>
+      </section>
 
       {!visible && (
         <Callout tone="warn">
@@ -95,11 +111,13 @@ export default function Dashboard() {
         <AlertCard key={alert.id ?? alert.title} alert={alert} />
       ))}
 
-      <HelpPanel />
-
       <CrewRow crew={crew} selected={viewer} onSelect={setViewer} />
 
       <VitalsGrid readings={member.readings} role={role} title="Vitals" subtitle="Simulated estimates, labelled one by one." />
+
+      <div id="help-panel" className="scroll-mt-24">
+        <HelpPanel />
+      </div>
 
       <LabsTable labs={member.labs} role={role} />
 

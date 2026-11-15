@@ -57,6 +57,17 @@ class RadiationReplayTests(unittest.TestCase):
         self.assertNotIn("absorbed_dose_rate", str(body["alert"]))
         self.assertIn("Radiation contingency", body["broadcast"]["detail"])
 
+    def test_hourly_max_exposes_the_raw_peak_that_the_mean_hides(self):
+        response = self.client.get("/predict/radiation")
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        means = payload["history"]["y"]
+        peaks = payload["history"]["max"]
+        self.assertEqual(len(means), len(peaks))
+        self.assertLess(max(means), 400, "the hourly mean must stay below the raw-sample rule")
+        self.assertGreater(max(peaks), 400, "the hourly max must cross the raw-sample rule")
+        self.assertGreaterEqual(max(peaks), 528.4)
+
     def test_invalid_timestamp_is_rejected(self):
         response = self.client.get("/api/radiation/alert", params={"at": "not-a-date"})
         self.assertEqual(response.status_code, 422, response.text)

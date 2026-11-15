@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
-  Activity,
   Brain,
   Bone,
   HeartPulse,
@@ -15,6 +14,7 @@ import {
 } from 'lucide-react'
 import { CREW, ROLES } from '../api'
 import { useViewer } from '../context/ViewerContext'
+import AstronautAvatar from './AstronautAvatar'
 
 const NAV = [
   { to: '/dashboard', label: 'Overview', icon: Home, end: true },
@@ -67,10 +67,15 @@ export default function Layout() {
     <div className="flex min-h-screen bg-space text-slate-100">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-panel/60 lg:flex">
         <div className="border-b border-white/10 p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Space Apps 2026</p>
-          <h1 className="mt-1 text-lg font-bold leading-tight text-white">T.H.A.I.S.</h1>
-          <p className="text-xs font-medium text-slate-300">Astronaut Health Monitor</p>
-          <p className="mt-1 text-[11px] leading-snug text-slate-500">
+          <div className="flex items-center gap-3">
+            <AstronautAvatar size={46} className="shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Space Apps 2026</p>
+              <h1 className="text-lg font-bold leading-tight text-white">T.H.A.I.S.</h1>
+              <p className="text-xs font-medium text-slate-300">Astronaut Health Monitor</p>
+            </div>
+          </div>
+          <p className="mt-2 text-[11px] leading-snug text-slate-500">
             Tech &amp; Health Astronaut Intelligent System
           </p>
         </div>
@@ -92,10 +97,13 @@ export default function Layout() {
           />
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85%] flex-col border-r border-white/10 bg-panel p-4 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Space Apps 2026</p>
-                <p className="text-base font-bold text-white">T.H.A.I.S.</p>
-                <p className="text-[11px] text-slate-400">Astronaut Health Monitor</p>
+              <div className="flex items-center gap-2.5">
+                <AstronautAvatar size={38} className="shrink-0" />
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Space Apps 2026</p>
+                  <p className="text-base font-bold text-white">T.H.A.I.S.</p>
+                  <p className="text-[11px] text-slate-400">Astronaut Health Monitor</p>
+                </div>
               </div>
               <button
                 type="button"
@@ -134,7 +142,7 @@ export default function Layout() {
               onClick={() => navigate('/dashboard')}
               className="flex min-w-0 items-center gap-2 text-sm font-semibold text-white"
             >
-              <Activity size={18} className="shrink-0 text-accent" aria-hidden="true" />
+              <AstronautAvatar size={26} className="shrink-0" />
               <span className="truncate">T.H.A.I.S.</span>
             </button>
 
