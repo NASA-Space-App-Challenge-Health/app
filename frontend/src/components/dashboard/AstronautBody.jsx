@@ -1,18 +1,21 @@
 import { Link } from 'react-router-dom'
 
-// Front-facing human silhouette used as the Overview body map. Muted suit-like
-// fill with a thin rim, no face and no cartoon detail. Hotspots are real links
-// with a 44px target and the status in their accessible name; a tap opens the
-// matching system page.
+// Front-facing human silhouette, adapted from the CC0 "Human silhouette
+// gender neutral front" on Wikimedia Commons:
+// https://commons.wikimedia.org/wiki/File:Human_silhouette_gender_neutral_front.svg
+// The body path is used as a neutral anatomical base; no attribution required
+// under CC0, but the source is recorded here for traceability.
+// Hotspots are 44px links with the status in the accessible name; a tap opens
+// the matching system page.
 
 const POSITIONS = {
-  head: { top: '6%', left: '50%' },
-  eyes: { top: '12%', left: '50%' },
-  heart: { top: '31%', left: '50%' },
-  blood: { top: '40%', left: '26%' },
-  muscles: { top: '62%', left: '41%' },
-  bones: { top: '78%', left: '59%' },
-  environment: { top: '47%', left: '89%' },
+  head: { top: '13%', left: '50%' },
+  eyes: { top: '17%', left: '50%' },
+  heart: { top: '36%', left: '50%' },
+  blood: { top: '45%', left: '27%' },
+  muscles: { top: '65%', left: '42%' },
+  bones: { top: '80%', left: '58%' },
+  environment: { top: '51%', left: '88%' },
 }
 
 const REGION_META = {
@@ -37,58 +40,43 @@ export default function AstronautBody({ regions = [] }) {
 
   return (
     <div className="relative mx-auto h-[300px] w-[210px] shrink-0 select-none">
-      <svg viewBox="0 0 200 320" className="h-full w-full" aria-hidden="true">
+      <svg viewBox="-8 -26 164 336" className="h-full w-full" aria-hidden="true">
         <defs>
-          <radialGradient id="human-glow" cx="50%" cy="42%" r="55%">
-            <stop offset="0%" stopColor="#00e5ff" stopOpacity="0.12" />
+          <linearGradient id="body-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#e2e8f0" />
+            <stop offset="55%" stopColor="#cbd5e1" />
+            <stop offset="100%" stopColor="#94a3b8" />
+          </linearGradient>
+          <linearGradient id="body-rim" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#67e8f9" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#7851a9" stopOpacity="0.45" />
+          </linearGradient>
+          <radialGradient id="body-glow" cx="50%" cy="40%" r="58%">
+            <stop offset="0%" stopColor="#00e5ff" stopOpacity="0.16" />
             <stop offset="100%" stopColor="#00e5ff" stopOpacity="0" />
           </radialGradient>
         </defs>
 
-        <circle cx="100" cy="155" r="145" fill="url(#human-glow)" />
-        <ellipse cx="100" cy="305" rx="52" ry="7" fill="#00e5ff" opacity="0.06" />
+        <circle cx="74" cy="160" r="150" fill="url(#body-glow)" />
+        <ellipse cx="74" cy="306" rx="46" ry="6" fill="#00e5ff" opacity="0.08" />
 
-        {/* head and neck */}
-        <ellipse cx="100" cy="33" rx="14.5" ry="17.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="2" />
-        <path d="M94 48h12v10H94z" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="2" />
-
-        {/* arms: outlined limbs */}
-        <path d="M72 66c-9 10-13 24-15 40l-3 40" fill="none" stroke="#94a3b8" strokeWidth="14" strokeLinecap="round" />
-        <path d="M72 66c-9 10-13 24-15 40l-3 40" fill="none" stroke="#cbd5e1" strokeWidth="10" strokeLinecap="round" />
-        <path d="M128 66c9 10 13 24 15 40l3 40" fill="none" stroke="#94a3b8" strokeWidth="14" strokeLinecap="round" />
-        <path d="M128 66c9 10 13 24 15 40l3 40" fill="none" stroke="#cbd5e1" strokeWidth="10" strokeLinecap="round" />
-        <ellipse cx="53" cy="152" rx="7" ry="8.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1.8" />
-        <ellipse cx="147" cy="152" rx="7" ry="8.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1.8" />
-
-        {/* legs: outlined limbs */}
-        <path d="M89 164l-4 62-2 58" fill="none" stroke="#94a3b8" strokeWidth="20" strokeLinecap="round" />
-        <path d="M89 164l-4 62-2 58" fill="none" stroke="#cbd5e1" strokeWidth="16" strokeLinecap="round" />
-        <path d="M111 164l4 62 2 58" fill="none" stroke="#94a3b8" strokeWidth="20" strokeLinecap="round" />
-        <path d="M111 164l4 62 2 58" fill="none" stroke="#cbd5e1" strokeWidth="16" strokeLinecap="round" />
-        <ellipse cx="81" cy="289" rx="11" ry="5.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1.8" />
-        <ellipse cx="119" cy="289" rx="11" ry="5.5" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1.8" />
-
-        {/* torso */}
         <path
-          d="M73 62c7-5 16-8 27-8s20 3 27 8l7 34-3 40-8 28H77l-8-28-3-40z"
-          fill="#cbd5e1"
-          stroke="#94a3b8"
-          strokeWidth="2"
+          d="M79 54.282H68.824c.038 4.586-1.385 8.232-6.538 11.407-7.58 4.67-9.766 1.589-16.504 5.364-7.18 4.022-9.839 16.322-12.894 25.27-2.701 7.914-3.117 16.702-4.642 24.654-.96 5.011-3.727 6.429-4.641 12.172-1.757 11.036-3.522 24.117-4.596 34.05-.276 2.561-2.591 3.421-3.874 4.538-1.219 1.06-2.22 1.889-3.999 3.642-.543.535-.672 1.678-1.192 2.751-.444.915-1.52 1.539-1.807 2.352-.817 2.305-3.163 3.662-2.55 4.548.571.823 2.963-.165 4.11-.981.735-.523 1.362-1.352 1.457-2.282.916-.331 2.108-2.771 2.696-2.658.255.049.358 4.46-.575 7.508-.363 1.188-.67 1.746-.674 2.528-.006 1.006-.16 3.338-.28 4.41-.178 1.575.308 3.032 1.256 3.104.221.017 1.34-.282 1.348-2.017.003-.633.08-1.127.196-1.94.2-1.41 1.494-4.138 1.725-5.36.073-.386.352-1.376.62-1.344.082.01-.405 2.901-.686 4.113-.311 1.344.145 2.27-.003 5.033-.129 2.425.035 3.81 1.266 3.857.389.015 1.558.013 1.588-3.536.01-1.045.366-2.909.633-4.717.196-1.328.213-2.719 1.035-4.298-.045 1.672-.144 1.89-.228 3.518-.052 1-.405 6.609-.105 4.25.126-.994-1.25 4.052.94 4.15.731.033 1.703-.889 2.127-7.134.124-1.828.436-4.288.92-5.66.278 1.198.342 1.72.34 2.309 0 .417.182 1.77-.008 3.119-.275 1.938-.424 3.24.59 3.353.563.063 1.243-.686 1.658-2.026.144-.468.1-1.138.254-1.678.516-1.826.189-3.734.364-4.958.24-1.666.536-2.492.768-3.213.238-.741.558-2.94.586-5.338.029-2.398-.968-2.465-.583-8.918.384-6.453 8.154-18.314 9.738-27.921.473-2.867 1.92-5.448 2.661-8.237 1.276-4.802 1.526-9.863 3.064-14.587 1.138-3.498 4.521-10.065 4.521-10.065s3.182 11.689 3.818 15.85c1.985 12.977-3.566 24.173-6.04 38.02-1.97 11.022-4.033 18.866-3.904 33.362.153 17.179 3.793 32.78 4.084 42.012.037 1.167-1.263 5.772-1.05 10.691.214 4.919-.912 11.933-.846 18.338.154 15.018 4.941 26.356 6.856 33.113.94 3.315 2.014 8.499 2.072 11.147.078 3.488-1.054 3.863-1.29 5.849-.171 1.447 1.404 3.98 1.432 4.53 0 0-1.043 1.238-1.213 2-.24 1.068.41 2.044-.065 2.763-.95 1.44-.887.8-1.376 1.576-.506.802-3.655 4.06-4.223 5.238-.448.93-.328 1.605-.152 2.641.244 1.439.81 2.807 2.358 2.398.478.321 1.065 1.026 1.485.333.117.795 1.684.863 2.444.514 1.09.992 3.102.854 4.167-.008 1.423 1.224 5.613.643 5.96-1.689 1.357-.592 1.717-1.758 1.496-3.055-.37-2.172-.335-4.06-.712-6.231-.295-1.69-.157-4.057.783-5.499 1.485-2.278.777-6.197.323-6.985-.453-.787-.22-15.214.078-23.764.276-7.938 2.694-15.697 3.063-23.632.157-3.378-.512-6.76-.365-10.138.199-4.552 1.255-9.03 1.678-13.566.389-4.172.263-8.388.79-12.545 1.88-14.845 6.893-16.859 8.44-44.09m0 0c1.548 27.231 6.56 29.245 8.441 44.09.527 4.157.401 8.374.79 12.545.423 4.537 1.48 9.014 1.678 13.566.147 3.379-.522 6.76-.365 10.138.37 7.935 2.787 15.693 3.063 23.632.298 8.551.531 22.976.078 23.764-.454.788-1.162 4.707.323 6.985.94 1.442 1.078 3.808.783 5.499-.377 2.17-.343 4.059-.712 6.23-.22 1.298.139 2.464 1.496 3.056.347 2.332 4.537 2.913 5.96 1.689 1.065.862 3.078 1 4.167.008.76.349 2.327.28 2.444-.514.42.693 1.007-.012 1.485-.333 1.548.409 2.114-.96 2.358-2.398.176-1.036.296-1.712-.152-2.64-.568-1.18-3.717-4.437-4.223-5.239-.489-.776-.426-.136-1.376-1.576-.475-.72.174-1.695-.065-2.763-.17-.762-1.213-2-1.213-2 .028-.55 1.603-3.083 1.432-4.53-.236-1.986-1.368-2.36-1.29-5.849.058-2.648 1.132-7.832 2.072-11.147 1.915-6.758 6.702-18.096 6.856-33.113.066-6.406-1.06-13.419-.847-18.338s-1.086-9.524-1.05-10.691c.292-9.231 3.932-24.833 4.085-42.012.13-14.497-1.933-22.34-3.903-33.362-2.475-13.847-8.026-25.043-6.041-38.02.636-4.161 3.818-15.85 3.818-15.85s3.383 6.567 4.521 10.065c1.538 4.725 1.788 9.786 3.064 14.587.74 2.789 2.188 5.37 2.66 8.237 1.585 9.607 9.355 21.468 9.74 27.921s-.613 6.52-.584 8.918c.028 2.397.348 4.597.586 5.338.232.721.529 1.547.768 3.213.176 1.224-.152 3.132.365 4.958.152.54.109 1.21.254 1.678.414 1.34 1.094 2.089 1.657 2.026 1.014-.114.865-1.415.59-3.353-.19-1.348-.008-2.702-.009-3.119-.002-.59.063-1.111.341-2.31.484 1.373.796 3.833.92 5.661.424 6.245 1.396 7.167 2.128 7.134 2.189-.098.813-5.144.94-4.15.299 2.359-.054-3.25-.106-4.25-.084-1.628-.183-1.846-.228-3.518.822 1.58.839 2.97 1.035 4.298.267 1.808.624 3.672.633 4.717.03 3.549 1.2 3.551 1.588 3.536 1.23-.047 1.395-1.432 1.266-3.857-.148-2.764.308-3.689-.003-5.033-.281-1.212-.768-4.103-.685-4.113.267-.032.546.958.619 1.344.231 1.222 1.524 3.95 1.726 5.36.116.813.192 1.307.195 1.94.008 1.735 1.127 2.034 1.348 2.017.948-.072 1.434-1.53 1.257-3.104-.12-1.072-.275-3.404-.28-4.41-.006-.782-.312-1.34-.675-2.528-.933-3.047-.83-7.46-.575-7.508.588-.113 1.78 2.327 2.696 2.658.095.93.722 1.759 1.457 2.282 1.147.816 3.539 1.804 4.11.98.613-.885-1.733-2.242-2.55-4.547-.287-.813-1.363-1.437-1.807-2.352-.52-1.073-.649-2.216-1.192-2.751-1.78-1.753-2.78-2.582-3.999-3.642-1.283-1.117-3.598-1.977-3.874-4.537-1.074-9.934-2.839-23.014-4.596-34.051-.914-5.743-3.68-7.16-4.641-12.172-1.525-7.951-1.94-16.74-4.642-24.653-3.055-8.95-5.714-21.25-12.894-25.271-6.738-3.775-8.923-.693-16.504-5.364-5.153-3.175-6.576-6.821-6.538-11.407H78.998"
+          fill="url(#body-fill)"
+          stroke="url(#body-rim)"
+          strokeWidth="1.4"
           strokeLinejoin="round"
+          transform="translate(-5 -20.526)"
         />
 
-        {/* anatomical guides only, no decoration */}
-        <path d="M100 66v96" stroke="#64748b" strokeWidth="1.2" />
-        <path d="M84 86h32" stroke="#64748b" strokeWidth="1" />
-        <path d="M80 112h40" stroke="#64748b" strokeWidth="1" opacity="0.8" />
-        <path d="M80 126h40" stroke="#64748b" strokeWidth="1" opacity="0.6" />
-        <path d="M83 158h34" stroke="#64748b" strokeWidth="1" />
-        {/* heart / lung / knee reference points */}
-        <path d="M99 98c3-3 8-1 8 3 0 3-4 6-8 9-4-3-8-6-8-9 0-4 5-6 8-3z" fill="#475569" opacity="0.5" />
-        <path d="M86 100c-3 3-4 8-3 12" stroke="#475569" strokeWidth="1.2" fill="none" opacity="0.4" />
-        <path d="M114 100c3 3 4 8 3 12" stroke="#475569" strokeWidth="1.2" fill="none" opacity="0.4" />
-        <circle cx="84" cy="214" r="2.2" fill="#475569" opacity="0.5" />
-        <circle cx="116" cy="214" r="2.2" fill="#475569" opacity="0.5" />
+        {/* subtle anatomical guides, no decoration */}
+        <g stroke="#475569" fill="none" opacity="0.28">
+          <path d="M74 78v78" strokeWidth="0.8" />
+          <path d="M62 160h24" strokeWidth="0.7" />
+          <path d="M66 105c2-3 6-2 6 2 0 3-3 5-6 7-3-2-6-4-6-7 0-4 4-5 6-2z" fill="#64748b" fillOpacity="0.5" stroke="none" />
+          <circle cx="66" cy="222" r="1.8" fill="#64748b" stroke="none" />
+          <circle cx="82" cy="222" r="1.8" fill="#64748b" stroke="none" />
+        </g>
       </svg>
 
       {Object.entries(REGION_META).map(([id, meta]) => {
@@ -104,7 +92,7 @@ export default function AstronautBody({ regions = [] }) {
             style={{ top: position.top, left: position.left }}
           >
             <span
-              className={`h-3.5 w-3.5 rounded-full border-2 border-space shadow-sm transition-transform group-hover:scale-125 ${DOT[state] ?? DOT.private}`}
+              className={`h-4 w-4 rounded-full border-2 border-space shadow-sm transition-transform group-hover:scale-125 ${DOT[state] ?? DOT.private}`}
               aria-hidden="true"
             />
             <span className="sr-only">
