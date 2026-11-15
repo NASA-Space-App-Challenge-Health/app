@@ -13,7 +13,7 @@ import HelpPanel from '../components/dashboard/HelpPanel'
 import HygieneCard from '../components/dashboard/HygieneCard'
 import LabsTable from '../components/dashboard/LabsTable'
 import RecommendationPreview from '../components/dashboard/RecommendationPreview'
-import VitalsGrid from '../components/dashboard/VitalsGrid'
+import SystemCards from '../components/dashboard/SystemCards'
 import { useViewer } from '../context/ViewerContext'
 import useFetch from '../hooks/useFetch'
 
@@ -25,12 +25,14 @@ export default function Dashboard() {
   const { viewer, role, setViewer } = useViewer()
 
   const load = useCallback(async () => {
-    const [dashboard, recommendationPayload] = await Promise.all([
+    const [dashboard, recommendationPayload, radiation] = await Promise.all([
       api.dashboard({ viewer, role }),
       api.recommendations({ crew: viewer, role, viewer }).catch(() => null),
+      api.predictRadiation().catch(() => null),
     ])
     return {
       dashboard,
+      radiation,
       recommendations: recommendationPayload?.recommendations ?? dashboard?.recommendations ?? [],
     }
   }, [viewer, role])
@@ -105,7 +107,7 @@ export default function Dashboard() {
         <span className="font-semibold uppercase tracking-wide text-slate-500">Jump to</span>
         {[
           ['#alerts', 'Alerts'],
-          ['#vitals', 'Vitals'],
+          ['#systems', 'Systems'],
           ['#help-panel', 'Help'],
           ['#labs', 'Labs'],
           ['#body-map', 'Body map'],
@@ -131,8 +133,8 @@ export default function Dashboard() {
 
       <CrewRow crew={crew} selected={viewer} onSelect={setViewer} />
 
-      <div id="vitals" className="scroll-mt-24">
-        <VitalsGrid readings={member.readings} role={role} title="Vitals" subtitle="Simulated estimates, labelled one by one." />
+      <div id="systems" className="scroll-mt-24">
+        <SystemCards member={member} radiation={data?.radiation} alerts={alerts} visible={visible} />
       </div>
 
       <div id="help-panel" className="scroll-mt-24">

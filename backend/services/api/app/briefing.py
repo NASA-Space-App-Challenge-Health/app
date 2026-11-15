@@ -302,6 +302,7 @@ def _crew_card(row, vitals, labs, viewer_sign, role, shares) -> dict[str, Any]:
                 "risk_band": None,
                 "explanation": spec.explanation,
                 "guidance": None,
+                "bands": spec.band_public(),
             })
             continue
         readings.append({
@@ -317,6 +318,7 @@ def _crew_card(row, vitals, labs, viewer_sign, role, shares) -> dict[str, Any]:
             "risk_band": current["risk_band"],
             "explanation": spec.explanation,
             "guidance": guidance_for(key, current["risk_band"]) if current["risk_band"] in spec.guidance else None,
+            "bands": spec.band_public(),
         })
     lab_cards = _latest_labs(labs, row["call_sign"])
     if role != "flight_surgeon" and not (role == "self" and viewer_sign == row["call_sign"]):

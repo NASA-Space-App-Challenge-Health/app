@@ -7,6 +7,7 @@ import Card from '../components/Card'
 import Chip, { OriginChip } from '../components/Chip'
 import SourceLinks from '../components/SourceLinks'
 import { Empty, ErrorState, Loading } from '../components/StateView'
+import MetricBar from '../components/dashboard/MetricBar'
 import { useViewer } from '../context/ViewerContext'
 import useFetch from '../hooks/useFetch'
 
@@ -206,7 +207,6 @@ export default function Status() {
   const mission = member.mission ?? dashboard?.group?.name ?? 'Inspiration4 open data'
 
   const peak = radiation?.peak
-  const cumulative30 = (radiation?.cumulative ?? []).find((item) => item.days === 30)
   const nextSep = (radiation?.sep_after_peak ?? [])[0]
   const spikeCount = (radiation?.spikes_at_or_above_rule ?? []).length
 
@@ -440,14 +440,6 @@ export default function Status() {
                 </p>
               </div>
               <div>
-                <p className="text-[11px] uppercase tracking-wide text-slate-400">30-day area dose</p>
-                <p className="mt-1 text-3xl font-bold text-white">
-                  {cumulative30 ? formatNumber(cumulative30.area_dose_ugy, 1) : '—'}
-                  <span className="ml-1 text-sm font-medium text-slate-400">µGy</span>
-                </p>
-                <p className="mt-1 text-[11px] text-slate-400">Flat-rate estimate from the recorded week&apos;s mean rate</p>
-              </div>
-              <div>
                 <p className="text-[11px] uppercase tracking-wide text-slate-400">Samples above the app rule</p>
                 <p className="mt-1 text-3xl font-bold text-white">
                   {spikeCount}
@@ -457,13 +449,18 @@ export default function Status() {
                   Rule: {radiation?.spike_threshold_ugy_h ?? 400} µGy/h on the raw ~2-minute samples
                 </p>
               </div>
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-slate-400">Next DONKI SEP (real event)</p>
+                <p className="mt-1 text-2xl font-bold text-white">{nextSep ? formatDay(nextSep.event_time) : '—'}</p>
+                <p className="mt-1 text-[11px] text-slate-400">
+                  {nextSep ? nextSep.instruments : 'No SEP after the peak in the file.'}
+                </p>
+              </div>
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-3">
               <p className="text-[11px] leading-relaxed text-slate-400">
-                {nextSep
-                  ? `Next DONKI SEP in the file: ${formatDay(nextSep.event_time)} (${nextSep.instruments}).`
-                  : 'No SEP after the peak in the file.'}{' '}
-                Use the replay to see the rule result at the real crossing.
+                The peak and the sample count are recorded values from the file. Use the replay to see the rule
+                result at the real crossing.
               </p>
               <Link
                 to="/dashboard/radiation"
@@ -499,6 +496,16 @@ export default function Status() {
                   <div className="mt-2">
                     <Chip kind={readingKind(reading.risk_band)}>{readingLabel(reading.risk_band)}</Chip>
                   </div>
+                  {reading.bands && (
+                    <MetricBar
+                      value={reading.value}
+                      unit={reading.unit}
+                      bands={reading.bands}
+                      kind={readingKind(reading.risk_band)}
+                      label={reading.label}
+                      className="mt-2"
+                    />
+                  )}
                   <p className="mt-auto pt-3 text-[11px] leading-relaxed text-slate-400">
                     {firstSentence(reading.guidance, 'Simulated estimate; log it and keep the monitoring cadence.')}
                   </p>

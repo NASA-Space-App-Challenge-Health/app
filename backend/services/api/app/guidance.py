@@ -25,6 +25,30 @@ DISCLAIMER = (
 MISSION = "Demonstration mission"
 
 
+@dataclass(frozen=True)
+class Band:
+    """Illustrative app band for one indicator (not a NASA flight limit)."""
+
+    nominal: tuple[float, float]
+    watch: tuple[float, float]
+    label: str = "Illustrative POC band, not a NASA limit."
+
+    def __call__(self, value: float) -> str:
+        if self.nominal[0] <= value <= self.nominal[1]:
+            return "nominal"
+        if self.watch[0] <= value <= self.watch[1]:
+            return "watch"
+        return "concern"
+
+    def to_public(self, physical: tuple[float, float]) -> dict[str, object]:
+        return {
+            "physical": [physical[0], physical[1]],
+            "nominal": [self.nominal[0], self.nominal[1]],
+            "watch": [self.watch[0], self.watch[1]],
+            "label": self.label,
+        }
+
+
 def _bands(
     *,
     nominal_low: float,
@@ -32,14 +56,7 @@ def _bands(
     watch_low: float,
     watch_high: float,
 ):
-    def classify(value: float) -> str:
-        if nominal_low <= value <= nominal_high:
-            return "nominal"
-        if watch_low <= value <= watch_high:
-            return "watch"
-        return "concern"
-
-    return classify
+    return Band(nominal=(nominal_low, nominal_high), watch=(watch_low, watch_high))
 
 
 def _messages(subject: str, watch: str) -> dict[str, str]:
@@ -79,7 +96,14 @@ class Indicator:
             "unit": self.unit,
             "decimals": self.decimals,
             "explanation": self.explanation,
+            "bands": self.band_public(),
         }
+
+    def band_public(self) -> dict[str, object] | None:
+        band = self.classify
+        if not isinstance(band, Band):
+            return None
+        return band.to_public(self.physical)
 
 
 def _indicator(**kwargs: object) -> Indicator:

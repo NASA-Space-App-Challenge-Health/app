@@ -3,6 +3,7 @@ import Chip, { bandChip } from '../Chip'
 import { Empty } from '../StateView'
 import PrivacyNote from './PrivacyNote'
 import { formatNumber, originKind, safeArray } from './format'
+import MetricBar from './MetricBar'
 
 function ReadingCard({ reading }) {
   const hasValue = reading.value !== null && reading.value !== undefined
@@ -37,6 +38,23 @@ function ReadingCard({ reading }) {
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <Chip kind={originKind(reading.origin)}>{originText}</Chip>
         </div>
+
+        {hasValue && reading.bands && (
+          <MetricBar
+            value={reading.value}
+            unit={reading.unit}
+            bands={reading.bands}
+            kind={
+              reading.risk_band === 'watch'
+                ? 'watch'
+                : reading.risk_band === 'concern' || reading.risk_band === 'critical'
+                  ? 'concern'
+                  : 'nominal'
+            }
+            label={reading.label}
+            className="mt-2"
+          />
+        )}
 
         {hasDetail && (
           <details className="mt-2">

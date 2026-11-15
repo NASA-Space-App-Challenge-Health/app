@@ -477,6 +477,7 @@ def _panel_reading(indicator: str, row: dict[str, Any] | None) -> dict[str, Any]
         "risk_band": row["risk_band"],
         "explanation": spec.explanation,
         "guidance": guidance_for(spec.key, row["risk_band"]),
+        "bands": spec.band_public(),
     }
 
 
@@ -496,4 +497,5 @@ def _reading_row(row: dict[str, Any]) -> dict[str, Any]:
         "risk_band": row["risk_band"],
         "explanation": spec.explanation if spec else "",
         "guidance": guidance_for(row["indicator"], row["risk_band"]) if spec else "",
+        "bands": spec.band_public() if spec else None,
     }

@@ -76,6 +76,19 @@ class ApiTests(unittest.TestCase):
         hidden = {member["call_sign"]: member for member in crewmate.json()["crew"]}["C003"]
         self.assertEqual(hidden["visible"], "hidden")
 
+    def test_readings_expose_illustrative_bands_for_the_bars(self):
+        response = self.client.get("/api/dashboard?viewer=C003&role=self")
+        self.assertEqual(response.status_code, 200, response.text)
+        by_sign = {member["call_sign"]: member for member in response.json()["crew"]}
+        readings = {item["indicator"]: item for item in by_sign["C003"]["readings"]}
+        heart = readings["heart_rate"]
+        self.assertEqual(heart["bands"]["nominal"], [50.0, 100.0])
+        self.assertEqual(heart["bands"]["watch"], [40.0, 130.0])
+        self.assertEqual(heart["bands"]["physical"], [20.0, 250.0])
+        temp = readings["temperature_c"]
+        self.assertEqual(temp["bands"]["nominal"], [36.1, 37.5])
+        self.assertIn("not a NASA limit", temp["bands"]["label"])
+
     def test_root_and_health_describe_the_mixed_sources(self):
         root = self.client.get("/")
         self.assertEqual(root.status_code, 200, root.text)
