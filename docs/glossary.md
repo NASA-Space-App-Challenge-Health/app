@@ -41,7 +41,17 @@ inventar.
 | **xEMU** | Exploration Extravehicular Mobility Unit (traje de exploração) | Nome do simulador de sensores (`xemu`) |
 | **PLSS** | Portable Life Support System (sistema de suporte à vida do traje) | Sensor de CO₂ simulado |
 | **WHRM** | Monitor cardíaco usado no simulador de traje | Gera a FC simulada |
+| **Hardline** | Transmissão por linha física (não rádio) | Spec do WHRM na v1 |
 | **SpO₂** | Peripheral oxygen saturation (saturação periférica de oxigênio) | Vital simulado (%) |
+| **EIMO** | Earth-Independent Medical Operations (NASA HRP) | Conceito que motiva a autonomia (v1) |
+| **CDSS** | Clinical Decision Support System (sistema de apoio à decisão clínica) | Papel do T.H.A.I.S. na v1 |
+| **HUD** | Heads-Up Display | Interface tática proposta na v1 |
+| **DTN** | Delay-Tolerant Networking (redes tolerantes a atraso) | v1 propunha store-carry-forward; **não implementado** na v2 |
+| **RFC 4838** | Especificação IETF da arquitetura DTN | Referência da v1; não implementada |
+| **ICS / Network-in-a-Box** | Kit de rede de emergência citado na v1 | Override de emergência da v1; **não implementado** |
+| **M-PALSS** | Multi-Parameter Astronaut Life Support Sensor | Referência de PLSS da v1 |
+| **Edge-first / Edge Computing** | Processamento na borda (a bordo) | Pilar da v1; a v2 mantém capacidade local via Docker |
+| **SPRINT** | NASA Sprint Study (English et al., 2020) | Estudo verificado no JSON de referência (osso/músculo) |
 
 ## 2. Clínico e laboratorial
 
@@ -110,8 +120,9 @@ inventar.
 | `indicator_shares` | Compartilhamento opt-in de um indicador específico |
 | `data_source` | `simulated`, `mixed` — resumo do board |
 | `group.kind` | `crew` hoje; `family` previsto para cuidado domiciliar |
-| **T.H.A.I.S.** | Nome do produto/projeto. A expansão da sigla ainda **não está definida**; até o artigo, use "T.H.A.I.S. — Astronaut Health Monitor" e não invente expansão |
-| **Astronaut Health Monitor** | Nome do produto no app, README e kit de submissão |
+| **T.H.A.I.S.** | **Tech & Health Astronaut Intelligent System** — nome do sistema/projeto, criado na v1; ver [evolution-v1-v2.md](evolution-v1-v2.md) |
+| **Astronaut Health Monitor** | Nome do app que implementa o T.H.A.I.S. na v2 (renomeação da interface para "T.H.A.I.S. — Astronaut Health Monitor" está no próximo incremento) |
+| **Baseline v1** | Artigo "T.H.A.I.S.: Arquitetura de Software Edge-First…" (4 páginas) — base científica da v1; o documento está com o time e o resumo das mudanças está em [evolution-v1-v2.md](evolution-v1-v2.md) |
 
 ## 6. Como citar / escrever
 

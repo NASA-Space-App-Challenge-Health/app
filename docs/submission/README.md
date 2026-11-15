@@ -1,7 +1,8 @@
 # Submission kit — NASA Space Apps Challenge 2026
 
-Project: **Astronaut Health Monitor** (challenge: *Create Health Monitoring
-Software for Astronauts on Space Missions*).
+Project: **T.H.A.I.S. — Astronaut Health Monitor**
+(T.H.A.I.S. = **Tech & Health Astronaut Intelligent System**; challenge:
+*Create Health Monitoring Software for Astronauts on Space Missions*).
 
 | Asset | Where |
 | --- | --- |
@@ -48,8 +49,12 @@ The article submitted later uses [../methodology.md](../methodology.md):
   SPRINT, Law et al. 2014.
 - §8 is a paper-ready **Data & Methods** text in English that matches the code
   (projection formulas, rule tiers, privacy, limitations).
-- [../glossary.md](../glossary.md) expands every acronym (CMO, OCHMO, OSDR, SEP…)
-  for the team and for reviewers.
+- [../evolution-v1-v2.md](../evolution-v1-v2.md) documents the jump from the
+  v1 baseline article (edge-first, SQLite, DTN, HUD) to the current version:
+  what was kept, what changed and why, what was deferred, the v1 reference
+  mapping ([1]–[10]) and an English "Evolution from v1" paragraph.
+- [../glossary.md](../glossary.md) expands every acronym (CMO, OCHMO, OSDR, SEP,
+  DTN, HUD…) for the team and for reviewers.
 - What is **not** in the product and must stay out of the paper's claims:
   VO₂/Sprint integration, exercise-phase awareness, offline/two-screen demo,
   help request→accept cycle, pgvector/Redis.

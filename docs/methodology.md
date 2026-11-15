@@ -8,6 +8,10 @@ projeções e os alertas são calculados, e o que **não** está integrado.
 > Escopo: 4 civis da Inspiration4 (missão de 3 dias), 7 coletas pré/pós-voo, uma
 > semana de dosimetria da ISS (jun/2024), 119 eventos SEP de 2024. Não é
 > prontuário de missão longa, não é dispositivo médico, não é diagnóstico.
+>
+> Esta é a **v2**. A base científica da **v1** (edge-first, SQLite, DTN, HUD) e
+> a tabela do que foi mantido, mudado e adiado estão em
+> [evolution-v1-v2.md](evolution-v1-v2.md).
 
 ## 1. O que está em produção
 
@@ -290,6 +294,7 @@ próprios).
 | SPRINT (osso/músculo) | English et al., *npj Microgravity* 6:21, 2020, DOI 10.1038/s41526-020-00111-x (PMC7434884) |
 | Dores de cabeça e CO₂ | Law et al., *J Occup Environ Med*, 2014 (citado no OCHMO-TB-004) |
 | Métodos estatísticos | OLS e t de Student (texto padrão); Theil–Sen (Theil 1950; Sen 1968); suavização exponencial simples |
+| Documento de embasamento da v1 | "T.H.A.I.S.: Arquitetura de Software Edge-First para Monitoramento Autônomo e Preditivo da Saúde de Astronautas", 4 páginas, fornecido pelo time (arquivo associado a Thais Russomano / NASA Team). Cópia em [baseline-v1-thais.pdf](baseline-v1-thais.pdf); as referências [1]–[10] do documento não trazem URL/DOI e precisam ser completadas antes de citação formal; o mapeamento está em [evolution-v1-v2.md](evolution-v1-v2.md#9-referências-da-v1-e-status-de-uso-na-v2) |
 
 ## 8. Bloco em inglês para o artigo (Data & Methods)
 
@@ -336,6 +341,15 @@ not published flight-surgeon limits. A separate verified reference set (VO₂pea
 −17% at flight day 15, n = 14, 95% CI −22% to −13%, NTRS 20140003748 / Moore et
 al. 2014; SPRINT bone and muscle outcomes; CO₂ headache counts) is cited as
 motivation and is **not** shown as a product measurement.
+
+**Evolution from v1.** This is the second iteration of T.H.A.I.S. (Tech & Health
+Astronaut Intelligent System). The first version proposed an edge-first
+architecture with a local SQLite database, delay-tolerant networking (RFC 4838)
+with store-carry-forward, an ICS emergency override and a low-cognitive-load HUD.
+We keep the FastAPI/React spine and the simulated-suit telemetry, but the
+contribution of this version is the validated real-data pipeline, explicit
+statistical projections and OCHMO privacy roles. DTN, hardware ingestion and
+machine learning remain roadmap items and are not claimed as results.
 
 ## 9. Nota ao Ricardo — como estender sem quebrar a metodologia
 
