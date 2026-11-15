@@ -22,6 +22,15 @@ const NAV = [
   { to: '/insights', label: 'Data insights', icon: LineChart },
 ]
 
+const TEAM = [
+  { name: 'Felipe Gabriel', role: 'Data Scientist', linkedin: 'https://www.linkedin.com/in/felipe-gabriel0/', github: 'FG-SC' },
+  { name: 'Alisson Ricardo', role: 'Full-Stack Developer', linkedin: 'https://www.linkedin.com/in/allyuau', github: 'engenheiro-ally' },
+  { name: 'Joaquim Barreto', role: 'Product Development', linkedin: 'https://www.linkedin.com/in/joaquim-luis-chambo-barreto', github: 'engjoaquimbarreto-source' },
+  { name: 'Milena Greff Lima', role: 'Project Architecture & Product Development', linkedin: 'https://www.linkedin.com/in/milena-greff/', github: 'milenagreff-tech' },
+  { name: 'Amanda Paul Dull', role: 'Designer | UX/UI | IoT', linkedin: 'https://www.linkedin.com/in/amanda-paul-dull/', github: 'pdamanda' },
+  { name: 'Vinícius Soares', role: 'Business Development', linkedin: 'https://www.linkedin.com/in/beyondpolymathy', github: null },
+]
+
 function NavItems({ onNavigate }) {
   return (
     <nav className="space-y-1" aria-label="Main">
@@ -61,18 +70,16 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen bg-space text-slate-100">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-panel/60 lg:flex">
-        <div className="border-b border-white/10 p-5">
-          <div className="flex items-center gap-3">
-            <img src="/thais-logo.png" alt="" className="h-11 w-11 shrink-0 rounded-full object-cover" width="44" height="44" />
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Space Apps 2026</p>
-              <h1 className="text-lg font-bold leading-tight text-white">T.H.A.I.S.</h1>
-              <p className="text-xs font-medium text-slate-300">Astronaut Health Monitor</p>
-            </div>
-          </div>
-          <p className="mt-2 text-[11px] leading-snug text-slate-500">
-            Tech &amp; Health Astronaut Intelligent System
-          </p>
+        <div className="border-b border-white/10 p-5 text-center">
+          <img
+            src="/thais-logo.png"
+            alt="T.H.A.I.S. logo"
+            className="mx-auto h-[84px] w-[84px] rounded-full object-cover"
+            width="84"
+            height="84"
+          />
+          <h1 className="mt-3 text-2xl font-bold leading-tight text-white">T.H.A.I.S.</h1>
+          <p className="text-xs font-medium text-slate-300">Astronaut Health Monitor</p>
         </div>
         <div className="flex-1 overflow-y-auto p-3">
           <NavItems />
@@ -92,11 +99,10 @@ export default function Layout() {
           />
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85%] flex-col border-r border-white/10 bg-panel p-4 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <img src="/thais-logo.png" alt="" className="h-10 w-10 shrink-0 rounded-full object-cover" width="40" height="40" />
+              <div className="flex items-center gap-3">
+                <img src="/thais-logo.png" alt="T.H.A.I.S. logo" className="h-[52px] w-[52px] shrink-0 rounded-full object-cover" width="52" height="52" />
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Space Apps 2026</p>
-                  <p className="text-base font-bold text-white">T.H.A.I.S.</p>
+                  <p className="text-lg font-bold text-white">T.H.A.I.S.</p>
                   <p className="text-[11px] text-slate-400">Astronaut Health Monitor</p>
                 </div>
               </div>
@@ -137,7 +143,7 @@ export default function Layout() {
               onClick={() => navigate('/dashboard')}
               className="flex min-w-0 items-center gap-2 text-sm font-semibold text-white"
             >
-              <img src="/thais-logo.png" alt="" className="h-7 w-7 shrink-0 rounded-full object-cover" width="28" height="28" />
+              <img src="/thais-logo.png" alt="T.H.A.I.S. logo" className="h-8 w-8 shrink-0 rounded-full object-cover" width="32" height="32" />
               <span className="truncate">T.H.A.I.S.</span>
             </button>
 
@@ -197,13 +203,60 @@ export default function Layout() {
           <Outlet />
         </main>
 
-        <footer className="border-t border-white/10 px-4 py-4 text-[11px] text-slate-500 lg:px-8">
-          T.H.A.I.S. — Tech &amp; Health Astronaut Intelligent System · educational demonstration for the NASA Space
-          Apps Challenge 2026. NASA open data is labelled Real NASA; simulated POC values are labelled Simulated.
-          Not a medical device and not a diagnosis.{' '}
-          <a className="underline decoration-dotted hover:text-slate-300" href="/docs" target="_blank" rel="noreferrer">
-            API docs
-          </a>
+        <footer className="border-t border-white/10 px-4 py-6 text-[11px] text-slate-500 lg:px-8">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">About us</p>
+          <p className="mt-1 text-sm font-semibold text-white">Tech &amp; Health Astronaut Intelligent System</p>
+          <p className="mt-1 max-w-3xl leading-relaxed">
+            Thais Russomano Team is a tribute to the Brazilian physician and researcher who pioneered Space Medicine
+            and Physiology in Brazil.
+          </p>
+
+          <ul className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-2 xl:grid-cols-3">
+            {TEAM.map((member) => (
+              <li key={member.name} className="leading-relaxed">
+                <a
+                  className="font-medium text-slate-200 underline decoration-dotted hover:text-white"
+                  href={member.linkedin}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {member.name}
+                </a>
+                <span> — {member.role}</span>
+                {member.github && (
+                  <a
+                    className="ml-1 text-cyan-300 underline decoration-dotted hover:text-cyan-200"
+                    href={`https://github.com/${member.github}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    @{member.github}
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <a
+              className="inline-flex items-center gap-1 font-semibold text-accent hover:text-cyan-200"
+              href="https://github.com/NASA-Space-App-Challenge-Health/app"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub repository →
+            </a>
+            <span className="text-slate-600">·</span>
+            <span>Educational demonstration for the NASA Space Apps Challenge 2026.</span>
+            <span className="text-slate-600">·</span>
+            <a className="underline decoration-dotted hover:text-slate-300" href="/docs" target="_blank" rel="noreferrer">
+              API docs
+            </a>
+          </div>
+          <p className="mt-2">
+            Real NASA open data is labelled Real NASA; simulated POC vitals are labelled Simulated. Not a medical
+            device and not a diagnosis.
+          </p>
         </footer>
       </div>
     </div>
