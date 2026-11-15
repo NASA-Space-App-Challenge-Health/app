@@ -68,8 +68,11 @@ export default function Layout() {
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-panel/60 lg:flex">
         <div className="border-b border-white/10 p-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Space Apps 2026</p>
-          <h1 className="mt-1 text-lg font-bold leading-tight text-white">Astronaut Health Monitor</h1>
-          <p className="mt-1 text-xs text-slate-400">Inspiration4 open data</p>
+          <h1 className="mt-1 text-lg font-bold leading-tight text-white">T.H.A.I.S.</h1>
+          <p className="text-xs font-medium text-slate-300">Astronaut Health Monitor</p>
+          <p className="mt-1 text-[11px] leading-snug text-slate-500">
+            Tech &amp; Health Astronaut Intelligent System
+          </p>
         </div>
         <div className="flex-1 overflow-y-auto p-3">
           <NavItems />
@@ -91,7 +94,8 @@ export default function Layout() {
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Space Apps 2026</p>
-                <p className="text-base font-bold text-white">Health Monitor</p>
+                <p className="text-base font-bold text-white">T.H.A.I.S.</p>
+                <p className="text-[11px] text-slate-400">Astronaut Health Monitor</p>
               </div>
               <button
                 type="button"
@@ -131,7 +135,7 @@ export default function Layout() {
               className="flex min-w-0 items-center gap-2 text-sm font-semibold text-white"
             >
               <Activity size={18} className="shrink-0 text-accent" aria-hidden="true" />
-              <span className="truncate">Health Monitor</span>
+              <span className="truncate">T.H.A.I.S.</span>
             </button>
 
             <div className="ml-auto flex items-center gap-2">
@@ -191,8 +195,8 @@ export default function Layout() {
         </main>
 
         <footer className="border-t border-white/10 px-4 py-4 text-[11px] text-slate-500 lg:px-8">
-          Educational demonstration for the NASA Space Apps Challenge 2026. Not a medical device and not a
-          diagnosis.{' '}
+          T.H.A.I.S. — Tech &amp; Health Astronaut Intelligent System · educational demonstration for the NASA Space
+          Apps Challenge 2026. Not a medical device and not a diagnosis.{' '}
           <a className="underline decoration-dotted hover:text-slate-300" href="/docs" target="_blank" rel="noreferrer">
             API docs
           </a>
