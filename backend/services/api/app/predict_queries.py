@@ -95,8 +95,8 @@ def predict_labs(conn, crew: str | None = None, analyte: str | None = None) -> d
     }
 
 
-def lab_risks(conn, limit: int = 20) -> dict[str, Any]:
-    items = predict_labs(conn)["items"]
+def lab_risks(conn, limit: int = 20, crew: str | None = None) -> dict[str, Any]:
+    items = predict_labs(conn, crew=crew)["items"]
     flagged = [item for item in items if item["flags"]]
     def rank(item: dict[str, Any]) -> tuple:
         worsening = 0 if "already_out_and_worsening" in item["flags"] else 1

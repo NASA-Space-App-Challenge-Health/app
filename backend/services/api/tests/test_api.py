@@ -43,6 +43,39 @@ class ApiTests(unittest.TestCase):
         self.assertIn("CREATE TABLE crew_members", statements[0])
         self.assertIn("ON DELETE CASCADE", statements[1])
 
+    def test_signed_session_overrides_query_identity(self):
+        import os
+
+        from app import session
+
+        token = session.issue("C003", "self")["token"]
+        previous = os.environ.get("DEMO_AUTH_REQUIRED")
+        os.environ["DEMO_AUTH_REQUIRED"] = "true"
+        try:
+            unauthenticated = self.client.get("/api/dashboard?viewer=C001&role=cmo")
+            self.assertEqual(unauthenticated.status_code, 401, unauthenticated.text)
+            response = self.client.get(
+                "/api/dashboard?viewer=C001&role=cmo",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+        finally:
+            if previous is None:
+                os.environ.pop("DEMO_AUTH_REQUIRED", None)
+            else:
+                os.environ["DEMO_AUTH_REQUIRED"] = previous
+        self.assertEqual(response.status_code, 200, response.text)
+        body = response.json()
+        by_sign = {member["call_sign"]: member for member in body["crew"]}
+        self.assertEqual(by_sign["C003"]["visible"], "full")
+        self.assertEqual(by_sign["C001"]["visible"], "hidden")
+
+    def test_eda_crew_scope(self):
+        response = self.client.get("/eda/overview?crew=C003")
+        self.assertEqual(response.status_code, 200, response.text)
+        body = response.json()
+        self.assertEqual(body["crew_count"], 1)
+        self.assertLess(body["lab_rows"], 4000)
+
     def test_dashboard_mixes_real_labs_and_simulated_vitals(self):
         response = self.client.get("/api/dashboard?viewer=C001&role=flight_surgeon")
         self.assertEqual(response.status_code, 200, response.text)

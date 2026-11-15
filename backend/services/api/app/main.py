@@ -6,16 +6,18 @@ import logging
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime
+from urllib.parse import parse_qsl, urlencode
 from uuid import UUID
 
 import psycopg
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from app import db, eda_queries, help as help_loop, predict_queries, replay
 from app.guidance import DISCLAIMER, IndicatorError
+from app import session as demo_session
 from app.xemu import history
 from app.repository import (
     ConflictError,
@@ -72,9 +74,44 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=_origins(),
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type", "Accept"],
+    allow_headers=["Content-Type", "Accept", "Authorization"],
     allow_credentials=False,
 )
+
+
+PUBLIC_PATHS = {"/", "/health", "/docs", "/redoc", "/openapi.json", "/api/session"}
+PROTECTED_PREFIXES = ("/api/", "/recommendations", "/eda/", "/predict/")
+
+
+def _signed_identity(request: Request) -> dict | None:
+    header = request.headers.get("authorization", "").strip()
+    if not header.lower().startswith("bearer "):
+        return None
+    return demo_session.verify(header[7:].strip())
+
+
+@app.middleware("http")
+async def _demo_session_guard(request, call_next):
+    path = request.url.path
+    protected = path in {"/recommendations", "/predict"} or path.startswith(PROTECTED_PREFIXES)
+    if not protected or path in PUBLIC_PATHS:
+        return await call_next(request)
+
+    identity = _signed_identity(request)
+    if identity is not None:
+        params = dict(parse_qsl(request.scope.get("query_string", b"").decode("utf-8"), keep_blank_values=True))
+        params["viewer"] = identity["viewer"]
+        params["role"] = identity["role"]
+        # A non-clinical role may only narrow an aggregate query to itself.
+        crew = (params.get("crew") or "").strip().upper()
+        if crew and identity["role"] not in {"cmo", "flight_surgeon"} and crew != identity["viewer"]:
+            params["crew"] = identity["viewer"]
+        request.scope["query_string"] = urlencode(params).encode("utf-8")
+        request.state.demo_identity = identity
+    elif demo_session.auth_required():
+        return JSONResponse(status_code=401, content={"detail": "A signed demo session is required."})
+
+    return await call_next(request)
 
 
 @app.middleware("http")
@@ -84,6 +121,31 @@ async def _log_and_guard(request, call_next):
     response.headers["Cache-Control"] = "no-store"
     logger.info("%s %s %s", request.method, request.url.path, response.status_code)
     return response
+
+
+class SessionCreate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    viewer: str = Field(default="C001", pattern=r"^C00[1-4]$")
+    role: str = Field(default="self", pattern=r"^(self|cmo|flight_surgeon|crewmate|commander)$")
+
+
+@app.post("/api/session")
+def create_demo_session(payload: SessionCreate) -> dict:
+    """Issue a signed demo identity for the selected crew member and role."""
+    try:
+        with db.connect() as conn:
+            row = conn.execute(
+                "SELECT call_sign, is_cmo FROM crew_members WHERE call_sign = %s",
+                (payload.viewer,),
+            ).fetchone()
+        if row is None:
+            raise HTTPException(status_code=404, detail="Crew member not found")
+        issued = demo_session.issue(payload.viewer, payload.role)
+        issued["is_cmo"] = bool(row["is_cmo"])
+        return issued
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 class CrewCreate(BaseModel):
@@ -188,28 +250,28 @@ def _eda(query):
 
 
 @app.get("/eda/overview")
-def eda_overview() -> dict:
-    return _eda(eda_queries.overview)
+def eda_overview(crew: str | None = None) -> dict:
+    return _eda(lambda conn: eda_queries.overview(conn, crew))
 
 
 @app.get("/eda/labs/out_of_range")
-def eda_out_of_range(limit: int = 12) -> dict:
-    return _eda(lambda conn: eda_queries.out_of_range(conn, limit))
+def eda_out_of_range(limit: int = 12, crew: str | None = None) -> dict:
+    return _eda(lambda conn: eda_queries.out_of_range(conn, limit, crew))
 
 
 @app.get("/eda/labs/analytes")
-def eda_analytes() -> dict:
-    return _eda(eda_queries.analytes)
+def eda_analytes(crew: str | None = None) -> dict:
+    return _eda(lambda conn: eda_queries.analytes(conn, crew))
 
 
 @app.get("/eda/labs/trends")
-def eda_trends(analyte: str) -> dict:
-    return _eda(lambda conn: eda_queries.trends(conn, analyte))
+def eda_trends(analyte: str, crew: str | None = None) -> dict:
+    return _eda(lambda conn: eda_queries.trends(conn, analyte, crew))
 
 
 @app.get("/eda/labs/shift")
-def eda_shift(limit: int = 12) -> dict:
-    return _eda(lambda conn: eda_queries.shift(conn, limit))
+def eda_shift(limit: int = 12, crew: str | None = None) -> dict:
+    return _eda(lambda conn: eda_queries.shift(conn, limit, crew))
 
 
 @app.get("/eda/labs/sunburst")
@@ -228,8 +290,8 @@ def eda_radiation() -> dict:
 
 
 @app.get("/eda/extremes")
-def eda_extremes(limit: int = 15) -> dict:
-    return _eda(lambda conn: eda_queries.extremes(conn, limit))
+def eda_extremes(limit: int = 15, crew: str | None = None) -> dict:
+    return _eda(lambda conn: eda_queries.extremes(conn, limit, crew))
 
 
 @app.get("/predict/labs")
@@ -238,8 +300,8 @@ def predict_labs(crew: str | None = None, analyte: str | None = None) -> dict:
 
 
 @app.get("/predict/labs/risks")
-def predict_lab_risks(limit: int = 20) -> dict:
-    return _eda(lambda conn: predict_queries.lab_risks(conn, limit))
+def predict_lab_risks(limit: int = 20, crew: str | None = None) -> dict:
+    return _eda(lambda conn: predict_queries.lab_risks(conn, limit, crew))
 
 
 @app.get("/predict/radiation")

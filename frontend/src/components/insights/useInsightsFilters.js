@@ -89,6 +89,13 @@ export default function useInsightsFilters() {
     setFilters((current) => ({ ...current, only }))
   }, [])
 
+  const setCrew = useCallback((ids) => {
+    setFilters((current) => ({
+      ...current,
+      crew: CREW_IDS.filter((id) => ids.includes(id)),
+    }))
+  }, [])
+
   const reset = useCallback(() => setFilters(DEFAULT_FILTERS), [])
 
   const crewSet = useMemo(() => new Set(filters.crew), [filters.crew])
@@ -105,6 +112,7 @@ export default function useInsightsFilters() {
     toggleTopic,
     setView,
     setOnly,
+    setCrew,
     reset,
   }
 }

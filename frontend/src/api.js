@@ -6,6 +6,16 @@
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? ''
 
+let sessionToken = ''
+
+export function setSessionToken(token) {
+  sessionToken = token || ''
+}
+
+function headers(extra = {}) {
+  return sessionToken ? { ...extra, Authorization: `Bearer ${sessionToken}` } : extra
+}
+
 function query(params = {}) {
   const search = new URLSearchParams()
   for (const [key, value] of Object.entries(params)) {
@@ -17,7 +27,7 @@ function query(params = {}) {
 
 async function getJSON(path) {
   const response = await fetch(`${API_BASE}${path}`, {
-    headers: { Accept: 'application/json' },
+    headers: headers({ Accept: 'application/json' }),
   })
   if (!response.ok) {
     let detail = ''
@@ -35,7 +45,7 @@ async function getJSON(path) {
 async function postJSON(path, payload) {
   const response = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
-    headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+    headers: headers({ Accept: 'application/json', 'Content-Type': 'application/json' }),
     body: JSON.stringify(payload),
   })
   if (!response.ok) {
@@ -62,24 +72,25 @@ export const ROLES = [
 export const CREW = ['C001', 'C002', 'C003', 'C004']
 
 export const api = {
+  createSession: ({ viewer, role } = {}) => postJSON('/api/session', { viewer, role }),
   dashboard: ({ viewer, role } = {}) => getJSON(`/api/dashboard${query({ viewer, role })}`),
   demo: ({ viewer, role } = {}) => getJSON(`/api/demo${query({ viewer, role })}`),
   insights: ({ viewer } = {}) => getJSON(`/api/insights${query({ viewer })}`),
   crew: () => getJSON('/api/crew'),
   recommendations: ({ crew, role, viewer } = {}) => getJSON(`/recommendations${query({ crew, role, viewer })}`),
 
-  edaOverview: () => getJSON('/eda/overview'),
-  edaOutOfRange: (limit = 12) => getJSON(`/eda/labs/out_of_range${query({ limit })}`),
-  edaAnalytes: () => getJSON('/eda/labs/analytes'),
-  edaTrends: (analyte) => getJSON(`/eda/labs/trends${query({ analyte })}`),
-  edaShift: (limit = 12) => getJSON(`/eda/labs/shift${query({ limit })}`),
+  edaOverview: ({ crew } = {}) => getJSON(`/eda/overview${query({ crew })}`),
+  edaOutOfRange: (limit = 12, { crew } = {}) => getJSON(`/eda/labs/out_of_range${query({ limit, crew })}`),
+  edaAnalytes: ({ crew } = {}) => getJSON(`/eda/labs/analytes${query({ crew })}`),
+  edaTrends: (analyte, { crew } = {}) => getJSON(`/eda/labs/trends${query({ analyte, crew })}`),
+  edaShift: (limit = 12, { crew } = {}) => getJSON(`/eda/labs/shift${query({ limit, crew })}`),
   edaSunburst: () => getJSON('/eda/labs/sunburst'),
   edaFlow: () => getJSON('/eda/labs/flow'),
   edaRadiation: () => getJSON('/eda/radiation/series'),
-  edaExtremes: (limit = 15) => getJSON(`/eda/extremes${query({ limit })}`),
+  edaExtremes: (limit = 15, { crew } = {}) => getJSON(`/eda/extremes${query({ limit, crew })}`),
 
   predictLabs: ({ crew, analyte } = {}) => getJSON(`/predict/labs${query({ crew, analyte })}`),
-  predictRisks: (limit = 20) => getJSON(`/predict/labs/risks${query({ limit })}`),
+  predictRisks: (limit = 20, { crew } = {}) => getJSON(`/predict/labs/risks${query({ limit, crew })}`),
   predictRadiation: () => getJSON('/predict/radiation'),
   predictVitals: ({ crew } = {}) => getJSON(`/predict/vitals${query({ crew })}`),
 

@@ -100,7 +100,7 @@ export default function OverviewPanel({ data, crew, topics, only }) {
       </div>
 
       <Note>
-        Totals are whole-cohort. The crew filter applies to per-crew rows below and on the Labs tab.
+        Totals follow the active crew profile. The Crew toggles apply to per-crew rows below and on the Labs tab.
       </Note>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -153,8 +153,7 @@ export default function OverviewPanel({ data, crew, topics, only }) {
             <Empty>Turn on Blood cells or Metabolism to see the shifts.</Empty>
           )}
           <Note>
-            Crew-mean change; the crew filter does not apply. There is no in-flight sample in this
-            extract.
+            Crew-mean change for the active profile. There is no in-flight sample in this extract.
           </Note>
         </ChartCard>
       </div>
