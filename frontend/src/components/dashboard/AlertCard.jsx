@@ -8,7 +8,7 @@ import { evidenceRows } from './format'
 // sources; the technical detail and clinician instruction sit behind a
 // disclosure. An emergency gets a stronger surface and an icon, but the public
 // text never names a person or a diagnosis.
-export default function AlertCard({ alert }) {
+export default function AlertCard({ alert, embedded = false }) {
   const titleId = useId()
   if (!alert) return null
 
@@ -22,16 +22,16 @@ export default function AlertCard({ alert }) {
   return (
     <section
       aria-labelledby={titleId}
-      className={`relative overflow-hidden rounded-2xl border p-5 shadow-lg shadow-black/20 ${
-        emergency ? 'border-red-500/50 bg-red-500/10' : 'border-white/10 bg-panel/80'
-      }`}
+      className={`relative overflow-hidden border ${
+        embedded ? 'rounded-xl p-3 shadow-none' : 'rounded-2xl p-5 shadow-lg shadow-black/20'
+      } ${emergency ? 'border-red-500/50 bg-red-500/10' : 'border-white/10 bg-panel/80'}`}
     >
       {emergency && <span className="absolute inset-y-0 left-0 w-1 bg-red-500/70" aria-hidden="true" />}
 
       <div className="flex items-start gap-3">
         {emergency && (
-          <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-400/50 bg-red-500/15 text-red-300">
-            <AlertTriangle size={20} aria-hidden="true" />
+          <span className={`mt-0.5 inline-flex shrink-0 items-center justify-center rounded-xl border border-red-400/50 bg-red-500/15 text-red-300 ${embedded ? 'h-8 w-8' : 'h-10 w-10'}`}>
+            <AlertTriangle size={embedded ? 16 : 20} aria-hidden="true" />
           </span>
         )}
 
@@ -52,7 +52,7 @@ export default function AlertCard({ alert }) {
             )}
           </div>
 
-          <h2 id={titleId} className={`mt-2 font-semibold leading-snug text-white ${emergency ? 'text-xl' : 'text-lg'}`}>
+          <h2 id={titleId} className={`mt-2 font-semibold leading-snug text-white ${emergency ? (embedded ? 'text-base' : 'text-xl') : 'text-lg'}`}>
             {headline}
           </h2>
           {sentence && (
