@@ -128,8 +128,8 @@ export default function FilterBar({
       </div>
 
       <p className="mt-2 text-[11px] leading-snug text-slate-500">
-        Filters update the shared link. Crew applies to per-crew rows; out-of-range applies to lab
-        flags.
+        Filters update the shared link. Totals follow the active crew profile; Crew also filters
+        per-crew rows. Out-of-range filters lab flags.
       </p>
     </section>
   )

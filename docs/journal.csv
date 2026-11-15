@@ -125,3 +125,7 @@ Mover o card de alerta, que atualmente ocupa praticamente toda a largura da tela
 Create a didactic How It Works diagram with the five pipeline stages and a worked DosTel/SEP example,faça um diagrama exemplificando essa explicação de forma a torná-la didática,2026-11-15T19:45:00-03:00,unavailable,600
 Replace the detailed How It Works infographic with a simple five-step numbered diagram,"cara, eu pensei em imagens gráficas para facilitar a leitura, não adicionar mais elementos gráficos... algo como passo a passo, etc",2026-11-15T19:52:00-03:00,unavailable,300
 Label WBC as total and expose the five-type white blood cell differential on the Blood & heart page,sabe a sessão que falamos sobre glóbulos brancos? quais estamos falando? Não fica claro no app em prod,2026-11-15T20:22:00-03:00,unavailable,720
+Add signed demo sessions and scope every page and EDA aggregate to the selected crew,"siga com a fase 1, eu falei RLS, mas no caso, seria apenas para que as seleções funcionassem na demo (selecionei um profile como CMO, a página atualiza para usar dados dele apenas).
+
+1. sessão demo assinada apenas
+2. pode ser ambos, cmo e flight surgeon. Self (crew member) mantém seletor apenas a título de demo",2026-11-15T21:08:00-03:00,unavailable,780

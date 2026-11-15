@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { api } from '../api'
 import { ErrorState, Loading } from '../components/StateView'
 import FilterBar from '../components/insights/FilterBar'
@@ -13,17 +13,17 @@ import useFetch from '../hooks/useFetch'
 
 // Data insights: one page, one visible section at a time, every number from the
 // real API. Filters are client-side and mirrored into the URL query string.
-function loadCore() {
+function loadCore(viewer) {
   return Promise.all([
-    api.edaOverview(),
-    api.edaOutOfRange(12),
-    api.edaAnalytes(),
-    api.edaShift(12),
+    api.edaOverview({ crew: viewer }),
+    api.edaOutOfRange(12, { crew: viewer }),
+    api.edaAnalytes({ crew: viewer }),
+    api.edaShift(12, { crew: viewer }),
     api.edaRadiation(),
-    api.edaExtremes(15),
-    api.predictRisks(20),
+    api.edaExtremes(15, { crew: viewer }),
+    api.predictRisks(20, { crew: viewer }),
     api.predictRadiation(),
-    api.insights(),
+    api.insights({ viewer }),
   ]).then(([overview, outOfRange, analytes, shift, radiation, extremes, risks, predict, insights]) => ({
     overview,
     outOfRange,
@@ -50,10 +50,16 @@ export default function Insights() {
     toggleTopic,
     setView,
     setOnly,
+    setCrew,
     reset,
   } = useInsightsFilters()
 
-  const core = useFetch(loadCore, [])
+  useEffect(() => {
+    // The header selector is the demo identity; keep the local crew filter in sync.
+    setCrew([viewer])
+  }, [viewer, setCrew])
+
+  const core = useFetch(useCallback(() => loadCore(viewer), [viewer]), [viewer])
   const loadRecommendations = useCallback(
     () => api.recommendations({ role, viewer }),
     [role, viewer],

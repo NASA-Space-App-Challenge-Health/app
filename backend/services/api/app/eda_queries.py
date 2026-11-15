@@ -25,22 +25,31 @@ END
 """
 
 
-def overview(conn) -> dict[str, Any]:
+def overview(conn, crew: str | None = None) -> dict[str, Any]:
+    crew = (crew or "").strip().upper() or None
     row = conn.execute(
         f"""
+        WITH selected AS (
+            SELECT id FROM crew_members
+            WHERE (%s::text IS NULL OR call_sign = %s)
+        ), labs AS (
+            SELECT * FROM lab_results
+            WHERE crew_member_id IN (SELECT id FROM selected)
+        )
         SELECT
-            (SELECT count(*) FROM crew_members WHERE call_sign LIKE 'C00%') AS crew_count,
-            (SELECT count(DISTINCT analyte) FROM lab_results) AS analytes,
-            (SELECT count(*) FROM lab_results) AS lab_rows,
-            (SELECT count(DISTINCT timepoint) FROM lab_results) AS timepoints,
+            (SELECT count(*) FROM selected) AS crew_count,
+            (SELECT count(DISTINCT analyte) FROM labs) AS analytes,
+            (SELECT count(*) FROM labs) AS lab_rows,
+            (SELECT count(DISTINCT timepoint) FROM labs) AS timepoints,
             (SELECT count(DISTINCT recorded_at::date) FROM radiation_readings) AS radiation_days,
             (SELECT count(*) FROM space_weather_events) AS sep_events,
-            (SELECT count(*) FROM lab_results WHERE flag IN ('low', 'high')) AS out_of_range_rows,
-            (SELECT count(*) FROM lab_results WHERE flag IN ('low', 'normal', 'high')) AS rows_with_reference,
-            (SELECT count(DISTINCT analyte) FROM lab_results WHERE flag IN ('low', 'high')) AS flagged_analytes,
+            (SELECT count(*) FROM labs WHERE flag IN ('low', 'high')) AS out_of_range_rows,
+            (SELECT count(*) FROM labs WHERE flag IN ('low', 'normal', 'high')) AS rows_with_reference,
+            (SELECT count(DISTINCT analyte) FROM labs WHERE flag IN ('low', 'high')) AS flagged_analytes,
             (SELECT count(*) FROM reference_ranges) AS reference_range_rows,
             (SELECT count(*) FROM dataset_catalog) AS dataset_catalog_rows
-        """
+        """,
+        (crew, crew),
     ).fetchone()
     referenced = row["rows_with_reference"] or 0
     pct = (100.0 * row["out_of_range_rows"] / referenced) if referenced else 0.0
@@ -66,7 +75,8 @@ def overview(conn) -> dict[str, Any]:
     }
 
 
-def out_of_range(conn, limit: int = 12) -> dict[str, Any]:
+def out_of_range(conn, limit: int = 12, crew: str | None = None) -> dict[str, Any]:
+    crew = (crew or "").strip().upper() or None
     rows = conn.execute(
         """
         SELECT analyte,
@@ -74,11 +84,12 @@ def out_of_range(conn, limit: int = 12) -> dict[str, Any]:
                count(*) FILTER (WHERE flag = 'high') AS high
         FROM lab_results
         WHERE flag IN ('low', 'high') AND panel IN ('CBC', 'CMP')
+          AND (%s::text IS NULL OR crew_member_id = (SELECT id FROM crew_members WHERE call_sign = %s))
         GROUP BY analyte
         ORDER BY count(*) DESC, analyte
         LIMIT %s
         """,
-        (limit,),
+        (crew, crew, limit),
     ).fetchall()
     return {
         "analyte": [row["analyte"] for row in rows],
@@ -88,20 +99,24 @@ def out_of_range(conn, limit: int = 12) -> dict[str, Any]:
     }
 
 
-def analytes(conn) -> dict[str, Any]:
+def analytes(conn, crew: str | None = None) -> dict[str, Any]:
+    crew = (crew or "").strip().upper() or None
     rows = conn.execute(
         """
         SELECT analyte, panel, count(*) AS n
         FROM lab_results
         WHERE panel IN ('CBC', 'CMP') AND value_numeric IS NOT NULL
+          AND (%s::text IS NULL OR crew_member_id = (SELECT id FROM crew_members WHERE call_sign = %s))
         GROUP BY analyte, panel
         ORDER BY panel, analyte
-        """
+        """,
+        (crew, crew),
     ).fetchall()
     return {"analytes": [{"analyte": row["analyte"], "panel": row["panel"], "rows": row["n"]} for row in rows]}
 
 
-def trends(conn, analyte: str) -> dict[str, Any]:
+def trends(conn, analyte: str, crew: str | None = None) -> dict[str, Any]:
+    crew = (crew or "").strip().upper() or None
     rows = conn.execute(
         """
         SELECT c.call_sign, l.timepoint, l.days_from_launch, l.value_numeric, l.unit,
@@ -109,9 +124,10 @@ def trends(conn, analyte: str) -> dict[str, Any]:
         FROM lab_results l
         JOIN crew_members c ON c.id = l.crew_member_id
         WHERE l.analyte = %s AND l.value_numeric IS NOT NULL
+          AND (%s::text IS NULL OR c.call_sign = %s)
         ORDER BY c.call_sign, l.days_from_launch
         """,
-        (analyte,),
+        (analyte, crew, crew),
     ).fetchall()
     if not rows:
         return {"analyte": analyte, "traces": [], "timepoints": list(TIMEPOINTS)}
@@ -131,7 +147,8 @@ def trends(conn, analyte: str) -> dict[str, Any]:
     }
 
 
-def shift(conn, limit: int = 12) -> dict[str, Any]:
+def shift(conn, limit: int = 12, crew: str | None = None) -> dict[str, Any]:
+    crew = (crew or "").strip().upper() or None
     rows = conn.execute(
         """
         WITH paired AS (
@@ -142,6 +159,7 @@ def shift(conn, limit: int = 12) -> dict[str, Any]:
                    count(*) FILTER (WHERE timepoint IN ('L-3', 'R+1') AND value_numeric IS NOT NULL) AS n
             FROM lab_results
             WHERE panel IN ('CBC', 'CMP') AND timepoint IN ('L-3', 'R+1')
+              AND (%s::text IS NULL OR crew_member_id = (SELECT id FROM crew_members WHERE call_sign = %s))
             GROUP BY analyte, unit
         )
         SELECT analyte, unit, mean_delta, pre_mean, n,
@@ -152,7 +170,7 @@ def shift(conn, limit: int = 12) -> dict[str, Any]:
         ORDER BY abs(100.0 * mean_delta / NULLIF(pre_mean, 0)) DESC NULLS LAST
         LIMIT %s
         """,
-        (limit,),
+        (crew, crew, limit),
     ).fetchall()
     return {
         "analyte": [row["analyte"] for row in rows],
@@ -305,7 +323,8 @@ def radiation_series(conn) -> dict[str, Any]:
     }
 
 
-def extremes(conn, limit: int = 15) -> dict[str, Any]:
+def extremes(conn, limit: int = 15, crew: str | None = None) -> dict[str, Any]:
+    crew = (crew or "").strip().upper() or None
     rows = conn.execute(
         """
         SELECT c.call_sign, l.analyte, l.timepoint, l.value_numeric, l.unit,
@@ -319,13 +338,14 @@ def extremes(conn, limit: int = 15) -> dict[str, Any]:
           AND l.ref_high IS NOT NULL
           AND l.ref_high > l.ref_low
           AND l.panel IN ('CBC', 'CMP')
+          AND (%s::text IS NULL OR c.call_sign = %s)
         ORDER BY abs(
             (l.value_numeric - ((l.ref_low + l.ref_high) / 2.0))
             / NULLIF((l.ref_high - l.ref_low) / 4.0, 0)
         ) DESC
         LIMIT %s
         """,
-        (limit,),
+        (crew, crew, limit),
     ).fetchall()
     return {
         "rows": [

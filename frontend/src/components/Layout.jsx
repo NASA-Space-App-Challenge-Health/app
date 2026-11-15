@@ -49,7 +49,7 @@ function NavItems({ onNavigate }) {
 }
 
 export default function Layout() {
-  const { viewer, role, setViewer, setRole } = useViewer()
+  const { viewer, role, setViewer, setRole, busy } = useViewer()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -147,8 +147,10 @@ export default function Layout() {
                 <select
                   value={viewer}
                   onChange={(event) => setViewer(event.target.value)}
+                  disabled={busy}
+                  aria-busy={busy}
                   aria-label="Viewing crew member"
-                  className="rounded-lg border border-white/10 bg-panel px-2 py-1 text-xs text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  className="rounded-lg border border-white/10 bg-panel px-2 py-1 text-xs text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-60"
                 >
                   {CREW.map((member) => (
                     <option key={member} value={member}>
@@ -162,8 +164,10 @@ export default function Layout() {
                 <select
                   value={role}
                   onChange={(event) => setRole(event.target.value)}
+                  disabled={busy}
+                  aria-busy={busy}
                   aria-label="Acting role"
-                  className="max-w-[7.5rem] rounded-lg border border-white/10 bg-panel px-2 py-1 text-xs text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  className="max-w-[7.5rem] rounded-lg border border-white/10 bg-panel px-2 py-1 text-xs text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-60"
                 >
                   {ROLES.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -172,6 +176,7 @@ export default function Layout() {
                   ))}
                 </select>
               </label>
+              {busy && <span className="text-[10px] uppercase tracking-wide text-slate-500">Syncing</span>}
             </div>
           </div>
 
