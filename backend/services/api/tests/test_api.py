@@ -76,6 +76,14 @@ class ApiTests(unittest.TestCase):
         hidden = {member["call_sign"]: member for member in crewmate.json()["crew"]}["C003"]
         self.assertEqual(hidden["visible"], "hidden")
 
+    def test_root_and_health_describe_the_mixed_sources(self):
+        root = self.client.get("/")
+        self.assertEqual(root.status_code, 200, root.text)
+        self.assertEqual(root.json()["data_source"], "mixed")
+        health = self.client.get("/health")
+        self.assertEqual(health.status_code, 200, health.text)
+        self.assertEqual(health.json()["data_source"], "mixed")
+
     def test_upload_csv_stores_a_simulated_vital(self):
         payload = (
             "crew_id,indicator,value,recorded_at\n"

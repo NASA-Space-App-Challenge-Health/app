@@ -1,4 +1,4 @@
-"""HTTP API for simulated crew health readings."""
+"""HTTP API for crew health readings (real NASA data plus a simulated POC layer)."""
 
 from __future__ import annotations
 
@@ -138,7 +138,7 @@ def _help_http_error(exc: Exception):
 def root() -> dict[str, str]:
     return {
         "service": "astronaut-health-monitor",
-        "data_source": "simulated",
+        "data_source": "mixed",
         "health": "/health",
         "dashboard": "/api/dashboard",
         "docs": "/docs",
@@ -162,7 +162,7 @@ def health() -> dict[str, str]:
     except psycopg.Error as exc:
         logger.warning("Health check failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="Database is unavailable") from exc
-    return {"status": "ok", "database": "ok", "data_source": "simulated"}
+    return {"status": "ok", "database": "ok", "data_source": "mixed"}
 
 
 @app.get("/api/dashboard")
