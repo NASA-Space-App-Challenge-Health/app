@@ -4,6 +4,7 @@ import { ViewerProvider } from './context/ViewerContext'
 import About from './pages/About'
 import CategoryPage from './pages/CategoryPage'
 import Dashboard from './pages/Dashboard'
+import HelpCenter from './pages/HelpCenter'
 import Insights from './pages/Insights'
 import Login from './pages/Login'
 
@@ -17,6 +18,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/:categoria" element={<CategoryPage />} />
             <Route path="/insights" element={<Insights />} />
+            <Route path="/help" element={<HelpCenter />} />
             <Route path="/about" element={<About />} />
           </Route>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
