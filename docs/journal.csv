@@ -55,3 +55,8 @@ Draft a 20-item information budget for the Overview and identify duplicate varia
 "Implement the 19-item Overview v3.1 locally (systems, labs summary, compact body map, no hygiene)",siga seu coração nas recomendações e faça a versão local para eu avaliar e dar mais feedbacks para irmos adiante,2026-11-15T15:48:00-03:00,unavailable,780
 "Simplify the Overview for astronaut/CMO use: large clickable cards, fewer words, hidden body-map detail",Lembra que quem vai olhar isso é um astronauta em uma tela na estação espacial ou o médico em operação por lá. A ideia é ser uma ui/ux simples e intuitiva mesmo,2026-11-15T15:56:00-03:00,unavailable,640
 "Draft Overview v4: interactive astronaut body map in the hero, Help and Next action above the fold","até mesmo a localização do botão ""ask for help"" ou as recommendations que tão lá pra trás. O avatar para escolher/selecionar a parte do corpo (atual Body Map) poderia estar na foto do próprio astronauta (na imagem), deslocando para cima de forma que ficasse mais fácil de clicar e acessar os recursos delas. Bora idealizar mais um pouco",2026-11-15T16:02:00-03:00,unavailable,420
+"Implement Overview v4: full-body interactive astronaut, help drawer, one next action","1. A
+2. toque no corpo navega pra categoria
+3. siga seu coração, foca no usu´rio final
+4. pode seguir com o melhor
+5. silhueta de corpo inteiro",2026-11-15T16:12:00-03:00,unavailable,960
