@@ -39,6 +39,12 @@ T.H.A.I.S. is a station-first health board that joins **real NASA records** (Ins
 | Milena | Recording and presentation support | — |
 | Amanda | Design reference | — |
 
+> Contributor check via the GitHub API on 2026-11-15: the repository has three
+> human contributors — `FG-SC`, `engenheiro-ally` and `engjoaquimbarreto-source`.
+> Milena and Amanda contributed to recording and design support but do not have a
+> GitHub profile linked to this repository yet; add their handles here when
+> available.
+
 ## References
 
 - NASA Space Apps Challenge 2026 — [Create Health Monitoring Software for Astronauts on Space Missions](https://www.spaceappschallenge.org/2026/challenges/health-monitoring-software/)
