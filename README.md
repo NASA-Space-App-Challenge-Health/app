@@ -179,6 +179,7 @@ Vercel credential.
 | `FRONTEND_ORIGINS` | No | `http://127.0.0.1:5173,http://localhost:5173` | CORS origins allowed to call the API. |
 | `MIGRATIONS_DIR` | No | repository path, or `/migrations` in Compose | Forward SQL migrations. |
 | `QUEUE_URL` | No | `redis://queue:6379/0` inside Compose | Unused by the API today. |
+| `HELP_REQUEST_TIMEOUT_SECONDS` | No | `90` | Seconds before a waiting help request is shown as escalated. |
 
 No NASA key, OSDR credential, RadLab key, or DONKI key is read by this app. Do
 not commit study files, tokens, or `.env`.

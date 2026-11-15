@@ -40,6 +40,7 @@ Set these on the Vercel project. Do not commit them.
 | `DATABASE_CONNECT_TIMEOUT` | No | Seconds. Default 5. |
 | `FRONTEND_ORIGINS` | No | Not needed for the same-origin SPA. Set it only if a second origin will call the API. |
 | `REDIS_URL`, `QUEUE_URL` | No | Leave unset. The API does not connect to Redis. |
+| `HELP_REQUEST_TIMEOUT_SECONDS` | No | Seconds before a waiting help request is shown as escalated. Default 90. |
 
 ## Seed the production database once
 
@@ -57,6 +58,14 @@ DATABASE_URL='postgresql://USER:PASSWORD@HOST:5432/DBNAME' \
 
 Then deploy. The function does not read the CSVs; they are not staged into
 `public/` and `vercel.json` excludes `data/**` from the function bundle.
+
+### Applying a new migration
+
+The Vercel function runs with `LOAD_ON_STARTUP=false`, so it does **not** apply
+migrations on a cold start. After adding a migration (for example
+`005_help_requests.sql`), run the same one-off command once against the Neon
+`DATABASE_URL` before deploying. It is idempotent: it applies only the pending
+migration and skips CSVs/tables that are already loaded.
 
 ## Routing
 

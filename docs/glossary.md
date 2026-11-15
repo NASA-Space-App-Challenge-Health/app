@@ -120,6 +120,8 @@ inventar.
 | `indicator_shares` | Compartilhamento opt-in de um indicador específico |
 | `data_source` | `simulated`, `mixed` — resumo do board |
 | `group.kind` | `crew` hoje; `family` previsto para cuidado domiciliar |
+| `help_requests` | Tabela do ciclo de ajuda: pedido persistido, status `requested`/`accepted`/`escalated`/`closed`, aceite e tempo até o aceite |
+| **Help loop** | Ciclo pedido → aceite → "help on the way"; métrica de viabilidade = tempo até o aceite |
 | **T.H.A.I.S.** | **Tech & Health Astronaut Intelligent System** — nome do sistema/projeto, criado na v1; ver [evolution-v1-v2.md](evolution-v1-v2.md) |
 | **Astronaut Health Monitor** | Nome do app que implementa o T.H.A.I.S. na v2 (renomeação da interface para "T.H.A.I.S. — Astronaut Health Monitor" está no próximo incremento) |
 | **Baseline v1** | Artigo "T.H.A.I.S.: Arquitetura de Software Edge-First…" (4 páginas) — base científica da v1; o documento está com o time e o resumo das mudanças está em [evolution-v1-v2.md](evolution-v1-v2.md) |

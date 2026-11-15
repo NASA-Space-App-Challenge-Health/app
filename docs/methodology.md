@@ -241,9 +241,8 @@ dose de área acumulada: D(dias) = média_horária · 24 · dias
 ### 5.2 Como os alertas são montados
 
 `briefing.assemble()` consulta o Postgres, roda as regras e projeta cada achado
-por papel. **Alertas não são persistidos** — são calculados a cada request
-(consequência: o ciclo de ajuda do T.H.A.I.S. precisará de tabela/estado
-próprios).
+por papel. **Alertas não são persistidos** — são calculados a cada request. O
+**ciclo de ajuda** (abaixo) é a exceção: tem tabela e estado próprios.
 
 ### 5.3 Matriz de visibilidade (`access.py`, base OCHMO-TB-044)
 
@@ -258,6 +257,33 @@ próprios).
 > Verificado em produção: `viewer=C003&role=self` retorna o card de potássio do
 > próprio C003; `role=crewmate` retorna 0 cards; emergência chega a todos como
 > texto genérico.
+
+### 5.4 Ciclo de ajuda (help loop) — primeiro workflow persistido
+
+Alertas são calculados por request; **pedidos de ajuda são persistidos**
+(migração `005_help_requests.sql`), porque o aceite precisa sobreviver a
+recargas e ser visto pelas duas sessões.
+
+Fluxo: `requested` → (outro tripulante aceita) `accepted` → `closed`. Se o
+timeout (`HELP_REQUEST_TIMEOUT_SECONDS`, default **90 s**) vencer sem aceite, o
+status efetivo vira `escalated` na leitura (sem scheduler).
+
+Tabela `help_requests`: solicitante, módulo, `reason_code` genérico,
+`reason_text` (privado), `severity`, `status`, `accepted_by`/`accepted_at`,
+`created_at`/`closed_at`/`expires_at`.
+
+Privacidade: a tripulação vê que alguém precisa de ajuda, o módulo e o motivo
+genérico; o `reason_text` aparece só para **CMO, flight surgeon e o próprio
+solicitante**. O aceite devolve `accepted_by` e `time_to_accept_seconds`, a
+métrica de viabilidade do pitch.
+
+Endpoints: `POST/GET /api/help-requests`, `GET /api/help-requests/{id}`,
+`POST .../accept`, `POST .../close`. A UI faz **polling de 3 s**. Critério E2E
+(executado): A pede → B vê em ≤3 s → B aceita → A mostra "Help on the way: C001"
+e o tempo até o aceite.
+
+Limitações: sem websocket, sem autenticação (demo), sem notificação fora do app;
+o escalonamento é um estado calculado, não um job.
 
 ## 6. Limitações (para o artigo)
 
@@ -327,7 +353,12 @@ Radiation uses hourly means, simple exponential smoothing (α = 0.3) held flat
 for 24 hours with a residual-scatter interval, spikes at or above 400 µGy/h,
 and a cumulative area dose computed as the week's mean rate × 24 × horizon
 (days). Alerts are rule-based (YAML) and tiered: only emergency rules may
-broadcast to the whole crew, and public text never names a diagnosis.
+broadcast to the whole crew, and public text never names a diagnosis. A separate
+help loop persists crew-to-crew requests (`help_requests`): a requester asks for
+help, any other crew member can accept, and the requester's board shows who is
+on the way within the 3-second poll; the free-text reason is private to the CMO,
+the flight surgeon and the requester, and a waiting request is shown as
+escalated after the timeout.
 OCHMO-TB-044 privacy semantics decide what each role sees (self, Crew Medical
 Officer, flight surgeon, crewmate, commander); a crewmate sees a shared
 indicator only when its owner opts in. Cabin CO₂ is compared with the
