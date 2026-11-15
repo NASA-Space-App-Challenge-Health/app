@@ -88,13 +88,6 @@ export default function Dashboard() {
   const visible = member.visible === 'full'
   const roleLabel = ROLES.find((item) => item.id === role)?.label ?? role
   const alerts = Array.isArray(dashboard?.alerts) ? dashboard.alerts : []
-  const lastLab = member.labs?.[0]?.timepoint ?? '—'
-  const lastPocReading = [...(member.readings ?? [])]
-    .filter((reading) => reading.recorded_at)
-    .sort((left, right) => String(right.recorded_at).localeCompare(String(left.recorded_at)))[0]
-  const lastPoc = lastPocReading?.recorded_at
-    ? `${String(lastPocReading.recorded_at).replace('T', ' ').slice(0, 16)} UTC`
-    : '—'
   const statusKind =
     member.overall_band === 'watch' ? 'watch' : member.overall_band === 'concern' ? 'concern' : 'nominal'
 
@@ -105,13 +98,8 @@ export default function Dashboard() {
           <AstronautBody regions={dashboard?.body} />
 
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">
-              Crew overview · {dashboard?.group?.name ?? 'Inspiration4 open data'}
-            </p>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-bold text-white">
-                {member.call_sign} · {member.full_name}
-              </h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-bold text-white">{member.call_sign}</h1>
               {visible ? (
                 <Chip kind={statusKind} size="lg">
                   {member.overall_band ?? 'No band'}
@@ -121,16 +109,6 @@ export default function Dashboard() {
                   Private
                 </Chip>
               )}
-            </div>
-            <p className="mt-1 text-sm text-slate-400">
-              {member.role_title ?? 'Crew member'} · viewing as {roleLabel}
-            </p>
-            <p className="mt-1 text-xs text-slate-500">
-              Last lab draw {lastLab} · Last POC update {lastPoc}
-            </p>
-            <div className="mt-2 flex flex-wrap items-center gap-2" aria-label="Data composition">
-              <Chip kind="real">Real NASA data</Chip>
-              <Chip kind="simulated">Simulated vitals</Chip>
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
