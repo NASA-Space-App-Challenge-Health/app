@@ -36,14 +36,10 @@ T.H.A.I.S. is a station-first health board that joins **real NASA records** (Ins
 | Felipe Gabriel | Lead: backend, integration, deployment | [@FG-SC](https://github.com/FG-SC) |
 | Alisson Ricardo | Frontend/UX, device and offline path | [@engenheiro-ally](https://github.com/engenheiro-ally) |
 | Joaquim Barreto | Data sources, research, video story | [@engjoaquimbarreto-source](https://github.com/engjoaquimbarreto-source) |
-| Milena | Recording and presentation support | — |
-| Amanda | Design reference | — |
+| Milena Greff | Recording and presentation support | [@milenagreff-tech](https://github.com/milenagreff-tech) |
+| Amanda Paul Dull | Design reference | [@pdamanda](https://github.com/pdamanda) |
 
-> Contributor check via the GitHub API on 2026-11-15: the repository has three
-> human contributors — `FG-SC`, `engenheiro-ally` and `engjoaquimbarreto-source`.
-> Milena and Amanda contributed to recording and design support but do not have a
-> GitHub profile linked to this repository yet; add their handles here when
-> available.
+> All five members are in the GitHub organization [NASA-Space-App-Challenge-Health](https://github.com/NASA-Space-App-Challenge-Health).
 
 ## References
 
