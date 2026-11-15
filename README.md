@@ -97,7 +97,7 @@ home. That variant is not built.
 | `/dashboard` | Crew board: status band, emergency notice, crew cards, vitals, labs, body map, hygiene estimate, and the top recommendations. |
 | `/dashboard/brain` | Sleep and cortisol (simulated), plus what the public data does not cover. |
 | `/dashboard/heart` | Heart rate, SpO2, blood-count labs, glucose trend, and a forecast interval. |
-| `/dashboard/radiation` | One ISS DosTel week, DONKI SEP counts, and the area-dose summary. |
+| `/dashboard/radiation` | One ISS DosTel week, DONKI SEP counts, the area-dose summary, and a simulated suit telemetry poller with stored history. |
 | `/dashboard/muscles` | Honest empty panel: the package has no measured bone or muscle values. |
 | `/insights` | Plain-language data insights with filters (crew, topic, view, out-of-range). |
 

@@ -79,3 +79,4 @@ Remove the remaining explanatory subtitles/callouts and the duplicate body-map b
 "Retire Health status, Guided demo and Crew profile pages/nav; redirect old URLs and refresh docs/submission assets","remova a sessão ""health status"", não agrega nada de novo em relação ao overview.
 
 Faça o memso com ""guided demo"" e ""crew profile"" pois não agregam nada de novo também",2026-11-15T17:58:00-03:00,unavailable,780
+Add simulated suit telemetry polling and persisted history based on Alisson's telemetry pattern,"sim, faça isso baseando-se na infra dele",2026-11-15T18:16:00-03:00,unavailable,900

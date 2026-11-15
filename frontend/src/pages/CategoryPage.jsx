@@ -27,6 +27,7 @@ import LabTimeline from '../components/dashboard/LabTimeline'
 import LabsTable from '../components/dashboard/LabsTable'
 import PrivacyNote from '../components/dashboard/PrivacyNote'
 import RadiationReplay from '../components/dashboard/RadiationReplay'
+import SuitTelemetry from '../components/dashboard/SuitTelemetry'
 import StatGrid from '../components/dashboard/StatGrid'
 import VitalsGrid from '../components/dashboard/VitalsGrid'
 import {
@@ -546,6 +547,8 @@ function RadiationSection({ member, role, dashboard, radiation, prediction }) {
       <SepByMonthChart radiation={radiation} />
 
       <RadiationSummary prediction={prediction} />
+
+      {member.visible === 'full' && <SuitTelemetry crew={member.call_sign} />}
     </>
   )
 }
