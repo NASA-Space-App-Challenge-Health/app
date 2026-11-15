@@ -15,7 +15,6 @@ import {
 } from 'lucide-react'
 import { CREW, ROLES } from '../api'
 import { useViewer } from '../context/ViewerContext'
-import AstronautAvatar from './AstronautAvatar'
 
 const NAV = [
   { to: '/dashboard', label: 'Overview', icon: Home, end: true },
@@ -70,7 +69,7 @@ export default function Layout() {
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-panel/60 lg:flex">
         <div className="border-b border-white/10 p-5">
           <div className="flex items-center gap-3">
-            <AstronautAvatar size={46} className="shrink-0" />
+            <img src="/thais-logo.png" alt="" className="h-11 w-11 shrink-0 rounded-full object-cover" width="44" height="44" />
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Space Apps 2026</p>
               <h1 className="text-lg font-bold leading-tight text-white">T.H.A.I.S.</h1>
@@ -100,7 +99,7 @@ export default function Layout() {
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85%] flex-col border-r border-white/10 bg-panel p-4 shadow-2xl">
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <AstronautAvatar size={38} className="shrink-0" />
+                <img src="/thais-logo.png" alt="" className="h-10 w-10 shrink-0 rounded-full object-cover" width="40" height="40" />
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-400">Space Apps 2026</p>
                   <p className="text-base font-bold text-white">T.H.A.I.S.</p>
@@ -144,7 +143,7 @@ export default function Layout() {
               onClick={() => navigate('/dashboard')}
               className="flex min-w-0 items-center gap-2 text-sm font-semibold text-white"
             >
-              <AstronautAvatar size={26} className="shrink-0" />
+              <img src="/thais-logo.png" alt="" className="h-7 w-7 shrink-0 rounded-full object-cover" width="28" height="28" />
               <span className="truncate">T.H.A.I.S.</span>
             </button>
 
