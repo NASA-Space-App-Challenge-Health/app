@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
   Brain,
   Bone,
+  HandHeart,
   HeartPulse,
   Home,
   LineChart,
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react'
 import { CREW, ROLES } from '../api'
 import { useViewer } from '../context/ViewerContext'
+import useHelpTickets from '../hooks/useHelpTickets'
 
 const NAV = [
   { to: '/dashboard', label: 'Overview', icon: Home, end: true },
@@ -25,10 +27,13 @@ const NAV = [
 ]
 
 
-function NavItems({ onNavigate }) {
+function NavItems({ onNavigate, helpCount = 0, showHelp = false }) {
+  const items = showHelp
+    ? [...NAV, { to: '/help', label: 'Help requests', icon: HandHeart }]
+    : NAV
   return (
     <nav className="space-y-1" aria-label="Main">
-      {NAV.map(({ to, label, icon: Icon, end }) => (
+      {items.map(({ to, label, icon: Icon, end }) => (
         <NavLink
           key={to}
           to={to}
@@ -41,7 +46,10 @@ function NavItems({ onNavigate }) {
           }
         >
           <Icon size={18} aria-hidden="true" />
-          {label}
+          <span className="flex-1">{label}</span>
+          {to === '/help' && helpCount > 0 && (
+            <span className="rounded-full bg-amber-400 px-1.5 text-[10px] font-bold text-black">{helpCount}</span>
+          )}
         </NavLink>
       ))}
     </nav>
@@ -52,6 +60,8 @@ export default function Layout() {
   const { viewer, role, setViewer, setRole, busy } = useViewer()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const clinical = role === 'cmo' || role === 'flight_surgeon'
+  const helpCount = useHelpTickets({ viewer, role, enabled: clinical })
 
   useEffect(() => {
     const onKey = (event) => {
@@ -76,7 +86,7 @@ export default function Layout() {
           <p className="text-xs font-medium text-slate-300">Astronaut Health Monitor</p>
         </div>
         <div className="flex-1 overflow-y-auto p-3">
-          <NavItems />
+          <NavItems helpCount={helpCount} showHelp={clinical} />
         </div>
         <div className="border-t border-white/10 p-4 text-[11px] leading-relaxed text-slate-500">
           Demo only, no login. Real NASA data is labelled; simulated vitals are labelled too.
@@ -110,7 +120,7 @@ export default function Layout() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto">
-              <NavItems onNavigate={() => setMenuOpen(false)} />
+              <NavItems helpCount={helpCount} showHelp={clinical} onNavigate={() => setMenuOpen(false)} />
             </div>
             <p className="mt-4 border-t border-white/10 pt-3 text-[11px] text-slate-500">
               Demo only. Real NASA data is labelled; simulated vitals are labelled too.
@@ -197,6 +207,19 @@ export default function Layout() {
             ))}
           </nav>
         </header>
+
+        {clinical && helpCount > 0 && (
+          <Link
+            to="/help"
+            className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-amber-400/30 bg-amber-400/10 px-4 py-2 text-xs text-amber-100 hover:bg-amber-400/15 lg:px-8"
+          >
+            <HandHeart size={15} aria-hidden="true" />
+            <span className="font-semibold">
+              {helpCount} open help request{helpCount === 1 ? '' : 's'} waiting for a responder
+            </span>
+            <span className="ml-auto font-semibold text-accent">Open help inbox →</span>
+          </Link>
+        )}
 
         <main className="mx-auto w-full min-w-0 max-w-7xl flex-1 px-4 py-6 lg:px-8">
           <Outlet />
