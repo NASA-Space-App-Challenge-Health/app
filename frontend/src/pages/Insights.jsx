@@ -40,13 +40,11 @@ function loadCore(viewer) {
 export default function Insights() {
   const { viewer, role } = useViewer()
   const {
-    crew,
     topics,
     view,
     only,
     crewSet,
     topicSet,
-    toggleCrew,
     toggleTopic,
     setView,
     setOnly,
@@ -84,12 +82,10 @@ export default function Insights() {
       </header>
 
       <FilterBar
-        crew={crew}
         topics={topics}
         view={view}
         only={only}
         topicCounts={topicCounts}
-        onToggleCrew={toggleCrew}
         onToggleTopic={toggleTopic}
         onView={setView}
         onOnly={setOnly}

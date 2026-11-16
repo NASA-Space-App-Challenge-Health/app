@@ -1,4 +1,4 @@
-import { CREW_IDS, TOPICS, VIEWS } from './constants'
+import { TOPICS, VIEWS } from './constants'
 
 const TOGGLE_ACTIVE =
   'border-accent/60 bg-accent/15 text-accent'
@@ -19,15 +19,14 @@ function ToggleButton({ pressed, onClick, children, title }) {
   )
 }
 
-// Compact filter bar: crew and topic are multi-select toggles, the view is a
-// single-select segmented control, and "Only out-of-range" is a real checkbox.
+// Compact filter bar: topic is multi-select, the view is a single-select
+// segmented control, and "Only out-of-range" is a real checkbox. Crew lives
+// in the global header selector.
 export default function FilterBar({
-  crew,
   topics,
   view,
   only,
   topicCounts,
-  onToggleCrew,
   onToggleTopic,
   onView,
   onOnly,
@@ -39,19 +38,6 @@ export default function FilterBar({
       className="rounded-2xl border border-white/10 bg-panel/80 p-3 shadow-lg shadow-black/20"
     >
       <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
-        <fieldset className="min-w-0">
-          <legend className="mb-1.5 px-0.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400">
-            Crew
-          </legend>
-          <div className="flex flex-wrap gap-1.5">
-            {CREW_IDS.map((id) => (
-              <ToggleButton key={id} pressed={crew.includes(id)} onClick={() => onToggleCrew(id)}>
-                {id}
-              </ToggleButton>
-            ))}
-          </div>
-        </fieldset>
-
         <fieldset className="min-w-0">
           <legend className="mb-1.5 px-0.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400">
             Topic
@@ -128,8 +114,8 @@ export default function FilterBar({
       </div>
 
       <p className="mt-2 text-[11px] leading-snug text-slate-500">
-        Filters update the shared link. Totals follow the active crew profile; Crew also filters
-        per-crew rows. Out-of-range filters lab flags.
+        Filters update the shared link. Change the crew profile in the header; Topic, View and
+        out-of-range filter this page.
       </p>
     </section>
   )

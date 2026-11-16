@@ -8,6 +8,7 @@ export default function useHelpTickets({ viewer, role, enabled = true }) {
 
   useEffect(() => {
     if (!enabled) {
+      // oxlint-disable-next-line react/set-state-in-effect -- clear the badge for non-clinical roles
       setCount(0)
       return undefined
     }
