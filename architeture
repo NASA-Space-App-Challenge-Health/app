@@ -1,0 +1,25 @@
+/nasa-data-analysis
+├── /frontend                 # JavaScript application
+│   ├── /public
+│   │   ├── manifest.json     # PWA installation configuration
+│   │   └── sw.js             # Application shell caching
+│   ├── /src
+│   │   ├── /components       # DatasetExplorer.jsx, DataChartGrid.jsx
+│   │   ├── /services
+│   │   │   ├── api.js        # Requests to the Python backend
+│   │   │   └── offline.js    # IndexedDB cache and request queue
+│   │   └── /styles           # Dashboard styles
+│   └── package.json
+├── /backend                  # Python / FastAPI service
+│   ├── /app
+│   │   ├── main.py           # API application entry point
+│   │   ├── /routers          # Dataset and analysis endpoints
+│   │   ├── /services
+│   │   │   ├── nasa_api.py   # NASA API adapter
+│   │   │   └── analysis.py   # pandas / NumPy processing
+│   │   ├── /models           # PostgreSQL data models
+│   │   └── database.py       # PostgreSQL connection configuration
+│   ├── /tests                # API and analysis tests
+│   └── requirements.txt
+└── /database
+    └── /migrations           # Dataset, metadata and results tables
