@@ -15,7 +15,7 @@ function readFromUrl() {
 }
 
 export function ViewerProvider({ children }) {
-  const initial = useRef(readFromUrl()).current
+  const initial = useMemo(readFromUrl, [])
   const [state, setState] = useState(initial)
   const [ready, setReady] = useState(false)
   const [busy, setBusy] = useState(true)
